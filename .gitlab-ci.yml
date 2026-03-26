@@ -1,0 +1,40 @@
+image: node:18-alpine
+
+pages:
+  stage: deploy
+  script:
+    - |
+      # Компания может передавать единый env-файл как File-Variable (например, ENV_FILE).
+      # Если он задан — используем его; иначе собираем .env из VITE_* переменных.
+      if ($env:ENV_FILE -and (Test-Path $env:ENV_FILE)) {
+        Copy-Item -Force $env:ENV_FILE .env
+      } else {
+        if (-not $env:VITE_SYNORA_BASE_URL) { throw "VITE_SYNORA_BASE_URL is required" }
+        if (-not $env:VITE_SYNORA_EVENT_TOPIC) { throw "VITE_SYNORA_EVENT_TOPIC is required" }
+        if (-not $env:VITE_EMAILJS_SERVICE_ID) { throw "VITE_EMAILJS_SERVICE_ID is required" }
+        if (-not $env:VITE_EMAILJS_TEMPLATE_ID) { throw "VITE_EMAILJS_TEMPLATE_ID is required" }
+        if (-not $env:VITE_EMAILJS_PUBLIC_KEY) { throw "VITE_EMAILJS_PUBLIC_KEY is required" }
+
+        @"
+        VITE_SYNORA_BASE_URL=$env:VITE_SYNORA_BASE_URL
+        VITE_SYNORA_EVENT_TOPIC=$env:VITE_SYNORA_EVENT_TOPIC
+        VITE_EMAILJS_SERVICE_ID=$env:VITE_EMAILJS_SERVICE_ID
+        VITE_EMAILJS_TEMPLATE_ID=$env:VITE_EMAILJS_TEMPLATE_ID
+        VITE_EMAILJS_PUBLIC_KEY=$env:VITE_EMAILJS_PUBLIC_KEY
+        "@ | Set-Content -Path .env -Encoding UTF8
+      }
+    - npm install
+    - npm run build
+    - New-Item -ItemType Directory -Force -Path public
+    - Copy-Item -Recurse -Force dist/* public/
+    - Remove-Item -Recurse -Force dist
+    - Get-ChildItem public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "dev"
+    - if: $CI_COMMIT_BRANCH == "master"
+      when: manual
