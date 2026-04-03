@@ -118,11 +118,7 @@ test-build:
       --build-arg VITE_API_USER_URL=${VITE_API_USER_URL}
       --build-arg VITE_API_SKILLS_URL=${VITE_API_SKILLS_URL}
       --build-arg VITE_API_VACANCY_URL=${VITE_API_VACANCY_URL}
-      --build-arg VITE_API_VACANCIES_URL=${VITE_API_VACANCIES_URL}
-      --build-arg VITE_SYNORA_BASE_URL=${VITE_SYNORA_BASE_URL}
-      --build-arg VITE_SYNORA_EVENT_TOPIC=${VITE_SYNORA_EVENT_TOPIC}
-      --build-arg VITE_SYNORA_MAIL_TEMPLATE=${VITE_SYNORA_MAIL_TEMPLATE}
-      --build-arg VITE_SYNORA_PROJECT_ID=${VITE_SYNORA_PROJECT_ID} .
+      --build-arg VITE_API_VACANCIES_URL=${VITE_API_VACANCIES_URL} .
     - docker push $CI_REGISTRY_IMAGE:$DOCKER_TAG_NEW
   after_script:
     - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker system prune -f; fi

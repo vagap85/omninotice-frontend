@@ -4,10 +4,7 @@ ARG APP_RUNNER=nginx:mainline-alpine3.18-slim
 
 FROM ${BUILDER} AS build
 ARG VITE_BASE_URL="/"
-ARG VITE_SYNORA_BASE_URL=""
-ARG VITE_SYNORA_EVENT_TOPIC="mail-send"
-ARG VITE_SYNORA_MAIL_TEMPLATE=""
-ARG VITE_SYNORA_PROJECT_ID=""
+# VITE_SYNORA_* и прочие секреты — из .env.production (ENV_FILE в CI), не из пустых build-arg
 
 WORKDIR /app
 
