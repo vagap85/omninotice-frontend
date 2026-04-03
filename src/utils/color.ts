@@ -17,5 +17,5 @@ export function hexToRgb(hex: string): { r: number; g: number; b: number } {
 
 export function rgbToHex(r: number, g: number, b: number): string {
   const clamp = (n: number) => Math.min(255, Math.max(0, Math.round(n)))
-  return '#' + [r, g, b].map((n) => clamp(n).toString(16).padStart(2, '0')).join('')
+  return `#${[r, g, b].map((n) => clamp(n).toString(16).padStart(2, '0')).join('')}`
 }
