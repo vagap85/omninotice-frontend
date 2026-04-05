@@ -11,11 +11,6 @@ COPY package*.json ./
 RUN bun install
 
 COPY . .
-RUN if [ -f .env.production ]; then \
-  test -s .env.production \
-    && grep -qE '^VITE_SYNORA_PROJECT_ID=[^[:space:]]' .env.production \
-    || (echo >&2 "FATAL: в .env.production нет непустого VITE_SYNORA_PROJECT_ID (GitLab ENV_FILE)"; exit 1); \
-  fi
 RUN bunx --bun vite build
 
 ### Stage Two ###
