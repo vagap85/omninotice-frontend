@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -7,15 +8,83 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import { LuSparkles } from "react-icons/lu";
+import ImproveTextModal from "../ImproveTextModal";
+import { improveText } from "../../api/improveText";
 
 interface EmailMainInputProps {
+  title: string;
+  preheader: string;
   body: string;
-  onBodyChange: (value: string) => void;
+  setTitle: (value: string) => void;
+  setPreheader: (value: string) => void;
+  setBody: (value: string) => void;
 }
 
-export default function EmailMainInput({ body, onBodyChange }: EmailMainInputProps) {
-  const handleImproveText = () => {
-    console.log("Текст письма:", body);
+export default function EmailMainInput({
+  title,
+  preheader,
+  body,
+  setTitle,
+  setPreheader,
+  setBody,
+}: EmailMainInputProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [loadingImprove, setLoadingImprove] = useState(false);
+  const [improvedBody, setImprovedBody] = useState("");
+
+
+  async function fakeAi(text: string): Promise<string> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve("приветик");
+      }, 0);
+    });
+  }
+
+  const handleImproveText = async () => {
+    if (!body.trim()) {
+      alert("Введите текст");
+      return;
+    }
+
+    setLoadingImprove(true);
+
+    try {
+      const result = await improveText(body);
+      setImprovedBody(result);
+      setIsOpen(true);
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : "Ошибка запроса");
+    } finally {
+      setLoadingImprove(false);
+    }
+  };
+
+  const originalVariant = {
+    id: 1,
+    title,
+    preheader,
+    body,
+  };
+
+  const improvedVariant = {
+    id: 2,
+    title,
+    preheader,
+    body: improvedBody,
+  };
+
+  const handleApply = (variant: {
+    id: number;
+    title: string;
+    preheader: string;
+    body: string;
+  }) => {
+    setTitle(variant.title);
+    setPreheader(variant.preheader);
+    setBody(variant.body);
+    setIsOpen(false);
   };
 
   return (
@@ -28,7 +97,7 @@ export default function EmailMainInput({ body, onBodyChange }: EmailMainInputPro
 
           <Textarea
             value={body}
-            onChange={(e) => onBodyChange(e.target.value)}
+            onChange={(e) => setBody(e.target.value)}
             placeholder="Введите текст рассылки"
             minH="240px"
             resize="vertical"
@@ -46,15 +115,24 @@ export default function EmailMainInput({ body, onBodyChange }: EmailMainInputPro
               color="white"
               borderRadius="10px"
               px={6}
-              h="44px"
               _hover={{ bg: "teal.500" }}
               onClick={handleImproveText}
+              isLoading={loadingImprove}
+              loadingText="Обработка..."
             >
               Улучшить текст
             </Button>
           </HStack>
         </FormControl>
       </Box>
+
+      <ImproveTextModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        originalVariant={originalVariant}
+        improvedVariant={improvedVariant}
+        onApply={handleApply}
+      />
     </Box>
   );
 }
