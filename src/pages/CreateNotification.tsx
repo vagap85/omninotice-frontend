@@ -83,7 +83,7 @@ export default function CreateNotification() {
               onPreheaderChange={setPreheader}
             />
 
-            <EmailMainInput body={body} onBodyChange={setBody} />
+            <EmailMainInput title={subject} preheader={preheader} body={body} setTitle={setSubject} setPreheader={setPreheader} setBody={setBody} />
           </Box>
 
           <AddRecipientsBar

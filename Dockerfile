@@ -4,7 +4,6 @@ ARG APP_RUNNER=nginx:mainline-alpine3.18-slim
 
 FROM ${BUILDER} AS build
 ARG VITE_BASE_URL="/"
-# VITE_SYNORA_* и прочие секреты — из .env.production (ENV_FILE в CI), не из пустых build-arg
 
 WORKDIR /app
 
