@@ -1,24 +1,31 @@
-const FUNCTION_URL = import.meta.env.VITE_AI_FUNCTION_URL;
-
-export async function improveText(text: string): Promise<string> {
-  if (!text.trim()) {
-    throw new Error("Введите текст");
+const getProjectId = (): string => {
+  const id = import.meta.env.VITE_SYNORA_PROJECT_ID?.trim()
+  if (!id) {
+    throw new Error('VITE_SYNORA_PROJECT_ID is required (header: Project-ID)')
   }
+  return id
+}
 
-  const response = await fetch(FUNCTION_URL, {
-    method: "POST",
+const getPromttId = (): string => {
+  const id = import.meta.env.VITE_PROMT_ID?.trim()
+  if (!id) {
+    throw new Error('VITE_PROMT_ID is required (header: Project-ID)')
+  }
+  return id
+}
+
+export async function improveText(text: string): Promise<string>{
+    const response = await fetch('https://oracle.trends.skroy.ru/analysis/', {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+        'Content-Type': 'application/json',
+        'Project-ID': getProjectId(),
     },
-    body: JSON.stringify({ text }),
-  });
+    body: JSON.stringify({
+        prompt_type: getPromttId(),
+        text: text
+    })
+    }).then(res => res.json())
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    console.error(data);
-    throw new Error(data.error || "Ошибка");
-  }
-
-  return data.result || "Нет результата";
+    return await response.data[0].text || "Произошла ошибка"
 }
