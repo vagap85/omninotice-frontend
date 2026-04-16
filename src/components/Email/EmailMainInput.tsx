@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Textarea,
   HStack,
@@ -18,6 +19,8 @@ interface EmailMainInputProps {
   setTitle: (value: string) => void;
   setPreheader: (value: string) => void;
   setBody: (value: string) => void;
+  canImprove: boolean;
+  bodyInvalid?: boolean;
 }
 
 export default function EmailMainInput({
@@ -27,19 +30,13 @@ export default function EmailMainInput({
   setTitle,
   setPreheader,
   setBody,
+  canImprove,
+  bodyInvalid = false,
 }: EmailMainInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loadingImprove, setLoadingImprove] = useState(false);
   const [improvedBody, setImprovedBody] = useState("");
 
-
-  async function fakeAi(text: string): Promise<string> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve("приветик");
-      }, 0);
-    });
-  }
 
   const handleImproveText = async () => {
     if (!body.trim()) {
@@ -90,7 +87,7 @@ export default function EmailMainInput({
   return (
     <Box bg="gray.100" p={6}>
       <Box bg="white" borderRadius="10px" p={6} maxW="900px" mx="auto">
-        <FormControl>
+        <FormControl isInvalid={bodyInvalid}>
           <FormLabel fontSize="lg" mb={3}>
             Основная часть письма
           </FormLabel>
@@ -102,23 +99,30 @@ export default function EmailMainInput({
             minH="240px"
             resize="vertical"
             bg="gray.50"
-            border="none"
+            borderWidth="1px"
+            borderColor={bodyInvalid ? "#EF4444" : "gray.200"}
             borderRadius="10px"
             fontSize="md"
             _placeholder={{ color: "gray.400" }}
           />
-
+          {bodyInvalid ? (
+            <FormErrorMessage mt={1} fontSize="12px">
+              Заполните основную часть письма
+            </FormErrorMessage>
+          ) : null}
           <HStack justify="flex-end" mt={4}>
             <Button
               leftIcon={<LuSparkles />}
-              bg="#00C496"
+              bg={canImprove ? "#00C496" : "gray.300"}
               color="white"
-              borderRadius="10px"
+              borderRadius="12px"
+              h="40px"
               px={6}
-              _hover={{ bg: "teal.500" }}
+              _hover={canImprove ? { bg: "teal.500" } : {}}
               onClick={handleImproveText}
               isLoading={loadingImprove}
               loadingText="Обработка..."
+              isDisabled={!canImprove}
             >
               Улучшить текст
             </Button>

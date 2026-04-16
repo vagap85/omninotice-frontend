@@ -1,6 +1,6 @@
-import { useState } from "react";
 import {
   Box,
+  FormErrorMessage,
   FormControl,
   FormHelperText,
   FormLabel,
@@ -16,6 +16,7 @@ interface EmailThemeInputProps {
   preheader: string;
   onSubjectChange: (value: string) => void;
   onPreheaderChange: (value: string) => void;
+  subjectInvalid?: boolean;
 }
 
 export default function EmailThemeInput({
@@ -23,13 +24,14 @@ export default function EmailThemeInput({
   preheader,
   onSubjectChange,
   onPreheaderChange,
+  subjectInvalid = false,
 }: EmailThemeInputProps) {
   return (
     <Box bg="gray.100" p={6}>
       <Box bg="white" borderRadius="10px" p={6} maxW="900px" mx="auto">
         <VStack spacing={8} align="stretch">
           {/* Тема письма */}
-          <FormControl>
+          <FormControl isInvalid={subjectInvalid}>
             <FormLabel fontSize="lg" mb={3}>
               Тема письма
             </FormLabel>
@@ -42,7 +44,8 @@ export default function EmailThemeInput({
                 placeholder="Специальное предложение"
                 h="44px"
                 bg="gray.50"
-                border="none"
+                borderWidth="1px"
+                borderColor={subjectInvalid ? "#EF4444" : "gray.200"}
                 borderRadius="10px"
                 pr="72px"
                 fontSize="md"
@@ -59,6 +62,11 @@ export default function EmailThemeInput({
             <FormHelperText mt={2} color="gray.600" fontSize="xs">
               Краткая и понятная тема. Избегайте слов ВСЕМИ ЗАГЛАВНЫМИ.
             </FormHelperText>
+            {subjectInvalid ? (
+              <FormErrorMessage mt={1} fontSize="12px">
+                Заполните тему письма
+              </FormErrorMessage>
+            ) : null}
           </FormControl>
 
           {/* Предзаголовок */}
@@ -75,7 +83,8 @@ export default function EmailThemeInput({
                 placeholder="Открыв письмо, вы получите персональную скидку"
                 h="44px"
                 bg="gray.50"
-                border="none"
+                borderWidth="1px"
+                borderColor="gray.200"
                 borderRadius="10px"
                 pr="80px"
                 fontSize="md"
