@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Box, Flex } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 
 import {
   type EventForEMail,
@@ -15,38 +16,93 @@ import EmailThemeInput from "../components/Email/EmailThemeInput";
 import EmailMainInput from "../components/Email/EmailMainInput";
 import AddRecipientsBar from "../components/AddRecipientsBar";
 
+const AUTH_STORAGE_KEY = "usercenter_auth";
+
+type AuthState = {
+  accessToken: string;
+  tokenType: string;
+  login?: string;
+  firstName?: string;
+  lastName?: string;
+} | null;
+
+type RequiredFieldErrors = {
+  subject: boolean;
+  body: boolean;
+};
+
+const getStoredAuth = (): AuthState => {
+  const raw = sessionStorage.getItem(AUTH_STORAGE_KEY);
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as AuthState;
+    if (!parsed?.accessToken || !parsed?.tokenType) {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+
 export default function CreateNotification() {
+  const navigate = useNavigate();
   const [subject, setSubject] = useState("");
   const [preheader, setPreheader] = useState("");
   const [body, setBody] = useState("");
   const [emails, setEmails] = useState("");
+  const [authState, setAuthState] = useState<AuthState>(getStoredAuth);
+  const [requiredErrors, setRequiredErrors] = useState<RequiredFieldErrors>({
+    subject: false,
+    body: false,
+  });
+
+  const isAuthorized = Boolean(authState?.accessToken);
+
+  const validateRequiredFields = (): string | null => {
+    const nextErrors: RequiredFieldErrors = {
+      subject: !subject.trim(),
+      body: !body.trim(),
+    };
+    setRequiredErrors(nextErrors);
+
+    if (nextErrors.subject || nextErrors.body) {
+      return "Тема и основная часть письма должны быть заполнены.";
+    }
+
+    return null;
+  };
 
   const sendMailing = async () => {
-    const subjectTrim = subject.trim();
-    const bodyTrim = body.trim();
-    if (!subjectTrim) {
-      throw new Error("Укажите тему письма");
-    }
-    if (!bodyTrim) {
-      throw new Error("Введите текст письма");
+    if (!isAuthorized) {
+      throw new Error("Для отправки рассылки нужно авторизоваться");
     }
 
-    const tokens = emails.trim().split(/\s+/).filter(Boolean);
-    const invalid = tokens.filter((t) => !isValidEmail(t));
-    if (invalid.length > 0) {
-      throw new Error(
-        `Некорректные email: ${invalid.join(", ")}. Укажите адреса через пробел.`,
-      );
+    const requiredValidationError = validateRequiredFields();
+    if (requiredValidationError) {
+      throw new Error(requiredValidationError);
     }
+
+    const subjectTrim = subject.trim();
+    const bodyTrim = body.trim();
+
+    const tokens = emails.trim().split(/\s+/).filter(Boolean);
+    const validEmails = tokens.filter((t) => isValidEmail(t));
     if (tokens.length === 0) {
-      throw new Error("Добавьте хотя бы один email получателя");
+      throw new Error("Добавьте хотя бы один email адрес");
+    }
+    if (validEmails.length === 0) {
+      throw new Error("Нет корректных email адресов для отправки");
     }
 
     const topic = getSynoraMailTopic();
     const templateName = getSynoraMailTemplateName();
 
     try {
-      for (const sendTo of tokens) {
+      for (const sendTo of validEmails) {
         const payload: EventForEMail = {
           send_to: sendTo,
           data: {
@@ -73,23 +129,54 @@ export default function CreateNotification() {
     <Flex>
       <SideBar />
       <Box flex="1" bg="#f2f2f2">
-        <PageHeader />
+        <PageHeader
+          isAuthorized={isAuthorized}
+          onLogout={() => {
+            sessionStorage.removeItem(AUTH_STORAGE_KEY);
+            setAuthState(null);
+          }}
+        />
         <Flex>
           <Box flex="1">
             <EmailThemeInput
               subject={subject}
               preheader={preheader}
-              onSubjectChange={setSubject}
-              onPreheaderChange={setPreheader}
+              onSubjectChange={(value) => {
+                setSubject(value);
+                if (value.trim()) {
+                  setRequiredErrors((prev) => ({ ...prev, subject: false }));
+                }
+              }}
+              onPreheaderChange={(value) => {
+                setPreheader(value);
+              }}
+              subjectInvalid={requiredErrors.subject}
             />
 
-            <EmailMainInput title={subject} preheader={preheader} body={body} setTitle={setSubject} setPreheader={setPreheader} setBody={setBody} />
+            <EmailMainInput
+              title={subject}
+              preheader={preheader}
+              body={body}
+              setTitle={setSubject}
+              setPreheader={setPreheader}
+              setBody={(value) => {
+                setBody(value);
+                if (value.trim()) {
+                  setRequiredErrors((prev) => ({ ...prev, body: false }));
+                }
+              }}
+              canImprove={isAuthorized}
+              bodyInvalid={requiredErrors.body}
+            />
           </Box>
 
           <AddRecipientsBar
             recipients={emails}
             onRecipientsChange={setEmails}
             onSend={sendMailing}
+            canSend={isAuthorized}
+            onAuthClick={() => navigate("/login")}
+            onValidateBeforeSend={validateRequiredFields}
           />
         </Flex>
       </Box>
