@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Flex } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,8 +15,46 @@ import SideBar from "../components/SideBar";
 import EmailThemeInput from "../components/Email/EmailThemeInput";
 import EmailMainInput from "../components/Email/EmailMainInput";
 import AddRecipientsBar from "../components/AddRecipientsBar";
+import { MAILING_DRAFT_KEY } from "../mailingDraftStorage";
 
 const AUTH_STORAGE_KEY = "usercenter_auth";
+
+type MailingDraft = {
+  subject: string;
+  preheader: string;
+  body: string;
+  emails: string;
+};
+
+const emptyDraft = (): MailingDraft => ({
+  subject: "",
+  preheader: "",
+  body: "",
+  emails: "",
+});
+
+const readStoredDraft = (): MailingDraft => {
+  const raw = sessionStorage.getItem(MAILING_DRAFT_KEY);
+  if (!raw) {
+    return emptyDraft();
+  }
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== "object") {
+      return emptyDraft();
+    }
+    const o = parsed as Record<string, unknown>;
+    const str = (v: unknown) => (typeof v === "string" ? v : "");
+    return {
+      subject: str(o.subject),
+      preheader: str(o.preheader),
+      body: str(o.body),
+      emails: str(o.emails),
+    };
+  } catch {
+    return emptyDraft();
+  }
+};
 
 type AuthState = {
   accessToken: string;
@@ -50,10 +88,10 @@ const getStoredAuth = (): AuthState => {
 
 export default function CreateNotification() {
   const navigate = useNavigate();
-  const [subject, setSubject] = useState("");
-  const [preheader, setPreheader] = useState("");
-  const [body, setBody] = useState("");
-  const [emails, setEmails] = useState("");
+  const [subject, setSubject] = useState(() => readStoredDraft().subject);
+  const [preheader, setPreheader] = useState(() => readStoredDraft().preheader);
+  const [body, setBody] = useState(() => readStoredDraft().body);
+  const [emails, setEmails] = useState(() => readStoredDraft().emails);
   const [authState, setAuthState] = useState<AuthState>(getStoredAuth);
   const [requiredErrors, setRequiredErrors] = useState<RequiredFieldErrors>({
     subject: false,
@@ -61,6 +99,11 @@ export default function CreateNotification() {
   });
 
   const isAuthorized = Boolean(authState?.accessToken);
+
+  useEffect(() => {
+    const draft: MailingDraft = { subject, preheader, body, emails };
+    sessionStorage.setItem(MAILING_DRAFT_KEY, JSON.stringify(draft));
+  }, [subject, preheader, body, emails]);
 
   const validateRequiredFields = (): string | null => {
     const nextErrors: RequiredFieldErrors = {
