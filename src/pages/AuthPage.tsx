@@ -86,16 +86,27 @@ export default function AuthPage() {
 
   return (
     <Box
-      minH="100vh"
-      bgImage={`url("${authBg}")`}
-      bgSize="cover"
-      bgPosition="center"
-      bgRepeat="no-repeat"
       position="relative"
-      px={6}
-      py={20}
+      w="100%"
+      minH="100vh"
+      sx={{ "@supports (min-height: 100dvh)": { minHeight: "100dvh" } }}
+      overflowX="hidden"
+      px={{ base: 4, sm: 6 }}
+      py={{ base: 16, md: 20 }}
       fontFamily="Inter, system-ui, sans-serif"
     >
+      <Box
+        aria-hidden
+        position="absolute"
+        inset={0}
+        zIndex={0}
+        bgImage={`url("${authBg}")`}
+        bgSize="cover"
+        bgPosition="center"
+        bgRepeat="no-repeat"
+        minW="100%"
+        minH="100%"
+      />
       <Button
         variant="ghost"
         leftIcon={<ArrowBackIcon />}
@@ -104,17 +115,26 @@ export default function AuthPage() {
         fontSize="16px"
         onClick={() => navigate("/")}
         position="absolute"
-        top="80px"
-        left="80px"
+        zIndex={2}
+        top={{ base: "24px", md: "80px" }}
+        left={{ base: 4, md: "80px" }}
       >
         На главную
       </Button>
 
-      <VStack spacing={10} w="460px" mx="auto" mt="8vh">
+      <VStack
+        spacing={10}
+        position="relative"
+        zIndex={1}
+        w="100%"
+        maxW="460px"
+        mx="auto"
+        mt="8vh"
+      >
         <Box as="img" src={logo} alt="OmniNotice" w="220px" h="80px" />
 
         <Box
-          w="460px"
+          w="100%"
           bg="white"
           borderRadius="20px"
           boxShadow="0px 0px 1px rgba(25, 24, 27, 0.3), 0px 8px 16px rgba(26, 24, 27, 0.1)"
