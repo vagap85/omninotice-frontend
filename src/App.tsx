@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import CreateNotification from './pages/CreateNotification'
 import AuthPage from './pages/AuthPage'
+import HomePage from './pages/HomePage'
 import { registerClearMailingDraftBeforeUnload } from './mailingDraftStorage'
 
 function App() {
@@ -9,7 +10,8 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<CreateNotification />} />
+      <Route path="/" element={<HomePage />} />
+      <Route path="/create" element={<CreateNotification />} />
       <Route path="/login" element={<AuthPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
