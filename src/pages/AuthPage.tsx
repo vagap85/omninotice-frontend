@@ -76,7 +76,7 @@ export default function AuthPage() {
           </Box>
         ),
       });
-      navigate("/");
+      navigate("/create");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Ошибка авторизации");
     } finally {
