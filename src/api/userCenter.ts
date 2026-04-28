@@ -27,6 +27,11 @@ export interface UserCenterLoginSuccess {
   lastName?: string;
 }
 
+export interface UserCenterCreateSuccess {
+  login: string;
+  password: string;
+}
+
 const getErrorMessage = (response: unknown): string | undefined => {
   if (!response || typeof response !== "object") {
     return undefined;
@@ -126,5 +131,53 @@ export async function loginUserCenter(
     login: typeof login === "string" ? login : undefined,
     firstName: typeof firstName === "string" ? firstName : undefined,
     lastName: typeof lastName === "string" ? lastName : undefined,
+  };
+}
+
+export async function createUserCenter(
+  login: string,
+  password: string,
+): Promise<UserCenterCreateSuccess> {
+  const baseUrl = getUserCenterBaseUrl();
+  const projectId = getUserCenterProjectId();
+
+  let response: Response;
+  try {
+    response = await fetch(`${baseUrl}/user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Project-ID": projectId,
+      },
+      body: JSON.stringify({
+        user_type: "login",
+        login: login,
+        password: password,
+      }),
+    });
+  } catch (networkError) {
+    // Сетевая ошибка (DNS, offline и т.п.)
+    throw new Error("Сетевая ошибка при создании аккаунта. Повторите попытку.");
+  }
+
+  // Попробуем прочитать тело ответа — сначала как текст, затем попытаться распарсить JSON.
+  const rawText = await response.text();
+  let rawJson: unknown = null;
+  try {
+    rawJson = rawText ? JSON.parse(rawText) : null;
+  } catch {
+    // Если тело не JSON — оставим rawJson=null, но не падаем
+    rawJson = null;
+  }
+
+  if (!response.ok) {
+    const fallback = "Не удалось создать аккаунт. Повторите попытку.";
+    // getErrorMessage должен корректно обработать rawJson=null
+    throw new Error(getErrorMessage(rawJson) ?? fallback);
+  }
+
+  return {
+    login: login,
+    password: password,
   };
 }

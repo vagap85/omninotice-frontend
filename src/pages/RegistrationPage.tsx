@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { ArrowBackIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
-import { loginUserCenter } from "../api/userCenter";
+import { loginUserCenter, createUserCenter } from "../api/userCenter";
 import authBg from "../assets/image 1.jpg";
 import logo from "../assets/Vector.svg";
 
@@ -28,11 +28,14 @@ export default function AuthPage() {
   const toast = useToast();
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordAcception, setPasswordAcception] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const isFilled = Boolean(login.trim() && password.trim());
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const isFilled = Boolean(
+    login.trim() && password.trim() && passwordAcception,
+  );
 
   const handleSubmit = async () => {
     if (!isFilled) {
@@ -40,10 +43,16 @@ export default function AuthPage() {
       return;
     }
 
+    if (!(password === passwordAcception)) {
+      setError("Пароли не совпадают");
+      return;
+    }
     setError(null);
     setIsLoading(true);
     try {
+      const create = await createUserCenter(login, password);
       const auth = await loginUserCenter(login.trim(), password);
+
       sessionStorage.setItem(
         AUTH_STORAGE_KEY,
         JSON.stringify({
@@ -54,7 +63,6 @@ export default function AuthPage() {
           lastName: auth.lastName,
         }),
       );
-
       toast({
         position: "bottom",
         duration: 4000,
@@ -70,7 +78,7 @@ export default function AuthPage() {
             minW="470px"
           >
             <Text fontWeight="700" mb={1}>
-              Вы успешно вошли
+              Вы успешно создали аккаунт
             </Text>
             <Text>Теперь можно отправлять рассылки и улучшать текст</Text>
           </Box>
@@ -164,7 +172,7 @@ export default function AuthPage() {
 
               <FormControl isInvalid={Boolean(error)}>
                 <FormLabel fontSize="14px" fontWeight="500" color="#12233F">
-                  Пароль
+                  Придумайте пароль
                 </FormLabel>
                 <InputGroup>
                   <Input
@@ -187,6 +195,7 @@ export default function AuthPage() {
                       }
                     }}
                   />
+
                   <InputRightElement h="48px" pr={2}>
                     <IconButton
                       aria-label={
@@ -200,9 +209,54 @@ export default function AuthPage() {
                     />
                   </InputRightElement>
                 </InputGroup>
-                {error ? (
+              </FormControl>
+
+              <FormControl isInvalid={Boolean(error)}>
+                <FormLabel fontSize="14px" fontWeight="500" color="#12233F">
+                  Повторите пароль
+                </FormLabel>
+                <InputGroup>
+                  <Input
+                    h="48px"
+                    type={showPassword ? "text" : "password"}
+                    bg="#F8FAFC"
+                    borderRadius="10px"
+                    borderColor={error ? "#EF4444" : "#D1D5DB"}
+                    _hover={{ borderColor: error ? "#EF4444" : "#94A3B8" }}
+                    _focusVisible={{
+                      borderColor: error ? "#EF4444" : "#3B6EA0",
+                      boxShadow: "0 0 0 1px #3B6EA0",
+                    }}
+                    value={passwordAcception}
+                    onChange={(e) => setPasswordAcception(e.target.value)}
+                    placeholder="повторите пароль"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        void handleSubmit();
+                      }
+                    }}
+                  />
+
+                  <InputRightElement h="48px" pr={2}>
+                    <IconButton
+                      aria-label={
+                        showPassword ? "Скрыть пароль" : "Показать пароль"
+                      }
+                      icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                      size="sm"
+                      variant="ghost"
+                      color="#12233F"
+                      onClick={() => setShowPassword((v) => !v)}
+                    />
+                  </InputRightElement>
+                </InputGroup>
+                {passwordError ? (
                   <FormErrorMessage mt={1} fontSize="12px">
-                    Неверный логин или пароль
+                    {passwordError}
+                  </FormErrorMessage>
+                ) : error ? (
+                  <FormErrorMessage mt={1} fontSize="12px">
+                    {error}
                   </FormErrorMessage>
                 ) : null}
               </FormControl>
@@ -220,27 +274,23 @@ export default function AuthPage() {
                 fontWeight="500"
                 onClick={() => void handleSubmit()}
                 isLoading={isLoading}
-                loadingText="Входим..."
+                loadingText="Создаем аккаунт..."
                 opacity={isFilled ? 1 : 0.5}
               >
-                Войти
+                Создать аккаунт
               </Button>
               <Link
                 color="#3B6EA0"
                 fontSize="16px"
                 fontWeight="500"
-                onClick={() => navigate("/registration")}
+                onClick={() => navigate("/login")}
                 _hover={{ textDecoration: "none", color: "#2D547B" }}
               >
-                Нет аккаунта? Зарегистрируйтесь
+                У меня уже есть аккаунт
               </Link>
             </VStack>
           </Stack>
         </Box>
-
-        <Text color="#2D547B" fontSize="14px" fontWeight="500">
-          Не помню пароль
-        </Text>
       </VStack>
     </Box>
   );
