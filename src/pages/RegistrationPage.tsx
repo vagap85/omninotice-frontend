@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { loginUserCenter, createUserCenter } from "../api/userCenter";
 import authBg from "../assets/image 1.jpg";
 import logo from "../assets/Vector.svg";
+import { isValidEmail } from "../utils/recipient";
 
 const AUTH_STORAGE_KEY = "usercenter_auth";
 
@@ -36,10 +37,19 @@ export default function AuthPage() {
   const isFilled = Boolean(
     login.trim() && password.trim() && passwordAcception,
   );
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
+    setError(null);
+    setPasswordError(null);
+    setEmailError(null);
     if (!isFilled) {
       setError("Введите логин и пароль");
+      return;
+    }
+
+    if (!isValidEmail(login)) {
+      setEmailError("Введите корректный email");
       return;
     }
 
@@ -47,7 +57,6 @@ export default function AuthPage() {
       setError("Пароли не совпадают");
       return;
     }
-    setError(null);
     setIsLoading(true);
     try {
       const create = await createUserCenter(login, password);
@@ -63,6 +72,7 @@ export default function AuthPage() {
           lastName: auth.lastName,
         }),
       );
+
       toast({
         position: "bottom",
         duration: 4000,
@@ -150,7 +160,7 @@ export default function AuthPage() {
         >
           <Stack spacing={6}>
             <Stack spacing={5}>
-              <FormControl isInvalid={Boolean(error)}>
+              <FormControl isInvalid={Boolean(emailError)}>
                 <FormLabel fontSize="14px" fontWeight="500" color="#12233F">
                   Логин
                 </FormLabel>
@@ -165,9 +175,15 @@ export default function AuthPage() {
                     boxShadow: "0 0 0 1px #3B6EA0",
                   }}
                   value={login}
+                  type="email"
                   onChange={(e) => setLogin(e.target.value)}
                   placeholder="example@omninotice"
                 />
+                {emailError ? (
+                  <FormErrorMessage mt={1} fontSize="12px">
+                    {emailError}
+                  </FormErrorMessage>
+                ) : null}
               </FormControl>
 
               <FormControl isInvalid={Boolean(error)}>
