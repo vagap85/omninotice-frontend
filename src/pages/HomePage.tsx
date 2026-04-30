@@ -222,8 +222,10 @@ export default function HomePage() {
                   <Box
                     position="absolute"
                     top="calc(100% + 10px)"
-                    left={0}
-                    w="fit-content"
+                    left={{ base: "auto", md: 0 }}
+                    right={{ base: 0, md: "auto" }}
+                    w={{ base: "min(260px, calc(100vw - 32px))", md: "fit-content" }}
+                    maxW={{ base: "calc(100vw - 32px)", md: "none" }}
                     bg="white"
                     borderRadius="13px"
                     boxShadow="0 0 0.5px rgba(24,24,27,0.3), 0 8px 8px rgba(24,24,27,0.1)"
@@ -238,7 +240,8 @@ export default function HomePage() {
                         p={2}
                         borderRadius="10px"
                         opacity={idx === 0 ? 1 : 0.6}
-                        minW={{ base: "190px", md: "220px" }}
+                        minW={{ base: "unset", md: "220px" }}
+                        w={{ base: "100%", md: "auto" }}
                         cursor={idx === 0 ? "pointer" : "default"}
                         _hover={idx === 0 ? { bg: "#F8FAFC" } : undefined}
                         onClick={() => {
