@@ -88,6 +88,21 @@ export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const mobileMenuContainerRef = useRef<HTMLDivElement | null>(null);
   const desktopMenuContainerRef = useRef<HTMLDivElement | null>(null);
+  const featuresSectionRef = useRef<HTMLDivElement | null>(null);
+
+  const handleScrollToFeatures = () => {
+    const section = featuresSectionRef.current;
+    if (!section) return;
+
+    const sectionTop = window.scrollY + section.getBoundingClientRect().top;
+    const maxScrollTop = document.documentElement.scrollHeight - window.innerHeight;
+    const targetScrollTop = Math.min(sectionTop, maxScrollTop);
+
+    window.scrollTo({
+      top: Math.max(0, targetScrollTop),
+      behavior: "smooth",
+    });
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -181,7 +196,7 @@ export default function HomePage() {
             fontWeight="500"
             justify={{ base: "space-between", md: "center", lg: "flex-start" }}
           >
-              <Text cursor="pointer" _hover={{ color: "#2D547B" }}>
+              <Text cursor="pointer" _hover={{ color: "#2D547B" }} onClick={handleScrollToFeatures}>
                 Преимущества
               </Text>
               <Text cursor="pointer" _hover={{ color: "#2D547B" }}>
@@ -292,7 +307,7 @@ export default function HomePage() {
           <HStack spacing={10} minW={0}>
             <Image src={logo} alt="OmniNotice" w="110px" h="40px" objectFit="contain" />
             <HStack spacing={8} fontSize="16px" color="#12233F" fontWeight="500">
-              <Text cursor="pointer" _hover={{ color: "#2D547B" }}>
+              <Text cursor="pointer" _hover={{ color: "#2D547B" }} onClick={handleScrollToFeatures}>
                 Преимущества
               </Text>
               <Text cursor="pointer" _hover={{ color: "#2D547B" }}>
@@ -573,6 +588,7 @@ export default function HomePage() {
           </VStack>
 
           <Grid
+            ref={featuresSectionRef}
             mt={{ base: 12, md: 20 }}
             maxW={{ base: "328px", md: "736px", xl: "1400px" }}
             mx="auto"
