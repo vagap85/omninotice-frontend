@@ -11,7 +11,6 @@ import {
 import { isValidEmail } from "../utils/recipient";
 
 import PageHeader from "../components/PageHeader";
-import SideBar from "../components/SideBar";
 import EmailThemeInput from "../components/Email/EmailThemeInput";
 import EmailMainInput from "../components/Email/EmailMainInput";
 import AddRecipientsBar from "../components/AddRecipientsBar";
@@ -21,15 +20,23 @@ const AUTH_STORAGE_KEY = "usercenter_auth";
 
 type MailingDraft = {
   subject: string;
+  messageTitle: string;
   preheader: string;
   body: string;
+  signature: string;
+  actionText: string;
+  actionLink: string;
   emails: string;
 };
 
 const emptyDraft = (): MailingDraft => ({
   subject: "",
+  messageTitle: "",
   preheader: "",
   body: "",
+  signature: "",
+  actionText: "",
+  actionLink: "",
   emails: "",
 });
 
@@ -47,8 +54,12 @@ const readStoredDraft = (): MailingDraft => {
     const str = (v: unknown) => (typeof v === "string" ? v : "");
     return {
       subject: str(o.subject),
+      messageTitle: str(o.messageTitle),
       preheader: str(o.preheader),
       body: str(o.body),
+      signature: str(o.signature),
+      actionText: str(o.actionText),
+      actionLink: str(o.actionLink),
       emails: str(o.emails),
     };
   } catch {
@@ -67,6 +78,11 @@ type AuthState = {
 type RequiredFieldErrors = {
   subject: boolean;
   body: boolean;
+};
+
+type ValidationError = {
+  title: string;
+  description: string;
 };
 
 const getStoredAuth = (): AuthState => {
@@ -89,8 +105,12 @@ const getStoredAuth = (): AuthState => {
 export default function CreateNotification() {
   const navigate = useNavigate();
   const [subject, setSubject] = useState(() => readStoredDraft().subject);
+  const [messageTitle, setMessageTitle] = useState(() => readStoredDraft().messageTitle);
   const [preheader, setPreheader] = useState(() => readStoredDraft().preheader);
   const [body, setBody] = useState(() => readStoredDraft().body);
+  const [signature, setSignature] = useState(() => readStoredDraft().signature);
+  const [actionText, setActionText] = useState(() => readStoredDraft().actionText);
+  const [actionLink, setActionLink] = useState(() => readStoredDraft().actionLink);
   const [emails, setEmails] = useState(() => readStoredDraft().emails);
   const [authState, setAuthState] = useState<AuthState>(getStoredAuth);
   const [requiredErrors, setRequiredErrors] = useState<RequiredFieldErrors>({
@@ -101,19 +121,58 @@ export default function CreateNotification() {
   const isAuthorized = Boolean(authState?.accessToken);
 
   useEffect(() => {
-    const draft: MailingDraft = { subject, preheader, body, emails };
+    const draft: MailingDraft = {
+      subject,
+      messageTitle,
+      preheader,
+      body,
+      signature,
+      actionText,
+      actionLink,
+      emails,
+    };
     sessionStorage.setItem(MAILING_DRAFT_KEY, JSON.stringify(draft));
-  }, [subject, preheader, body, emails]);
+  }, [subject, messageTitle, preheader, body, signature, actionText, actionLink, emails]);
 
-  const validateRequiredFields = (): string | null => {
+  const isValidActionLink = (value: string): boolean => {
+    const v = value.trim();
+    if (!v) return true;
+    try {
+      const url = new URL(v);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
+
+  const validateRequiredFields = (): ValidationError | null => {
+    const hasMessageTitle = Boolean(messageTitle.trim());
+    const hasBody = Boolean(body.trim());
     const nextErrors: RequiredFieldErrors = {
       subject: !subject.trim(),
-      body: !body.trim(),
+      body: !hasMessageTitle && !hasBody,
     };
     setRequiredErrors(nextErrors);
 
-    if (nextErrors.subject || nextErrors.body) {
-      return "Тема и основная часть письма должны быть заполнены.";
+    if (nextErrors.subject) {
+      return {
+        title: "Заполните обязательные поля",
+        description: "Поле «Тема письма» обязательно для заполнения.",
+      };
+    }
+
+    if (!hasMessageTitle && !hasBody) {
+      return {
+        title: "Заполните обязательные поля",
+        description: "Заполните хотя бы одно поле: «Заголовок письма» или «Основная часть письма».",
+      };
+    }
+
+    if (!isValidActionLink(actionLink)) {
+      return {
+        title: "Некорректная ссылка для кнопки",
+        description: "Проверьте ссылку и укажите валидный URL в формате http(s)://...",
+      };
     }
 
     return null;
@@ -126,7 +185,7 @@ export default function CreateNotification() {
 
     const requiredValidationError = validateRequiredFields();
     if (requiredValidationError) {
-      throw new Error(requiredValidationError);
+      throw new Error(requiredValidationError.description);
     }
 
     const subjectTrim = subject.trim();
@@ -150,8 +209,12 @@ export default function CreateNotification() {
           send_to: sendTo,
           data: {
             subject: subjectTrim,
+            message_title: messageTitle.trim(),
             preheader: preheader.trim(),
             body: bodyTrim,
+            signature: signature.trim(),
+            action_text: actionText.trim(),
+            action_link: actionLink.trim(),
             source: "omni-notice",
           },
         };
@@ -170,13 +233,14 @@ export default function CreateNotification() {
 
   return (
     <Flex>
-      <SideBar />
       <Box flex="1" bg="#f2f2f2">
         <PageHeader
           isAuthorized={isAuthorized}
+          userName={authState?.login || "mail@mail.ru"}
           onLogout={() => {
             sessionStorage.removeItem(AUTH_STORAGE_KEY);
             setAuthState(null);
+            navigate("/");
           }}
         />
         <Flex>
@@ -197,10 +261,13 @@ export default function CreateNotification() {
             />
 
             <EmailMainInput
-              title={subject}
+              title={messageTitle}
               preheader={preheader}
               body={body}
-              setTitle={setSubject}
+              signature={signature}
+              actionText={actionText}
+              actionLink={actionLink}
+              setTitle={setMessageTitle}
               setPreheader={setPreheader}
               setBody={(value) => {
                 setBody(value);
@@ -208,8 +275,12 @@ export default function CreateNotification() {
                   setRequiredErrors((prev) => ({ ...prev, body: false }));
                 }
               }}
+              setSignature={setSignature}
+              setActionText={setActionText}
+              setActionLink={setActionLink}
               canImprove={isAuthorized}
               bodyInvalid={requiredErrors.body}
+              titleInvalid={requiredErrors.body}
             />
           </Box>
 

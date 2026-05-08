@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { ArrowBackIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
-import { loginUserCenter, createUserCenter } from "../api/userCenter";
+import { loginUserCenter, /*, createUserCenter */ } from "../api/userCenter";
 import authBg from "../assets/image 1.jpg";
 import logo from "../assets/Vector.svg";
 import { isValidEmail } from "../utils/recipient";
@@ -59,7 +59,7 @@ export default function AuthPage() {
     }
     setIsLoading(true);
     try {
-      const create = await createUserCenter(login, password);
+      // const create = await createUserCenter(login, password);
       const auth = await loginUserCenter(login.trim(), password);
 
       sessionStorage.setItem(
