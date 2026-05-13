@@ -30,7 +30,6 @@ export default function EmailThemeInput({
     <Box bg="gray.100" p={6}>
       <Box bg="white" borderRadius="10px" p={6} maxW="900px" mx="auto">
         <VStack spacing={8} align="stretch">
-          {/* Тема письма */}
           <FormControl isInvalid={subjectInvalid}>
             <FormLabel fontSize="lg" mb={3}>
               Тема письма
@@ -69,7 +68,6 @@ export default function EmailThemeInput({
             ) : null}
           </FormControl>
 
-          {/* Предзаголовок */}
           <FormControl>
             <FormLabel fontSize="lg" mb={3}>
               Предзаголовок

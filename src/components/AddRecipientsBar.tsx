@@ -13,6 +13,10 @@ import ModalSend from "./ModalSend";
 import { isValidEmail } from "../utils/recipient";
 
 type SendStatus = "confirm" | "loading" | "error";
+type ValidationError = {
+  title: string;
+  description: string;
+};
 
 interface AddRecipientsBarProps {
   recipients: string;
@@ -20,7 +24,7 @@ interface AddRecipientsBarProps {
   onSend: () => Promise<void>;
   canSend: boolean;
   onAuthClick: () => void;
-  onValidateBeforeSend: () => string | null;
+  onValidateBeforeSend: () => ValidationError | null;
 }
 
 export default function AddRecipientsBar({
@@ -68,9 +72,9 @@ export default function AddRecipientsBar({
   };
 
   const openModal = () => {
-    const validationMessage = onValidateBeforeSend();
-    if (validationMessage) {
-      showErrorToast("Заполните обязательные поля", validationMessage);
+    const validationError = onValidateBeforeSend();
+    if (validationError) {
+      showErrorToast(validationError.title, validationError.description);
       return;
     }
 
