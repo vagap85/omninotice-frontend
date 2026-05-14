@@ -846,7 +846,7 @@ export default function HomePage() {
                     }
                   >
                     <VStack align="start" spacing={6}>
-                      <VStack align="start" spacing={1}>
+                      <VStack align="center" spacing={1} w="100%">
                         <Text
                           fontSize="36px"
                           lineHeight="42px"
