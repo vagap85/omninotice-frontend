@@ -150,29 +150,25 @@ export async function createUserCenter(
         "Project-ID": projectId,
       },
       body: JSON.stringify({
-        user_type: "login",
+        user_type: "email",
         login: login,
         password: password,
       }),
     });
   } catch (networkError) {
-    // Сетевая ошибка (DNS, offline и т.п.)
     throw new Error("Сетевая ошибка при создании аккаунта. Повторите попытку.");
   }
 
-  // Попробуем прочитать тело ответа — сначала как текст, затем попытаться распарсить JSON.
   const rawText = await response.text();
   let rawJson: unknown = null;
   try {
     rawJson = rawText ? JSON.parse(rawText) : null;
   } catch {
-    // Если тело не JSON — оставим rawJson=null, но не падаем
     rawJson = null;
   }
 
   if (!response.ok) {
     const fallback = "Не удалось создать аккаунт. Повторите попытку.";
-    // getErrorMessage должен корректно обработать rawJson=null
     throw new Error(getErrorMessage(rawJson) ?? fallback);
   }
 

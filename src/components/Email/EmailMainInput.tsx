@@ -54,8 +54,15 @@ export default function EmailMainInput({
 }: EmailMainInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loadingImprove, setLoadingImprove] = useState(false);
-  const [improvedBody, setImprovedBody] = useState("");
 
+  const [improvedBody, setImprovedBody] = useState("");
+  const [improvedTitle, setImprovedTitle] = useState("");
+  const [improvedDescription, setImprovedDescription] = useState("");
+
+  const [improvedBodySecond, setImprovedBodySecond] = useState("");
+  const [improvedTitleSecond, setImprovedTitleSecond] = useState("");
+  const [improvedDescriptionSecond, setImprovedDescriptionSecond] =
+    useState("");
 
   const handleImproveText = async () => {
     if (!body.trim()) {
@@ -66,8 +73,14 @@ export default function EmailMainInput({
     setLoadingImprove(true);
 
     try {
-      const result = await improveText(body);
-      setImprovedBody(result);
+      const { answerFirst, answerSecond } = await improveText(body);
+      setImprovedTitle(answerFirst.title);
+      setImprovedBody(answerFirst.text);
+      setImprovedDescription(answerFirst.description);
+
+      setImprovedTitleSecond(answerSecond.title);
+      setImprovedBodySecond(answerSecond.text);
+      setImprovedDescriptionSecond(answerSecond.description);
       setIsOpen(true);
     } catch (error) {
       console.error(error);
@@ -79,15 +92,15 @@ export default function EmailMainInput({
 
   const originalVariant = {
     id: 1,
-    title,
-    preheader,
-    body,
+    title: improvedTitleSecond,
+    preheader: improvedDescription,
+    body: improvedBodySecond,
   };
 
   const improvedVariant = {
     id: 2,
-    title,
-    preheader,
+    title: improvedTitle,
+    preheader: improvedDescriptionSecond,
     body: improvedBody,
   };
 
@@ -107,7 +120,13 @@ export default function EmailMainInput({
     <Box bg="gray.100" p={6}>
       <VStack spacing={3} align="stretch" maxW="900px" mx="auto">
         <Box bg="white" borderRadius="10px" p={6}>
-          <Text fontSize="24px" lineHeight="32px" fontWeight="600" color="#12233F" mb={4}>
+          <Text
+            fontSize="24px"
+            lineHeight="32px"
+            fontWeight="600"
+            color="#12233F"
+            mb={4}
+          >
             Текст письма
           </Text>
 
@@ -191,7 +210,13 @@ export default function EmailMainInput({
 
         <Box bg="white" borderRadius="10px" p={6}>
           <FormControl>
-            <FormLabel fontSize="26px" lineHeight="32px" fontWeight="600" color="#12233F" mb={4}>
+            <FormLabel
+              fontSize="26px"
+              lineHeight="32px"
+              fontWeight="600"
+              color="#12233F"
+              mb={4}
+            >
               Действие
             </FormLabel>
 
