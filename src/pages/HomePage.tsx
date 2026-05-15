@@ -142,9 +142,25 @@ export default function HomePage() {
   const mobileMenuContainerRef = useRef<HTMLDivElement | null>(null);
   const desktopMenuContainerRef = useRef<HTMLDivElement | null>(null);
   const featuresSectionRef = useRef<HTMLDivElement | null>(null);
+  const tariffSectionRef = useRef<HTMLDivElement | null>(null);
 
   const handleScrollToFeatures = () => {
     const section = featuresSectionRef.current;
+    if (!section) return;
+
+    const sectionTop = window.scrollY + section.getBoundingClientRect().top;
+    const maxScrollTop =
+      document.documentElement.scrollHeight - window.innerHeight;
+    const targetScrollTop = Math.min(sectionTop, maxScrollTop);
+
+    window.scrollTo({
+      top: Math.max(0, targetScrollTop),
+      behavior: "smooth",
+    });
+  };
+
+  const handleScrollToTariffs = () => {
+    const section = tariffSectionRef.current;
     if (!section) return;
 
     const sectionTop = window.scrollY + section.getBoundingClientRect().top;
@@ -285,7 +301,11 @@ export default function HomePage() {
             >
               Преимущества
             </Text>
-            <Text cursor="pointer" _hover={{ color: "#2D547B" }}>
+            <Text
+              cursor="pointer"
+              _hover={{ color: "#2D547B" }}
+              onClick={handleScrollToTariffs}
+            >
               Тарифы
             </Text>
             <Box ref={mobileMenuContainerRef} position="relative">
@@ -431,7 +451,11 @@ export default function HomePage() {
               >
                 Преимущества
               </Text>
-              <Text cursor="pointer" _hover={{ color: "#2D547B" }}>
+              <Text
+                cursor="pointer"
+                _hover={{ color: "#2D547B" }}
+                onClick={handleScrollToTariffs}
+              >
                 Тарифы
               </Text>
               <Box ref={desktopMenuContainerRef} position="relative">
@@ -801,6 +825,7 @@ export default function HomePage() {
             ))}
           </Grid>
           <VStack
+            ref={tariffSectionRef}
             mt={{ base: 20, md: 28 }}
             spacing={12}
             position="relative"
