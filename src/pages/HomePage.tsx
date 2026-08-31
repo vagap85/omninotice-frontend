@@ -30,6 +30,7 @@ import cardMonitor from "../assets/home/card-monitor.svg";
 import cardUser from "../assets/home/card-user.svg";
 import statsCursor from "../assets/home/stats-cursor.svg";
 import mail from "../assets/home/mail.svg";
+import { base } from "framer-motion/client";
 
 type FeatureCard = {
   title: string;
@@ -247,7 +248,9 @@ export default function HomePage() {
                 borderColor="#2D547B"
                 color="#2D547B"
                 borderRadius={{ base: "8px", md: "12px" }}
-                h={{ base: "24px", md: "40px" }}
+                maxH={"40px"}
+                h={"auto"}
+                py={{ base: 1, md: 2.5 }}
                 px={{ base: 2, md: 4 }}
                 minW={{ base: "56px", md: "auto" }}
                 fontSize={{ base: "12px", md: "14px" }}
@@ -261,7 +264,9 @@ export default function HomePage() {
                 bg="#2D547B"
                 color="white"
                 borderRadius={{ base: "8px", md: "12px" }}
-                h={{ base: "24px", md: "40px" }}
+                maxH={"40px"}
+                h={"auto"}
+                py={{ base: 1, md: 2.5 }}
                 px={{ base: 2, md: 4 }}
                 minW={{ base: "94px", md: "auto" }}
                 fontSize={{ base: "12px", md: "14px" }}
@@ -387,6 +392,7 @@ export default function HomePage() {
                         borderRadius="9px"
                         bg="#ECF2F8"
                         border="1px solid #E2EBF3"
+                        flexShrink={0}
                       >
                         <Image
                           src={icon}
@@ -404,7 +410,17 @@ export default function HomePage() {
                           >
                             {label}
                           </Text>
-                          {idx === 0 ? <Text color="#2D547B">→</Text> : null}
+                          {idx === 0 ? (
+                            <Box
+                              display={"grid"}
+                              placeItems={"center"}
+                              boxSize={5}
+                            >
+                              <svg preserveAspectRatio="none" width="12" height="12" overflow="visible" viewBox="0 0 13.6667 13.6667" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path id="Vector" d="M1 6.83333H12.6667M12.6667 6.83333L6.83333 1M12.6667 6.83333L6.83333 12.6667" stroke="#3B6EA0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                              </svg>
+                            </Box>
+                          ) : null}
                         </HStack>
                         {hint ? (
                           <Text
@@ -531,6 +547,7 @@ export default function HomePage() {
                           borderRadius="9px"
                           bg="#ECF2F8"
                           border="1px solid #E2EBF3"
+                          flexShrink={0}
                         >
                           <Image
                             src={icon}
@@ -548,7 +565,17 @@ export default function HomePage() {
                             >
                               {label}
                             </Text>
-                            {idx === 0 ? <Text color="#2D547B">→</Text> : null}
+                            {idx === 0 ? (
+                              <Box
+                                display={"grid"}
+                                placeItems={"center"}
+                                boxSize={5}
+                              >
+                                <svg preserveAspectRatio="none" width="12" height="12" overflow="visible" viewBox="0 0 13.6667 13.6667" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path id="Vector" d="M1 6.83333H12.6667M12.6667 6.83333L6.83333 1M12.6667 6.83333L6.83333 12.6667" stroke="#3B6EA0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                              </Box>
+                            ) : null}
                           </HStack>
                           {hint ? (
                             <Text fontSize="12px" color="#52525B">
@@ -570,12 +597,13 @@ export default function HomePage() {
               borderColor="#2D547B"
               color="#2D547B"
               borderRadius="12px"
-              h="40px"
               px={4}
+              py={2.5}
               fontSize="14px"
               lineHeight="20px"
               onClick={() => navigate("/login")}
               _hover={{ bg: "#E2EBF3" }}
+              whiteSpace={"normal"}
             >
               Войти
             </Button>
@@ -583,7 +611,7 @@ export default function HomePage() {
               bg="#2D547B"
               color="white"
               borderRadius="12px"
-              h="40px"
+              py={2.5}
               px={4}
               fontSize="14px"
               lineHeight="20px"
@@ -759,8 +787,13 @@ export default function HomePage() {
                 borderColor="#2D547B"
                 color="#2D547B"
                 borderRadius="12px"
-                h="44px"
+                h={"auto"}
+                py={2.5}
                 px={5}
+                whiteSpace={"normal"}
+                lineHeight={"1.5em"}
+                maxW={"400px"}
+                flexShrink={0}
                 onClick={() => navigate("/login")}
                 _hover={{ bg: "#E2EBF3" }}
               >
@@ -770,8 +803,13 @@ export default function HomePage() {
                 bg="#2D547B"
                 color="white"
                 borderRadius="12px"
-                h="44px"
+                h={"auto"}
+                py={2.5}
                 px={5}
+                whiteSpace={"normal"}
+                lineHeight={"1.5em"}
+                maxW={"400px"}
+                flexShrink={0}
                 _hover={{ bg: "#244869" }}
                 onClick={() => navigate("/create")}
               >
@@ -936,14 +974,17 @@ export default function HomePage() {
                     <Button
                       mt={10}
                       w="100%"
-                      h="48px"
                       borderRadius="12px"
                       bg={isHighlighted ? "white" : "#3F73A8"}
                       color={isHighlighted ? "#3F73A8" : "white"}
                       _hover={{
                         opacity: 0.9,
                       }}
+                      h={"auto"}
                       onClick={() => navigate("/create")}
+                      py={2.5}
+                      px={4}
+                      whiteSpace={"normal"}
                     >
                       Узнать больше
                     </Button>
