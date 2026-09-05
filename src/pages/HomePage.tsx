@@ -242,7 +242,7 @@ export default function HomePage() {
               h="40px"
               objectFit="contain"
             />
-            <HStack spacing={{ base: 1, md: 5 }}>
+            <HStack spacing={{ base: 1, md: 5 }} flexWrap={"wrap"}>
               <Button
                 variant="outline"
                 borderColor="#2D547B"
@@ -257,6 +257,9 @@ export default function HomePage() {
                 lineHeight={{ base: "16px", md: "20px" }}
                 onClick={() => navigate("/login")}
                 _hover={{ bg: "#E2EBF3" }}
+                wordBreak={"break-word"}
+                whiteSpace={"normal"}
+                maxHeight={"none"}
               >
                 Войти
               </Button>
@@ -281,6 +284,9 @@ export default function HomePage() {
                 iconSpacing={{ base: 1, md: 2 }}
                 _hover={{ bg: "#244869" }}
                 onClick={() => navigate("/create")}
+                whiteSpace="normal"
+                wordBreak="break-word"
+                maxHeight={"none"}
               >
                 <Text display={{ base: "none", sm: "inline" }}>
                   Попробовать бесплатно
@@ -298,6 +304,7 @@ export default function HomePage() {
             color="#12233F"
             fontWeight="500"
             justify={{ base: "space-between", md: "center", lg: "flex-start" }}
+            flexWrap={"wrap"}
           >
             <Text
               cursor="pointer"
@@ -445,6 +452,7 @@ export default function HomePage() {
           justify="space-between"
           gap={6}
           display={{ base: "none", lg: "flex" }}
+          flexWrap={"wrap"}
         >
           <HStack spacing={10} minW={0}>
             <Image
@@ -591,19 +599,25 @@ export default function HomePage() {
             </HStack>
           </HStack>
 
-          <HStack spacing={5} flexShrink={0}>
+          <HStack spacing={5} flexShrink={0} flexWrap={"wrap"}>
             <Button
               variant="outline"
               borderColor="#2D547B"
               color="#2D547B"
-              borderRadius="12px"
-              px={4}
-              py={2.5}
-              fontSize="14px"
-              lineHeight="20px"
+              borderRadius={{ base: "8px", md: "12px" }}
+              h={"auto"}
+              minH={"40px"}
+              py={{ base: 1, md: 2.5 }}
+              px={{ base: 2, md: 4 }}
+              minW={{ base: "56px", md: "auto" }}
+              maxW={{ base: "160px", md: "220px" }}
+              fontSize={{ base: "12px", md: "14px" }}
+              lineHeight={{ base: "16px", md: "20px" }}
               onClick={() => navigate("/login")}
               _hover={{ bg: "#E2EBF3" }}
-              whiteSpace={"normal"}
+              whiteSpace="normal"
+              wordBreak="break-word"
+              maxHeight={"none"}
             >
               Войти
             </Button>
@@ -619,6 +633,12 @@ export default function HomePage() {
               iconSpacing={2}
               _hover={{ bg: "#244869" }}
               onClick={() => navigate("/create")}
+              whiteSpace="normal"
+              wordBreak="break-word"
+              maxHeight={"none"}
+              minW={{ base: "56px", md: "auto" }}
+              maxW={{ base: "160px", md: "220px" }}
+              height={"auto"}
             >
               Попробовать бесплатно
             </Button>
@@ -781,7 +801,7 @@ export default function HomePage() {
               ))}
             </HStack>
 
-            <HStack spacing={5} pt={2}>
+            <HStack spacing={5} pt={2} flexWrap={"wrap"}>
               <Button
                 variant="outline"
                 borderColor="#2D547B"
@@ -796,6 +816,8 @@ export default function HomePage() {
                 flexShrink={0}
                 onClick={() => navigate("/login")}
                 _hover={{ bg: "#E2EBF3" }}
+                wordBreak={"break-word"}
+                maxHeight={"none"}
               >
                 Войти
               </Button>
@@ -812,6 +834,7 @@ export default function HomePage() {
                 flexShrink={0}
                 _hover={{ bg: "#244869" }}
                 onClick={() => navigate("/create")}
+                wordBreak={"break-word"}
               >
                 Создать рассылку
               </Button>
