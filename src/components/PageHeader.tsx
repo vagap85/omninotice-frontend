@@ -22,11 +22,13 @@ import {
 import { ChevronRightIcon } from "@chakra-ui/icons";
 import { LuHouse } from "react-icons/lu";
 import { LuLogOut } from "react-icons/lu";
+import { memo } from "react";
 
 interface PageHeaderProps {
   isAuthorized: boolean;
   onLogout: () => void;
   userName?: string;
+  title: string;
 }
 
 const getInitials = (name?: string): string => {
@@ -36,10 +38,11 @@ const getInitials = (name?: string): string => {
   return parts.map((p) => p[0]?.toUpperCase() ?? "").join("");
 };
 
-export default function PageHeader({
+function PageHeader({
   isAuthorized,
   onLogout,
   userName = "mail@mail.ru",
+  title
 }: PageHeaderProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -73,12 +76,12 @@ export default function PageHeader({
 
             <BreadcrumbItem isCurrentPage>
               <BreadcrumbLink _hover={{ textDecoration: "none" }}>
-                Создание e-mail рассылки
+                {title}
               </BreadcrumbLink>
             </BreadcrumbItem>
           </Breadcrumb>
 
-          <Heading size="md">Создание e-mail рассылки</Heading>
+          <Heading size="md">{title}</Heading>
         </Box>
 
         {isAuthorized ? (
@@ -154,3 +157,4 @@ export default function PageHeader({
     </Box>
   );
 }
+export default memo(PageHeader)

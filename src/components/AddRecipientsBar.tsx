@@ -191,7 +191,7 @@ export default function AddRecipientsBar({
 
   return (
     <Box
-      w="360px"
+      maxW="360px"
       bg="white"
       px={6}
       py={5}

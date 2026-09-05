@@ -13,7 +13,7 @@ import { isValidEmail } from "../utils/recipient";
 import PageHeader from "../components/PageHeader";
 import EmailThemeInput from "../components/Email/EmailThemeInput";
 import EmailMainInput from "../components/Email/EmailMainInput";
-import AddRecipientsBar from "../components/AddRecipientsBar";
+import AddRecipientsBar from "../components/AddRecipientsBar"; 
 import { MAILING_DRAFT_KEY } from "../mailingDraftStorage";
 
 const AUTH_STORAGE_KEY = "usercenter_auth";
@@ -242,6 +242,7 @@ export default function CreateNotification() {
             setAuthState(null);
             navigate("/");
           }}
+          title="Создание e-mail рассылки"
         />
         <Flex>
           <Box flex="1">

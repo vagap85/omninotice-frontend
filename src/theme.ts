@@ -27,6 +27,14 @@ const colors = {
 };
 
 const theme = extendTheme({
+  breakpoints: {
+    sm: "30em",
+    md: "48em",
+    lg: "62em",
+    xl: "80em",
+    xxl: "90em", // 1440px
+    "2xl": "96em",
+  },
   colors,
   fonts: {
     heading: '"DM Sans", system-ui, sans-serif',
