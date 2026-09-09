@@ -195,13 +195,16 @@ export default function EmailMainInput({
               bg={canImprove ? "#00C496" : "gray.300"}
               color="white"
               borderRadius="12px"
-              h="40px"
+              h="auto"
+              py={3}
               px={6}
               _hover={canImprove ? { bg: "teal.500" } : {}}
               onClick={handleImproveText}
               isLoading={loadingImprove}
               loadingText="Обработка..."
               isDisabled={!canImprove}
+              whiteSpace={"normal"}
+              lineHeight={"1.5em"}
             >
               Улучшить текст
             </Button>
