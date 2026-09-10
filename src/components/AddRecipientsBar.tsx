@@ -242,7 +242,9 @@ export default function AddRecipientsBar({
           _hover={{ bg: "#2D547B" }}
           rightIcon={<ArrowForwardIcon />}
           borderRadius="12px"
-          h="48px"
+          h={"auto"}
+          whiteSpace={"normal"}
+          py={3}
           px={5}
           fontWeight="600"
           onClick={canSend ? openModal : onAuthClick}

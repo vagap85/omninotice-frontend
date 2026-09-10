@@ -30,6 +30,7 @@ import cardMonitor from "../assets/home/card-monitor.svg";
 import cardUser from "../assets/home/card-user.svg";
 import statsCursor from "../assets/home/stats-cursor.svg";
 import mail from "../assets/home/mail.svg";
+import { base } from "framer-motion/client";
 
 type FeatureCard = {
   title: string;
@@ -241,19 +242,24 @@ export default function HomePage() {
               h="40px"
               objectFit="contain"
             />
-            <HStack spacing={{ base: 1, md: 5 }}>
+            <HStack spacing={{ base: 1, md: 5 }} flexWrap={"wrap"}>
               <Button
                 variant="outline"
                 borderColor="#2D547B"
                 color="#2D547B"
                 borderRadius={{ base: "8px", md: "12px" }}
-                h={{ base: "24px", md: "40px" }}
+                maxH={"40px"}
+                h={"auto"}
+                py={{ base: 1, md: 2.5 }}
                 px={{ base: 2, md: 4 }}
                 minW={{ base: "56px", md: "auto" }}
                 fontSize={{ base: "12px", md: "14px" }}
                 lineHeight={{ base: "16px", md: "20px" }}
                 onClick={() => navigate("/login")}
                 _hover={{ bg: "#E2EBF3" }}
+                wordBreak={"break-word"}
+                whiteSpace={"normal"}
+                maxHeight={"none"}
               >
                 Войти
               </Button>
@@ -261,7 +267,9 @@ export default function HomePage() {
                 bg="#2D547B"
                 color="white"
                 borderRadius={{ base: "8px", md: "12px" }}
-                h={{ base: "24px", md: "40px" }}
+                maxH={"40px"}
+                h={"auto"}
+                py={{ base: 1, md: 2.5 }}
                 px={{ base: 2, md: 4 }}
                 minW={{ base: "94px", md: "auto" }}
                 fontSize={{ base: "12px", md: "14px" }}
@@ -276,6 +284,9 @@ export default function HomePage() {
                 iconSpacing={{ base: 1, md: 2 }}
                 _hover={{ bg: "#244869" }}
                 onClick={() => navigate("/create")}
+                whiteSpace="normal"
+                wordBreak="break-word"
+                maxHeight={"none"}
               >
                 <Text display={{ base: "none", sm: "inline" }}>
                   Попробовать бесплатно
@@ -293,6 +304,7 @@ export default function HomePage() {
             color="#12233F"
             fontWeight="500"
             justify={{ base: "space-between", md: "center", lg: "flex-start" }}
+            flexWrap={"wrap"}
           >
             <Text
               cursor="pointer"
@@ -387,6 +399,7 @@ export default function HomePage() {
                         borderRadius="9px"
                         bg="#ECF2F8"
                         border="1px solid #E2EBF3"
+                        flexShrink={0}
                       >
                         <Image
                           src={icon}
@@ -404,7 +417,17 @@ export default function HomePage() {
                           >
                             {label}
                           </Text>
-                          {idx === 0 ? <Text color="#2D547B">→</Text> : null}
+                          {idx === 0 ? (
+                            <Box
+                              display={"grid"}
+                              placeItems={"center"}
+                              boxSize={5}
+                            >
+                              <svg preserveAspectRatio="none" width="12" height="12" overflow="visible" viewBox="0 0 13.6667 13.6667" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path id="Vector" d="M1 6.83333H12.6667M12.6667 6.83333L6.83333 1M12.6667 6.83333L6.83333 12.6667" stroke="#3B6EA0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                              </svg>
+                            </Box>
+                          ) : null}
                         </HStack>
                         {hint ? (
                           <Text
@@ -429,6 +452,7 @@ export default function HomePage() {
           justify="space-between"
           gap={6}
           display={{ base: "none", lg: "flex" }}
+          flexWrap={"wrap"}
         >
           <HStack spacing={10} minW={0}>
             <Image
@@ -531,6 +555,7 @@ export default function HomePage() {
                           borderRadius="9px"
                           bg="#ECF2F8"
                           border="1px solid #E2EBF3"
+                          flexShrink={0}
                         >
                           <Image
                             src={icon}
@@ -548,7 +573,17 @@ export default function HomePage() {
                             >
                               {label}
                             </Text>
-                            {idx === 0 ? <Text color="#2D547B">→</Text> : null}
+                            {idx === 0 ? (
+                              <Box
+                                display={"grid"}
+                                placeItems={"center"}
+                                boxSize={5}
+                              >
+                                <svg preserveAspectRatio="none" width="12" height="12" overflow="visible" viewBox="0 0 13.6667 13.6667" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path id="Vector" d="M1 6.83333H12.6667M12.6667 6.83333L6.83333 1M12.6667 6.83333L6.83333 12.6667" stroke="#3B6EA0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                              </Box>
+                            ) : null}
                           </HStack>
                           {hint ? (
                             <Text fontSize="12px" color="#52525B">
@@ -564,18 +599,25 @@ export default function HomePage() {
             </HStack>
           </HStack>
 
-          <HStack spacing={5} flexShrink={0}>
+          <HStack spacing={5} flexShrink={0} flexWrap={"wrap"}>
             <Button
               variant="outline"
               borderColor="#2D547B"
               color="#2D547B"
-              borderRadius="12px"
-              h="40px"
-              px={4}
-              fontSize="14px"
-              lineHeight="20px"
+              borderRadius={{ base: "8px", md: "12px" }}
+              h={"auto"}
+              minH={"40px"}
+              py={{ base: 1, md: 2.5 }}
+              px={{ base: 2, md: 4 }}
+              minW={{ base: "56px", md: "auto" }}
+              maxW={{ base: "160px", md: "220px" }}
+              fontSize={{ base: "12px", md: "14px" }}
+              lineHeight={{ base: "16px", md: "20px" }}
               onClick={() => navigate("/login")}
               _hover={{ bg: "#E2EBF3" }}
+              whiteSpace="normal"
+              wordBreak="break-word"
+              maxHeight={"none"}
             >
               Войти
             </Button>
@@ -583,7 +625,7 @@ export default function HomePage() {
               bg="#2D547B"
               color="white"
               borderRadius="12px"
-              h="40px"
+              py={2.5}
               px={4}
               fontSize="14px"
               lineHeight="20px"
@@ -591,6 +633,12 @@ export default function HomePage() {
               iconSpacing={2}
               _hover={{ bg: "#244869" }}
               onClick={() => navigate("/create")}
+              whiteSpace="normal"
+              wordBreak="break-word"
+              maxHeight={"none"}
+              minW={{ base: "56px", md: "auto" }}
+              maxW={{ base: "160px", md: "220px" }}
+              height={"auto"}
             >
               Попробовать бесплатно
             </Button>
@@ -753,16 +801,23 @@ export default function HomePage() {
               ))}
             </HStack>
 
-            <HStack spacing={5} pt={2}>
+            <HStack spacing={5} pt={2} flexWrap={"wrap"}>
               <Button
                 variant="outline"
                 borderColor="#2D547B"
                 color="#2D547B"
                 borderRadius="12px"
-                h="44px"
+                h={"auto"}
+                py={2.5}
                 px={5}
+                whiteSpace={"normal"}
+                lineHeight={"1.5em"}
+                maxW={"400px"}
+                flexShrink={0}
                 onClick={() => navigate("/login")}
                 _hover={{ bg: "#E2EBF3" }}
+                wordBreak={"break-word"}
+                maxHeight={"none"}
               >
                 Войти
               </Button>
@@ -770,10 +825,16 @@ export default function HomePage() {
                 bg="#2D547B"
                 color="white"
                 borderRadius="12px"
-                h="44px"
+                h={"auto"}
+                py={2.5}
                 px={5}
+                whiteSpace={"normal"}
+                lineHeight={"1.5em"}
+                maxW={"400px"}
+                flexShrink={0}
                 _hover={{ bg: "#244869" }}
                 onClick={() => navigate("/create")}
+                wordBreak={"break-word"}
               >
                 Создать рассылку
               </Button>
@@ -936,14 +997,17 @@ export default function HomePage() {
                     <Button
                       mt={10}
                       w="100%"
-                      h="48px"
                       borderRadius="12px"
                       bg={isHighlighted ? "white" : "#3F73A8"}
                       color={isHighlighted ? "#3F73A8" : "white"}
                       _hover={{
                         opacity: 0.9,
                       }}
+                      h={"auto"}
                       onClick={() => navigate("/create")}
+                      py={2.5}
+                      px={4}
+                      whiteSpace={"normal"}
                     >
                       Узнать больше
                     </Button>

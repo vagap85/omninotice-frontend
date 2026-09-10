@@ -63,14 +63,17 @@ function PageHeader({
         <Box>
           <Breadcrumb
             spacing="8px"
-            separator={<ChevronRightIcon color="gray.400" />}
+            separator={
+              <ChevronRightIcon color="#12233F" w={4} h={4} display={"grid"}
+            placeItems={"center"}/>
+            }
             fontSize="12px"
-            color="gray.500"
+            color="#52525B"
             mb={1}
           >
             <BreadcrumbItem>
               <BreadcrumbLink href="/">
-                <Icon as={LuHouse} boxSize={4} />
+                <Icon as={LuHouse} boxSize={4} display={"flex"} color={"#52525B"} />
               </BreadcrumbLink>
             </BreadcrumbItem>
 
