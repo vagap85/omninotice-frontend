@@ -1,4 +1,4 @@
-import { describe, test, expect, vi } from 'vitest';
+import { describe, test, expect } from 'vitest';
 import { createRef } from 'react';
 import { renderWithProviders, screen } from '../../test/utils';
 import CustomInput from '@/components/atoms/Input/CustomInput';

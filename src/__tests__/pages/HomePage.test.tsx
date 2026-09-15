@@ -1,5 +1,5 @@
 import { describe, test, expect, vi } from 'vitest';
-import { renderWithProviders, screen } from '../../test/utils';
+import { renderWithProviders } from '../../test/utils';
 import HomePage from '@/pages/HomePage/HomePage';
 
 // Мокаем useAuth, чтобы не требовать AuthProvider
