@@ -67,6 +67,25 @@ ruff-lint:
   after_script:
     - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker system prune -f; fi
 
+unit-tests:
+  stage: test
+  tags: [docker]
+  allow_failure: false
+  variables:
+    BUILD_VERSION: $CI_COMMIT_SHORT_SHA
+  rules:
+    - if: $CI_COMMIT_BRANCH != "master"
+  script:
+    # 1. Копируем .env.example → .env
+    - cp .env.example .env
+    # 2. Запускаем тесты в Bun-контейнере через npm
+    - > #
+      docker create --rm --name buntest-${CI_COMMIT_SHORT_SHA} ${DOCKER_HUB_MIRROR}${BUN_VERSION}-debian
+      bash -c "npm ci && npm run test:run" > /dev/null &&
+      docker cp ./ buntest-${CI_COMMIT_SHORT_SHA}:/home/bun/app > /dev/null
+    - docker start -a buntest-${CI_COMMIT_SHORT_SHA}
+  after_script:
+    - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker system prune -f; fi
 
 test-build:
   stage: test
