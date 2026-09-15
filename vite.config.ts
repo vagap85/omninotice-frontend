@@ -38,6 +38,13 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.config.*',
         '**/types/**',
+        'src/main.tsx',
+        'src/theme.ts',
+        'src/pages/back-up/**',
+        'src/components/back-up/**',
+        'src/components/atoms/Icons/**',
+        'src/components/organisms/SelectingRecipientApp/**',
+        'src/components/organisms/SelectingRecipientApp-v2/**',
       ],
     },
     alias: {
