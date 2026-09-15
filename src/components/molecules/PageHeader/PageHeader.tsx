@@ -26,7 +26,7 @@ function PageHeader({
       px={6}
       py={4}
     >
-      <Flex justify="space-between" align="center" gap={4}>
+      <Flex justify="space-between" align="center" gap={4} flexWrap={"wrap"}>
         <Box>
           <Breadcrumb
             spacing="8px"

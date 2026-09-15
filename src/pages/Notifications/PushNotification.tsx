@@ -55,8 +55,19 @@ function PushCreateNotificatonInner({ isAuthorized }: { isAuthorized: boolean })
             isAuthorized={isAuthorized}
             title="Создание рассылки push-уведомлений"
           />
-          <Flex>
-            <Flex as="form" direction="column" gap={5} flex="1" padding={6}>
+          <Flex
+            flexDirection={{
+              md: "row",
+              base: "column"
+            }}
+          >
+            <Flex
+              as="form"
+              direction="column"
+              gap={5}
+              flex="1"
+              p={"clamp(12px, 1.7vw + 0.125rem, 24px)"}
+              >
               <NotifContSectTest />
               <ActionSectTest />
             </Flex>

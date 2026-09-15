@@ -41,7 +41,7 @@ export default function AccountWidget() {
     const initials = getInitials(authState?.firstName, authState?.lastName, authState?.login);
     return (
         <>
-            <HStack spacing={4}>
+            <HStack spacing={4} flexWrap={"wrap"}>
                 <HStack spacing={2}>
                     <Flex
                         boxSize="28px"

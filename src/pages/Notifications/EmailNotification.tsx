@@ -7,7 +7,7 @@ import { MAILING_DRAFT_KEY } from '../../mailingDraftStorage';
 import { FormProvider, FormsRegistryProvider, useFormsRegistry } from '@/components/molecules/Form/FormContext';
 import EmailMainFields from '@/components/organisms/Forms/Email/EmailMainFields';
 import EmailThemeFields from '@/components/organisms/Forms/Email/EmailThemeFields';
-import RecipientsPanel from '@/components/organisms/Forms/Recipient/RecipientsPanel';
+import RecipientsPanel from '@/components/organisms/Forms/Email/Recipient/RecipientsPanel';
 import DraftAutosave from '@/components/molecules/Form/DraftAutoSave';
 import { MailingDraft } from '../types/types';
 import { useAuth } from '@/auth/AuthContext';

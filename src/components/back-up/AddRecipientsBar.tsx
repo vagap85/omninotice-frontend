@@ -262,6 +262,7 @@ export default function AddRecipientsBar({
         onConfirm={handleSend}
         onRetry={handleSend}
         recipientsCount={recipientsCount}
+        variant="email"
       />
     </Box>
   );

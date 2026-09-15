@@ -12,11 +12,14 @@ import SearchIcon from "@/components/atoms/Icons/SearchIcon";
 import CloseIcon from "@/components/atoms/Icons/CloseIcon";
 import { fetchGetUsers, type User } from "../../../../api/fetches";
 import { useSelectedUsers } from "../Providers/SelectedUsers.provider";
+import { SearchInputProps } from "../types/types";
 
 const MIN_QUERY_LENGTH = 3;
 const DEBOUNCE_DELAY = 300;
 
-export default function SearchInput({ platform }: { platform: string }) {
+
+
+export default function SearchInput({ platform, onSelectUser, error }: SearchInputProps) {
   const { selectedUsers, addUser } = useSelectedUsers();
 
   const [value, setValue] = useState<string>("");
@@ -86,6 +89,7 @@ export default function SearchInput({ platform }: { platform: string }) {
 
   const handleSelectUser = (user: User) => {
     addUser(user);
+    onSelectUser?.(user); // сообщаем наружу, что пользователь выбран
     handleClear();
   };
 
@@ -98,6 +102,7 @@ export default function SearchInput({ platform }: { platform: string }) {
     !isLoading && value.trim().length >= MIN_QUERY_LENGTH && visibleResults.length > 0;
 
   let statusText = "Начните вводить фамилию или имя";
+
   if (isLoading) {
     statusText = "Ищем...";
   } else if (hasSearched && visibleResults.length === 0) {
@@ -106,9 +111,17 @@ export default function SearchInput({ platform }: { platform: string }) {
 
   return (
     <Flex direction={"column"} gap={1.5}>
-
-      <InputGroup color="#A1A1AA" _focusWithin={{ color: "#3B6EA0" }}>
-        <InputLeftElement pointerEvents="none" top={"50%"} transform={"translateY(-50%)"}>
+      <InputGroup
+        color="#A1A1AA"
+        _focusWithin={{ color: "#3B6EA0" }}
+      >
+        <InputLeftElement
+          color={error ? "red.500" : "inherit"}
+          pointerEvents="none" top={"50%"}
+          transform={"translateY(-50%)"}
+          _focusVisible={{ color: error ? "red.500" : "inherit" }}
+          _hover={{ color: error ? "red.500" : "inherit" }}
+        >
           <SearchIcon width={16} height={16} />
         </InputLeftElement>
 
@@ -120,8 +133,10 @@ export default function SearchInput({ platform }: { platform: string }) {
           aria-label="Поиск по фамилии или имени"
           border="none"
           pr={8}
+          outlineColor={error ? "red.500" : "none"}
           _focus={{ border: "none" }}
-          _focusVisible={{ outline: "1px solid #3B6EA0" }}
+          _focusVisible={{ outlineColor: error ? "red.500" : "#3182ce" }}
+          _hover={{ outlineColor: error ? "red.500" : "#3182ce" }}
           sx={{
             "&::-webkit-search-cancel-button": {
               WebkitAppearance: "none",
@@ -146,16 +161,22 @@ export default function SearchInput({ platform }: { platform: string }) {
               pointerEvents: "auto",
             },
           }}
+          maxW={6}
+          maxH={6}
         >
           <IconButton
-            w={6}
-            h={6}
             aria-label="Очистить поле"
-            icon={<CloseIcon width={10} height={10} color="#12233F" />}
+            icon={<CloseIcon width={9} height={9} color="#12233F" />}
             size="xs"
             variant="ghost"
             color="inherit"
             onClick={handleClear}
+            maxH={"24px"}
+            maxW={"24px"}
+            top={"10px"}
+            right={"18px"}
+            minH={"unset"}
+            borderRadius={"4px"}
           />
         </InputRightElement>
       </InputGroup>
@@ -186,10 +207,11 @@ export default function SearchInput({ platform }: { platform: string }) {
           ))}
         </Flex>
       )}
-      {!showResults && <Text fontSize="xs" lineHeight="16px" color="#52525B" minH="16px">
-        {statusText}
-      </Text>
-      }
+      {!showResults && (
+        <Text fontSize="xs" lineHeight="16px" color="#52525B" minH="16px">
+          {statusText}
+        </Text>
+      )}
     </Flex>
   );
 }

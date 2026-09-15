@@ -7,7 +7,12 @@ import { required } from '@/components/molecules/Form/validators/validators';
 
 function NotifContSectTest() {
   return (
-    <Box as='fieldset' bg="white" borderRadius="10px" p={6}>
+    <Box
+      as='fieldset'
+      bg="white"
+      borderRadius="10px"
+      p={6}
+    >
       <Heading fontSize="26px" lineHeight="32px" fontWeight="600" color="#12233F" mb={4}>
         Текст уведомления
       </Heading>

@@ -11,6 +11,7 @@ import {
   Box,
 } from "@chakra-ui/react";
 import type { ModalSendProps } from "../types/types";
+import { pluralize } from "@/components/molecules/helpers/pluralize";
 
 export default function ModalSend({
   isOpen,
@@ -20,8 +21,30 @@ export default function ModalSend({
   onConfirm,
   onRetry,
   recipientsCount,
+  variant
 }: ModalSendProps) {
   const progressColor = status === "error" ? "#EF4444" : "teal.400";
+  let sendMessage = ""
+
+  switch (variant) {
+    case "email":
+      sendMessage = `Отправить ${recipientsCount} ${pluralize(recipientsCount,
+        [
+          "письмо",
+          "письма",
+          "писем",
+        ]
+      )}?`;
+      break;
+    case "push":
+      sendMessage = `Отправить уведомление ${recipientsCount} ${pluralize(
+        recipientsCount,
+        ["получателю", "получателям", "получателям"
+
+        ]
+      )}?`;
+      break;
+  }
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -45,7 +68,7 @@ export default function ModalSend({
 
         <ModalBody px={0} pt={4}>
           {status === "confirm" && (
-            <Text fontSize="lg">Отправить {recipientsCount} писем?</Text>
+            <Text fontSize="lg">{sendMessage}</Text>
           )}
 
           {(status === "loading" || status === "error") && (

@@ -1,5 +1,6 @@
-import { IconProps } from "@/components/atoms/types/types";
-import { ComponentType } from "react";
+import type { User } from "@/api/fetches";
+import type { IconProps } from "@/components/atoms/types/types";
+import type { ComponentType } from "react";
 
 export interface SelectedApp {
   title: string;
@@ -60,4 +61,10 @@ export type RecipientsMode = "all" | "individual";
 export interface UsersSelectProps {
   value?: RecipientsMode;
   onChange?: (mode: RecipientsMode) => void;
+}
+
+export interface SearchInputProps {
+  platform: string;
+  onSelectUser?: (user: User) => void;
+  error: boolean;
 }

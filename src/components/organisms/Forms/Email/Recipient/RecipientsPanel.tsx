@@ -179,6 +179,7 @@ export default function RecipientsPanel({
                     onConfirm={handleSend}
                     onRetry={handleSend}
                     recipientsCount={recipientsCount}
+                    variant='email'
                 />
             </Box>
         </FormProvider>

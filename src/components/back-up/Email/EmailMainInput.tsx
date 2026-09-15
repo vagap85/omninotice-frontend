@@ -37,7 +37,6 @@ interface EmailMainInputProps {
 
 export default function EmailMainInput({
   title,
-  preheader,
   body,
   signature,
   actionText,

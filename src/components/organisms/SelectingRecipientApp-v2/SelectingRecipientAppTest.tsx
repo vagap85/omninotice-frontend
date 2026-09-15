@@ -33,6 +33,9 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   const [progress, setProgress] = useState(0);
   const intervalRef = useRef<number | null>(null);
 
+  // тестовый флаг — какой исход имитировать при следующей попытке отправки/повтора
+  const [lastForceFail, setLastForceFail] = useState(false);
+
   const onAuthClick = () => navigate('/login');
 
   const recipientsCount =
@@ -60,8 +63,9 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
     setProgress(100);
   };
 
-  // Шаг 1: валидация + открытие модалки подтверждения (данные ещё НЕ отправляются)
-  const handleOpenModal = () => {
+  // валидация вынесена отдельно, чтобы переиспользовать
+  // и в обычной кнопке "Отправить", и в тестовых кнопках
+  const validate = (): boolean => {
     setAppError(null);
     setRecipientsError(null);
 
@@ -80,10 +84,14 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
       recipientsValid = false;
     }
 
-    if (!contentValid || !appValid || !recipientsValid) {
-      return;
-    }
+    return contentValid && appValid && recipientsValid;
+  };
 
+  // Шаг 1: валидация + открытие модалки подтверждения (данные ещё НЕ отправляются)
+  const handleOpenModal = () => {
+    if (!validate()) return;
+
+    setLastForceFail(false);
     setStatus('confirm');
     setProgress(0);
     setIsOpen(true);
@@ -97,7 +105,7 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   };
 
   // Шаг 2: имитация отправки — происходит только после подтверждения в модалке
-  const handleConfirm = async () => {
+  const handleConfirm = async (forceFail = lastForceFail) => {
     setStatus('loading');
     startProgress();
 
@@ -117,10 +125,9 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
       // TODO: заменить на реальный вызов API отправки
       await new Promise<void>((resolve, reject) => {
         setTimeout(() => {
-          // имитация случайной ошибки сети для проверки статуса "error" —
-          // уберите этот блок, когда подключите реальный запрос
-          const shouldFail = false;
-          if (shouldFail) reject(new Error('Network error'));
+          // имитация исхода запроса для проверки статусов "error"/успех —
+          // уберите forceFail и этот блок, когда подключите реальный запрос
+          if (forceFail) reject(new Error('Network error'));
           else resolve();
         }, 1200);
       });
@@ -155,6 +162,19 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
     }
   };
 
+  // тестовые кнопки: та же валидация, что и у обычной отправки,
+  // затем сразу открывают модалку в статусе "loading" и запускают мок с нужным исходом
+  const handleTestSend = (forceFail: boolean) => {
+    if (!validate()) return;
+
+    setLastForceFail(forceFail);
+    setIsOpen(true);
+    setStatus('loading');
+    setProgress(0);
+    
+    handleConfirm(forceFail);
+  };
+
   useEffect(() => clearProgressInterval, []);
 
   return (
@@ -165,35 +185,81 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
         if (isAuthorized) handleOpenModal();
         else onAuthClick();
       }}
-      maxW={{ base: '360px', xxl: '560px' }}
-      w="100%"
-      bg="white"
-      px={6}
-      py={5}
+      maxW={{ base: "unset", md: '360px', xxl: '560px' }}
+      p={
+        {
+          base: "clamp(12px, 1.7vw + 0.125rem, 24px)",
+          md: "unset"
+        }
+      }
       borderLeft="1px solid"
       borderColor="gray.200"
-      minH="calc(100vh - 73px)"
+      minH={{
+        base: "unset",
+        md: "calc(100vh - 73px)"
+      }}
+      w={"full"}
     >
-      <Heading size="md" mb={6}>
-        Настройка рассылки
-      </Heading>
-      <Flex direction="column" gap={3}>
-        <AllSelectBoxesTest />
-        <Button
-          type="submit"
-          bg="#3B6EA0"
-          color="white"
-          _hover={{ bg: '#2D547B' }}
-          rightIcon={<ArrowForwardIcon />}
-          borderRadius="12px"
-          h="48px"
-          px={5}
-          fontWeight="600"
-          maxW="fit-content"
-          ml="auto"
+      <Flex
+        w="100%"
+        h={"100%"}
+        px={6}
+        py={5}
+        bg="white"
+        flexDirection={"column"}
+        borderRadius={
+          {
+            'base': "10px",
+            'md': "none"
+          }
+        }
+      >
+        <Heading size="md" mb={6}>
+          Настройка рассылки
+        </Heading>
+        <Flex
+          direction="column"
+          gap={3}
         >
-          {isAuthorized ? 'Отправить' : 'Авторизоваться для отправки'}
-        </Button>
+          <AllSelectBoxesTest />
+          <Button
+            type="submit"
+            bg="#3B6EA0"
+            color="white"
+            _hover={{ bg: '#2D547B' }}
+            rightIcon={<ArrowForwardIcon />}
+            borderRadius="12px"
+            h="48px"
+            px={5}
+            fontWeight="600"
+            maxW="fit-content"
+            ml="auto"
+          >
+            {isAuthorized ? 'Отправить' : 'Авторизоваться для отправки'}
+          </Button>
+
+          {/* тестовые кнопки — убрать перед продакшеном */}
+          <Flex gap={2} ml="auto" flexWrap="wrap">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              colorScheme="green"
+              onClick={() => handleTestSend(false)}
+            >
+              Тест: отправить успешно
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              colorScheme="red"
+              onClick={() => handleTestSend(true)}
+            >
+              Тест: отправить с ошибкой
+            </Button>
+          </Flex>
+        </Flex>
       </Flex>
 
       <ModalSend
@@ -202,8 +268,9 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
         status={status}
         progress={progress}
         onConfirm={handleConfirm}
-        onRetry={handleConfirm}
+        onRetry={() => handleConfirm(lastForceFail)}
         recipientsCount={recipientsCount}
+        variant='push'
       />
     </Box>
   );

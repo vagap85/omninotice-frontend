@@ -46,4 +46,5 @@ export interface ModalSendProps {
   onConfirm: () => Promise<void>;
   onRetry: () => Promise<void>;
   recipientsCount: number;
+  variant: "email" | "push";
 }
