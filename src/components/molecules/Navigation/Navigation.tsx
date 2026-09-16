@@ -1,3 +1,7 @@
+import { ChevronDownIcon } from "@chakra-ui/icons/ChevronDown";
+import { Box, Button, Flex, HStack, Icon, Link, Text, VStack } from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
+
 import { useAuth } from "@/auth/AuthContext";
 import CustomButton from "@/components/atoms/Button/CustomButton";
 import LogoCherryIcon from "@/components/atoms/Icons/home/LogoCherryIcon";
@@ -5,9 +9,7 @@ import LogoMailIcon from "@/components/atoms/Icons/home/LogoMailIcon";
 import LogoMaxIcon from "@/components/atoms/Icons/home/LogoMaxIcon";
 import LogoSmsIcon from "@/components/atoms/Icons/home/LogoSmsIcon";
 import LogoTelegramIcon from "@/components/atoms/Icons/home/LogoTelegramIcon";
-import { ChevronDownIcon } from "@chakra-ui/icons/ChevronDown";
-import { Box, Button, Flex, HStack, Icon, Link, Text, VStack } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
+
 
 const submenuItems = [
     { label: "По e-mail", href: "/create/email", hint: "", icon: <LogoMailIcon width={24} height={24} /> },

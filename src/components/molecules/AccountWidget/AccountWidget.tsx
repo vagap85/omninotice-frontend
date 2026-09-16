@@ -1,7 +1,3 @@
-import { useAuth } from '@/auth/AuthContext';
-import CustomButton from '@/components/atoms/Button/CustomButton'
-import UserIcon from '@/components/atoms/Icons/collections/Sigma/UserIcon';
-import LogoutModal from '@/components/organisms/Modals/LogoutModal';
 import {
     Flex,
     HStack,
@@ -11,6 +7,11 @@ import {
     VStack
 } from '@chakra-ui/react'
 import { LuLogOut } from 'react-icons/lu'
+
+import { useAuth } from '@/auth/AuthContext';
+import CustomButton from '@/components/atoms/Button/CustomButton'
+import UserIcon from '@/components/atoms/Icons/collections/Sigma/UserIcon';
+import LogoutModal from '@/components/organisms/Modals/LogoutModal';
 
 const getInitials = (firstName?: string, lastName?: string, login?: string): string => {
     const first = firstName?.trim();

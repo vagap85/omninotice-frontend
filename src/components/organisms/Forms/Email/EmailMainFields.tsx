@@ -1,10 +1,12 @@
 import { Box, Flex, Heading, VStack } from '@chakra-ui/react';
-import { httpUrl } from '@/components/molecules/Form/validators/validators';
-import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
-import { FormTextAreaField } from '@/components/molecules/Form/Elements/FormTextAreaField';
-import { EmailMainFieldsProps } from '../../types/types';
-import CustomButton from '@/components/atoms/Button/CustomButton';
 import { LuSparkles } from 'react-icons/lu';
+
+import CustomButton from '@/components/atoms/Button/CustomButton';
+import { FormTextAreaField } from '@/components/molecules/Form/Elements/FormTextAreaField';
+import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
+import { httpUrl } from '@/components/molecules/Form/validators/validators';
+
+import { EmailMainFieldsProps } from '../../types/types';
 
 export default function EmailMainFields({ canImprove, initialValues = {} }: EmailMainFieldsProps) {
     return (

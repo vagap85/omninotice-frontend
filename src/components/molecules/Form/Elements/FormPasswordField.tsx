@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import {
   FormControl,
   FormErrorMessage,
@@ -8,9 +8,10 @@ import {
   InputGroup,
   InputRightElement,
 } from '@chakra-ui/react';
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import { useFormField } from '../hooks/useFormField';
+import { memo, useState } from 'react';
+
 import type { FormPasswordFieldProps } from '../../types/form';
+import { useFormField } from '../hooks/useFormField';
 
 function FormPasswordFieldBase({
   name,

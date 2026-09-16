@@ -1,10 +1,11 @@
-import { forwardRef } from 'react'
 import {
   Input,
   InputGroup,
   InputRightElement,
   Text,
 } from '@chakra-ui/react'
+import { forwardRef } from 'react'
+
 import { CustomInputProps } from '../types/types'
 
 const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(

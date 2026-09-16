@@ -1,23 +1,22 @@
 import { Button, Flex, Grid, Modal, ModalContent, ModalOverlay, Text } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { SelectedAppIcon } from "../SelectingRecipientApp-v2/types/types";
-import { useSelectingRecipientAppTest } from "../SelectingRecipientApp-v2/Providers/SelectingRecipientAppTest.provider";
+import { useState } from "react";
 
-interface SelectIconModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    icons: SelectedAppIcon[];
-}
+import { useSelectingRecipientApp } from "../Forms/Push/SelectingRecipientApp/hooks/useSelectingRecipientApp";
+import { SelectedAppIcon } from "../Forms/Push/SelectingRecipientApp/types/types";
+import { SelectIconModalProps } from "../types/types";
 
 export default function SelectIconModal({ isOpen, onClose, icons }: SelectIconModalProps) {
-    const { selectedApp, setSelectedIcon } = useSelectingRecipientAppTest();
+    const { selectedApp, setSelectedIcon } = useSelectingRecipientApp();
     const [draftIcon, setDraftIcon] = useState<SelectedAppIcon | null>(null);
+    const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
     const filteredIcons = icons.filter((icon) => icon.id !== "0")
 
-    useEffect(() => {
-        if (!isOpen) return;
-        setDraftIcon(selectedApp?.icon ?? icons[0] ?? null);
-    }, [isOpen, selectedApp, icons]);
+    if (isOpen !== prevIsOpen) {
+        setPrevIsOpen(isOpen);
+        if (isOpen) {
+            setDraftIcon(selectedApp?.icon ?? icons[0] ?? null);
+        }
+    }
 
     const handleApply = () => {
         if (draftIcon) {

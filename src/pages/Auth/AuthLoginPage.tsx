@@ -1,17 +1,19 @@
-import { useState } from 'react';
-import { Box, Button, Link, Stack, Text, VStack, useToast } from '@chakra-ui/react';
 import { ArrowBackIcon } from '@chakra-ui/icons';
+import { Box, Button, Link, Stack, Text, VStack, useToast } from '@chakra-ui/react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { loginUserCenter } from '@/api/userCenter';
 import authBg from '@/assets/image 1.jpg';
 import logo from '@/assets/Vector.svg';
-
-import { FormsRegistryProvider, FormProvider, useFormsRegistry } from '@/components/molecules/Form/FormContext';
-import { useFormValues } from '@/components/molecules/Form/hooks/useFormValues';
-import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
-import { FormPasswordField } from '@/components/molecules/Form/Elements/FormPasswordField';
-import { required, email as emailValidator } from '@/components/molecules/Form/validators/validators';
 import { useAuth } from '@/auth/AuthContext';
-import { loginUserCenter } from '@/api/userCenter';
+import { FormPasswordField } from '@/components/molecules/Form/Elements/FormPasswordField';
+import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
+import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
+import { useFormValues } from '@/components/molecules/Form/hooks/useFormValues';
+import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
+import { FormsRegistryProvider } from '@/components/molecules/Form/Providers/FormsRegistryProvider';
+import { required, email as emailValidator } from '@/components/molecules/Form/validators/validators';
 
 export default function AuthLoginPage() {
   return (
@@ -34,7 +36,7 @@ function AuthLoginPageInner() {
     const store = registry.getOrCreateStore('login');
     if (!store.validateAll()) return;
 
-    const { login, password } = store.getValues();
+    const { login, password } = store.getValues<{ login: string; password: string }>();
 
     setIsLoading(true);
     try {
@@ -163,7 +165,7 @@ function AuthLoginPageInner() {
 // Вынесено в лист, чтобы useFormValues (подписка на ВСЕ поля формы, нужная только
 // для расчёта opacity) не тянула за собой ре-рендер всей страницы при каждом нажатии клавиши.
 function LoginSubmitButton({ isLoading, onSubmit }: { isLoading: boolean; onSubmit: () => void }) {
-  const values = useFormValues('login');
+  const values = useFormValues<{ login: string; password: string }>('login');
   const isFilled = Boolean(values.login?.trim() && values.password?.trim());
 
   return (

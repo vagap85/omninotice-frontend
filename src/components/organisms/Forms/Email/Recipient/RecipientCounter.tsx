@@ -1,6 +1,8 @@
+import { Box, Text } from '@chakra-ui/react';
+
 import { useFormField } from '@/components/molecules/Form/hooks/useFormField';
 import { isValidEmail } from '@/utils/recipient';
-import { Box, Text } from '@chakra-ui/react';
+
 
 export default function RecipientsCounter() {
   const { value } = useFormField<string>('emails');

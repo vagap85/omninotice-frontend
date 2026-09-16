@@ -1,9 +1,11 @@
-import { memo } from 'react';
 import { FormControl, FormErrorMessage, FormLabel, Text } from '@chakra-ui/react';
-import { useFormField } from '../hooks/useFormField';
-import type { FormTextAreaFieldProps } from '../../types/form';
-import { maxLength as maxLengthValidator } from '../validators/validators';
+import { memo } from 'react';
+
 import CustomTextarea from '@/components/atoms/TextArea/CustomTextArea';
+
+import type { FormTextAreaFieldProps } from '../../types/form';
+import { useFormField } from '../hooks/useFormField';
+import { maxLength as maxLengthValidator } from '../validators/validators';
 
 function FormTextAreaFieldBase({
   name,

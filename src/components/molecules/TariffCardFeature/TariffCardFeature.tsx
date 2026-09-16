@@ -1,6 +1,8 @@
-import { Box, HStack, Text } from "@chakra-ui/react";
-import type { TariffCardFeatureProps } from "../types/types";
 import { CheckIcon } from "@chakra-ui/icons/Check";
+import { Box, HStack, Text } from "@chakra-ui/react";
+
+import type { TariffCardFeatureProps } from "../types/types";
+
 
 export default function TariffCardFeature({
   text,

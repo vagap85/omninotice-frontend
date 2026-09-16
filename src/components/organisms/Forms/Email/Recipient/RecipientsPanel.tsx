@@ -1,27 +1,18 @@
-import { useEffect, useRef, useState } from 'react';
-import { Box, Flex, Heading, Text, useToast } from '@chakra-ui/react';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
-import { FormProvider, useFormsRegistry } from '@/components/molecules/Form/FormContext';
-import { isValidEmail } from '@/utils/recipient';
-import { FormTextAreaField } from '@/components/molecules/Form/Elements/FormTextAreaField';
-import { hasValidRecipient } from '@/components/molecules/Form/validators/domainValidators';
-import RecipientsCounter from './RecipientCounter';
-import ModalSend from '@/components/organisms/Modals/ModalSend';
+import { Box, Flex, Heading, Text, useDisclosure } from '@chakra-ui/react';
+
 import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
+import { FormTextAreaField } from '@/components/molecules/Form/Elements/FormTextAreaField';
+import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
+import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
+import { hasValidRecipient } from '@/components/molecules/Form/validators/domainValidators';
 import { required } from '@/components/molecules/Form/validators/validators';
+import SendController from '@/components/organisms/Modals/SendController/SendController';
+import type { RecipientsPanelProps } from '@/components/organisms/types/types';
+import { RecipientsFormValues } from '@/pages/types/types';
+import { isValidEmail } from '@/utils/recipient';
 
-type SendStatus = 'confirm' | 'loading' | 'error';
-type ValidationError = { title: string; description: string };
-
-interface RecipientsPanelProps {
-    initialEmails?: string;
-    canSend: boolean;
-    onAuthClick: () => void;
-    // Проверяет форму письма (formId="email") и возвращает ошибку, если что-то не так
-    onValidateEmailForm: () => ValidationError | null;
-    // Отправка: получает готовые данные письма и список валидных email
-    onSend: (validEmails: string[]) => Promise<void>;
-}
+import RecipientsCounter from './RecipientCounter';
 
 export default function RecipientsPanel({
     initialEmails,
@@ -31,96 +22,14 @@ export default function RecipientsPanel({
     onSend,
 }: RecipientsPanelProps) {
     const registry = useFormsRegistry();
-    const [isOpen, setIsOpen] = useState(false);
-    const [status, setStatus] = useState<SendStatus>('confirm');
-    const [progress, setProgress] = useState(0);
-    const toast = useToast();
-    const intervalRef = useRef<number | null>(null);
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
-    const clearProgressInterval = () => {
-        if (intervalRef.current !== null) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-        }
+    const getValidEmails = () => {
+        const { emails } = registry.getOrCreateStore('recipients').getValues<RecipientsFormValues>();
+        return (emails ?? '').trim().split(/\s+/).filter(Boolean).filter(isValidEmail);
     };
 
-    const startProgress = () => {
-        clearProgressInterval();
-        setProgress(0);
-        let current = 0;
-        intervalRef.current = window.setInterval(() => {
-            current = Math.min(current + 4, 90);
-            setProgress(current);
-        }, 120);
-    };
-
-    const finishProgress = () => {
-        clearProgressInterval();
-        setProgress(100);
-    };
-
-    const openModal = () => {
-        // 1. Проверяем форму письма (formId="email") — снаружи этой панели
-        const emailError = onValidateEmailForm();
-        if (emailError) {
-            return;
-        }
-
-        setStatus('confirm');
-        setProgress(0);
-        setIsOpen(true);
-    };
-
-    const handleClose = () => {
-        clearProgressInterval();
-        setIsOpen(false);
-        setStatus('confirm');
-        setProgress(0);
-    };
-
-    const handleSend = async () => {
-        setStatus('loading');
-        startProgress();
-
-        const { emails } = registry.getOrCreateStore('recipients').getValues();
-        const validEmails: string[] = emails.trim().split(/\s+/).filter(Boolean).filter(isValidEmail);
-
-        try {
-            await onSend(validEmails);
-            finishProgress();
-
-            setTimeout(() => {
-                setIsOpen(false);
-                setStatus('confirm');
-                setProgress(0);
-                toast({
-                    position: 'bottom',
-                    duration: 4000,
-                    isClosable: true,
-                    render: () => (
-                        <Box bg="#1FAE4B" color="white" px={5} py={4} borderRadius="16px" boxShadow="lg" minW="470px">
-                            <Text fontWeight="700" mb={1}>Рассылка успешно отправлена</Text>
-                            <Text>Мы отправили письма на {validEmails.length} электронных адресов</Text>
-                        </Box>
-                    ),
-                });
-            }, 300);
-        } catch (error) {
-            clearProgressInterval();
-            setProgress(55);
-            setStatus('error');
-        }
-    };
-
-    useEffect(() => clearProgressInterval, []);
-
-    const recipientsStore = registry.getOrCreateStore('recipients');
-    const recipientsCount = recipientsStore
-        .getValues()
-        .emails?.trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .filter(isValidEmail).length ?? 0;
+    const recipientsCount = getValidEmails().length;
 
     return (
         <FormProvider formId="recipients">
@@ -164,22 +73,23 @@ export default function RecipientsPanel({
                         py={3}
                         px={5}
                         fontWeight="600"
-                        onSubmit={canSend ? openModal : onAuthClick}
+                        isAuthorized={canSend}
+                        onUnauthorized={onAuthClick}
+                        onSubmit={onOpen}
                         formIds={["email", "recipients"]}
+                        beforeSubmitValidate={() => onValidateEmailForm() === null}
                     >
                         {canSend ? 'Отправить' : 'Авторизоваться для отправки'}
                     </FormSubmitButton>
                 </Flex>
 
-                <ModalSend
+                <SendController
+                    variant="email"
                     isOpen={isOpen}
-                    onClose={handleClose}
-                    status={status}
-                    progress={progress}
-                    onConfirm={handleSend}
-                    onRetry={handleSend}
+                    onClose={onClose}
                     recipientsCount={recipientsCount}
-                    variant='email'
+                    getPayload={getValidEmails}
+                    onSend={onSend}
                 />
             </Box>
         </FormProvider>

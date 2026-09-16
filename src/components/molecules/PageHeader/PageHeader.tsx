@@ -1,3 +1,4 @@
+import { ChevronRightIcon } from "@chakra-ui/icons";
 import {
   Box,
   Breadcrumb,
@@ -7,9 +8,9 @@ import {
   Heading,
   Icon,
 } from "@chakra-ui/react";
-import { ChevronRightIcon } from "@chakra-ui/icons";
-import { LuHouse } from "react-icons/lu";
 import { memo } from "react";
+import { LuHouse } from "react-icons/lu";
+
 import AccountWidget from "../AccountWidget/AccountWidget";
 import type { PageHeaderProps } from "../types/types";
 

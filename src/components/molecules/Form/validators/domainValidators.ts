@@ -1,4 +1,5 @@
 import { isValidEmail } from "@/utils/recipient";
+
 import { Validator } from "../../types/form";
 
 export const hasValidRecipient =

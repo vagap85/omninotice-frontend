@@ -1,7 +1,9 @@
 import { Grid, Heading, HStack, Text, VStack } from "@chakra-ui/react";
-import { TariffCardProps } from "../types/types";
-import TariffCard from "../Cards/TariffCard";
+
 import LogoMailIcon from "@/components/atoms/Icons/home/LogoMailIcon";
+
+import TariffCard from "../Cards/TariffCard";
+import { TariffCardProps } from "../types/types";
 
 const tariffs: TariffCardProps[] = [
     {

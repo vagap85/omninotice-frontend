@@ -1,7 +1,8 @@
 import { useCallback, useSyncExternalStore } from "react";
-import { useFormsRegistry } from "../FormContext";
 
-export function useFormValues(formId: string): Record<string, any> {
+import { useFormsRegistry } from "./useFormsRegistry";
+
+export function useFormValues<T = Record<string, unknown>>(formId: string): T {
   const registry = useFormsRegistry();
   const store = registry.getOrCreateStore(formId);
 
@@ -9,7 +10,7 @@ export function useFormValues(formId: string): Record<string, any> {
     (cb: () => void) => store.subscribeAll(cb),
     [store],
   );
-  const getSnapshot = useCallback(() => store.getValues(), [store]);
+  const getSnapshot = useCallback(() => store.getValues<T>(), [store]);
 
   return useSyncExternalStore(subscribe, getSnapshot);
 }

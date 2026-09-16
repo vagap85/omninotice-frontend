@@ -1,3 +1,5 @@
+import { Badge, Box, Flex, Heading, HStack, Text, VStack } from "@chakra-ui/react";
+
 import { useAuth } from "@/auth/AuthContext";
 import CustomButton from "@/components/atoms/Button/CustomButton";
 import LogoCherryIcon from "@/components/atoms/Icons/home/LogoCherryIcon";
@@ -6,7 +8,6 @@ import LogoMaxIcon from "@/components/atoms/Icons/home/LogoMaxIcon";
 import LogoSmsIcon from "@/components/atoms/Icons/home/LogoSmsIcon";
 import LogoTelegramIcon from "@/components/atoms/Icons/home/LogoTelegramIcon";
 import StatsCursorIcon from "@/components/atoms/Icons/home/StatsCursorIcon";
-import { Badge, Box, Flex, Heading, HStack, Text, VStack } from "@chakra-ui/react";
 
 const channelBadges = [
     { label: "e-mail", href: "/create/email", icon: <LogoMailIcon /> },

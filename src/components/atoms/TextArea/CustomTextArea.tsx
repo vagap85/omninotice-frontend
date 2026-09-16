@@ -1,10 +1,11 @@
-import { forwardRef } from 'react'
 import {
   InputGroup,
   InputRightElement,
   Text,
   Textarea
 } from '@chakra-ui/react'
+import { forwardRef } from 'react'
+
 import type { CustomTextareaProps } from '../types/types'
 
 const CustomTextarea = forwardRef<HTMLTextAreaElement, CustomTextareaProps>(

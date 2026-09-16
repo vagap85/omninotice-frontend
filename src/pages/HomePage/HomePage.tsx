@@ -1,9 +1,10 @@
 import { Box, Container } from "@chakra-ui/react";
+
 import PageHeaderBadge from "@/components/molecules/PageHeaderBadgeLanding/PageHeaderBadge";
 import Header from "@/components/organisms/Header/Header";
+import FeaturesSection from "@/components/organisms/Sections/FeaturesSection";
 import HeroSection from "@/components/organisms/Sections/HeroSection";
 import TariffsSection from "@/components/organisms/Sections/TariffsSection";
-import FeaturesSection from "@/components/organisms/Sections/FeaturesSection";
 
 // TODO: Исправить ошибку показа цветового фона сзади Hero и других элементов
 export default function HomePage() {
