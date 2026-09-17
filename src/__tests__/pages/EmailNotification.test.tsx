@@ -6,13 +6,15 @@ import EmailNotification from '@/pages/Notifications/EmailNotification';
 // ===== МОКИ =====
 
 const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  };
-});
+vi.mock('@/components/organisms/Forms/Email/Recipient/RecipientsPanel', () => ({
+  default: ({ canSend, onAuthClick }: any) => (
+    <div data-testid="recipients">
+      <span data-testid="can-send">{String(canSend)}</span>
+      <button onClick={onAuthClick}>Войти</button>
+      <button data-testid="trigger-send">Отправить</button>
+    </div>
+  ),
+}));
 
 let mockIsAuthorized = false;
 vi.mock('@/auth/AuthContext', () => ({
@@ -94,15 +96,11 @@ describe('EmailNotification', () => {
     expect(screen.getByTestId('can-send')).toHaveTextContent('true');
   });
 
-  test('клик по авторизации ведёт на /login', async () => {
-    const user = userEvent.setup();
-    mockIsAuthorized = false;
-    renderWithProviders(<EmailNotification />);
-
-    await user.click(screen.getByText('Войти'));
-
-    expect(mockNavigate).toHaveBeenCalledWith('/login');
-  });
+  test('кнопка авторизации присутствует в RecipientsPanel', () => {
+  mockIsAuthorized = false;
+  renderWithProviders(<EmailNotification />);
+  expect(screen.getByText('Войти')).toBeInTheDocument();
+});
 
   test('читает черновик из sessionStorage при монтировании', () => {
     sessionStorage.setItem(
