@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
+
 import { useFormValues } from '@/components/molecules/Form/hooks/useFormValues';
 
+import type { PushNotificationFormValues } from './types/types';
+
 export default function PushDraftUrlSync() {
-  const values = useFormValues('pushNotification');
+  const values = useFormValues<PushNotificationFormValues>('pushNotification');
 
   useEffect(() => {
     const next = new URLSearchParams(window.location.search);

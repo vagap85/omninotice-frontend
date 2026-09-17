@@ -6,7 +6,7 @@ export type AuthState = {
   lastName?: string;
 } | null;
 
-export interface MailingDraft {
+export interface EmailFormValues {
   subject: string;
   messageTitle: string;
   preheader: string;
@@ -14,5 +14,10 @@ export interface MailingDraft {
   signature: string;
   actionText: string;
   actionLink: string;
+}
+
+export interface RecipientsFormValues {
   emails: string;
 }
+
+export type MailingDraft = EmailFormValues & RecipientsFormValues;

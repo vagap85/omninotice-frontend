@@ -1,12 +1,14 @@
 import { Box, Grid } from '@chakra-ui/react'
-import FeatureCard from '../Cards/FeatureCard'
-import { FeatureCardProps } from '../types/types';
+
 import CardHeartIcon from '@/components/atoms/Icons/home/CardHeartIcon';
-import CardTrendingIcon from '@/components/atoms/Icons/home/CardTrendingIcon';
-import CardZapIcon from '@/components/atoms/Icons/home/CardZapIcon';
 import CardLayersIcon from '@/components/atoms/Icons/home/CardLayersIcon';
 import CardMonitorIcon from '@/components/atoms/Icons/home/CardMonitorIcon';
+import CardTrendingIcon from '@/components/atoms/Icons/home/CardTrendingIcon';
 import CardUserIcon from '@/components/atoms/Icons/home/CardUserIcon';
+import CardZapIcon from '@/components/atoms/Icons/home/CardZapIcon';
+
+import FeatureCard from '../Cards/FeatureCard'
+import { FeatureCardProps } from '../types/types';
 
 const iconSize = 32
 

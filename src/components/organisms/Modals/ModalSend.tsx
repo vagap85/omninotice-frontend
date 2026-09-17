@@ -10,6 +10,7 @@ import {
   Text,
   Box,
 } from "@chakra-ui/react";
+
 import type { ModalSendProps } from "../types/types";
 
 export default function ModalSend({
@@ -19,7 +20,7 @@ export default function ModalSend({
   progress,
   onConfirm,
   onRetry,
-  recipientsCount,
+  confirmMessage,
 }: ModalSendProps) {
   const progressColor = status === "error" ? "#EF4444" : "teal.400";
 
@@ -45,7 +46,7 @@ export default function ModalSend({
 
         <ModalBody px={0} pt={4}>
           {status === "confirm" && (
-            <Text fontSize="lg">Отправить {recipientsCount} писем?</Text>
+            <Text fontSize="lg">{confirmMessage}</Text>
           )}
 
           {(status === "loading" || status === "error") && (

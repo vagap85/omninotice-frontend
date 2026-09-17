@@ -1,16 +1,21 @@
-import { useRef } from 'react';
 import { Box, Flex } from '@chakra-ui/react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { type EventForEMail, getSynoraMailTemplateName, getSynoraMailTopic, sendEventEmail } from '../../api/synora';
-import PageHeader from '../../components/molecules/PageHeader/PageHeader';
-import { MAILING_DRAFT_KEY } from '../../mailingDraftStorage';
-import { FormProvider, FormsRegistryProvider, useFormsRegistry } from '@/components/molecules/Form/FormContext';
+
+import type { EventForEMail } from '@/api/types';
+import { useAuth } from '@/auth/AuthContext';
+import DraftAutosave from '@/components/molecules/Form/DraftAutoSave';
+import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
+import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
+import { FormsRegistryProvider } from '@/components/molecules/Form/Providers/FormsRegistryProvider';
 import EmailMainFields from '@/components/organisms/Forms/Email/EmailMainFields';
 import EmailThemeFields from '@/components/organisms/Forms/Email/EmailThemeFields';
-import RecipientsPanel from '@/components/organisms/Forms/Recipient/RecipientsPanel';
-import DraftAutosave from '@/components/molecules/Form/DraftAutoSave';
-import { MailingDraft } from '../types/types';
-import { useAuth } from '@/auth/AuthContext';
+import RecipientsPanel from '@/components/organisms/Forms/Email/Recipient/RecipientsPanel';
+
+import { getSynoraMailTemplateName, getSynoraMailTopic, sendEventEmail } from '../../api/synora';
+import PageHeader from '../../components/molecules/PageHeader/PageHeader';
+import { MAILING_DRAFT_KEY } from '../../mailingDraftStorage';
+import { MailingDraft, EmailFormValues } from '../types/types';
 
 const emptyDraft = (): MailingDraft => ({
     subject: '', messageTitle: '', preheader: '', body: '', signature: '', actionText: '', actionLink: '', emails: '',
@@ -43,19 +48,19 @@ export default function EmailNotification() {
 function EmailNotificationInner() {
     const navigate = useNavigate();
     const registry = useFormsRegistry();
-    const draftRef = useRef<MailingDraft>(readStoredDraft());
+    const [draft] = useState<MailingDraft>(() => readStoredDraft());
     const { isAuthorized } = useAuth()
 
     const validateEmailForm = (): { title: string; description: string } | null => {
         const emailStore = registry.getOrCreateStore('email');
         const allValid = emailStore.validateAll();
-        const { subject, messageTitle, body } = emailStore.getValues();
+        const { subject, messageTitle, body } = emailStore.getValues<EmailFormValues>();
+
+        let hasError = false;
 
         if (!subject.trim()) {
-            return {
-                title: 'Заполните обязательные поля',
-                description: 'Поле обязательно для заполнения.'
-            };
+            emailStore.setFieldError('subject', 'Поле обязательно для заполнения.');
+            hasError = true;
         }
 
         const hasMessageTitle = Boolean(messageTitle?.trim());
@@ -63,27 +68,26 @@ function EmailNotificationInner() {
         if (!hasMessageTitle && !hasBody) {
             emailStore.setFieldError('messageTitle', 'Заполните хотя бы одно из полей');
             emailStore.setFieldError('body', 'Заполните хотя бы одно из полей');
-            return {
-                title: 'Заполните обязательные поля',
-                description: 'Заполните хотя бы одно поле: «Заголовок письма» или «Основная часть письма».',
-            };
+            hasError = true;
         }
 
         if (!allValid) {
-            return {
-                title: 'Некорректная ссылка для кнопки',
-                description: 'Проверьте ссылку и укажите валидный URL в формате http(s)://...',
-            };
+            hasError = true;
         }
 
-        return null;
+        if (!hasError) return null;
+
+        return {
+            title: 'Заполните обязательные поля',
+            description: 'Проверьте выделенные поля формы и повторите отправку.',
+        };
     };
 
     const sendMailing = async (validEmails: string[]) => {
         if (!isAuthorized) throw new Error('Для отправки рассылки нужно авторизоваться');
 
         const { subject, messageTitle, body, preheader, signature, actionText, actionLink } =
-            registry.getOrCreateStore('email').getValues();
+            registry.getOrCreateStore('email').getValues<EmailFormValues>();
 
         const topic = getSynoraMailTopic();
         const templateName = getSynoraMailTemplateName();
@@ -103,7 +107,7 @@ function EmailNotificationInner() {
                 },
             };
             if (templateName) payload.template_name = templateName;
-            console.log('[Synora] mail-send queued', { sendTo, payload});
+            console.log('[Synora] mail-send queued', { sendTo, payload });
             await sendEventEmail(topic, payload);
         }
     };
@@ -120,24 +124,24 @@ function EmailNotificationInner() {
                     <FormProvider formId="email">
                         <Box as='form' flex="1" padding={6}>
                             <EmailThemeFields
-                                initialSubject={draftRef.current.subject}
-                                initialPreheader={draftRef.current.preheader}
+                                initialSubject={draft.subject}
+                                initialPreheader={draft.preheader}
                             />
                             <EmailMainFields
                                 canImprove={isAuthorized}
                                 initialValues={{
-                                    messageTitle: draftRef.current.messageTitle,
-                                    body: draftRef.current.body,
-                                    signature: draftRef.current.signature,
-                                    actionText: draftRef.current.actionText,
-                                    actionLink: draftRef.current.actionLink,
+                                    messageTitle: draft.messageTitle,
+                                    body: draft.body,
+                                    signature: draft.signature,
+                                    actionText: draft.actionText,
+                                    actionLink: draft.actionLink,
                                 }}
                             />
                         </Box>
                     </FormProvider>
 
                     <RecipientsPanel
-                        initialEmails={draftRef.current.emails}
+                        initialEmails={draft.emails}
                         canSend={isAuthorized}
                         onAuthClick={() => navigate('/login')}
                         onValidateEmailForm={validateEmailForm}

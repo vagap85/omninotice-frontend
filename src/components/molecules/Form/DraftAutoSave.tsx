@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
-import { useFormValues } from './hooks/useFormValues';
+
 import { MAILING_DRAFT_KEY } from '@/mailingDraftStorage';
+
+import { useFormValues } from './hooks/useFormValues';
 
 export default function DraftAutosave() {
     const emailValues = useFormValues('email');

@@ -9,6 +9,7 @@ import {
     ModalOverlay,
     Text
 } from '@chakra-ui/react'
+
 import { LogoutModalProps } from '../types/types'
 
 export default function LogoutModal({
@@ -40,7 +41,13 @@ export default function LogoutModal({
                         px={5}
                         h="40px"
                         _hover={{ bg: "#2D547B" }}
-                        onClick={logout}
+                        onClick={() => {
+                            try {
+                                logout()
+                            } finally {
+                                onClose()
+                            }
+                        }}
                     >
                         Выйти
                     </Button>

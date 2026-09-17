@@ -1,4 +1,5 @@
 import { Box, Stack, Text } from "@chakra-ui/react";
+
 import { FeatureCardProps } from "../types/types";
 
 export default function FeatureCard({

@@ -1,6 +1,8 @@
+import { VStack } from '@chakra-ui/react';
+
 import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
 import { required } from '@/components/molecules/Form/validators/validators';
-import { VStack } from '@chakra-ui/react';
+
 import { EmailThemeFieldsProps } from '../../types/types';
 
 export default function EmailThemeFields({ initialSubject, initialPreheader }: EmailThemeFieldsProps) {

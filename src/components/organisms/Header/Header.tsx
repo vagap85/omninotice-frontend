@@ -1,10 +1,12 @@
-import LogoFigmaIcon from "@/components/atoms/Icons/home/LogoFigmaIcon";
 import { Button, Flex, Grid, GridItem, Icon, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
-import Navigation from "../../molecules/Navigation/Navigation";
-import ArrowRightIcon from "@/components/atoms/Icons/home/ArrowRightIcon";
+import { LuLogOut } from "react-icons/lu";
+
 import { useAuth } from "@/auth/AuthContext";
 import CustomButton from "@/components/atoms/Button/CustomButton";
-import { LuLogOut } from "react-icons/lu";
+import ArrowRightIcon from "@/components/atoms/Icons/home/ArrowRightIcon";
+import LogoFigmaIcon from "@/components/atoms/Icons/home/LogoFigmaIcon";
+
+import Navigation from "../../molecules/Navigation/Navigation";
 import LogoutModal from "../Modals/LogoutModal";
 
 export default function Header() {

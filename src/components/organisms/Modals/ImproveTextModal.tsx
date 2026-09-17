@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -14,22 +13,10 @@ import {
   VStack,
   Icon,
 } from "@chakra-ui/react";
+import { useState } from "react";
 import { LuSparkles, LuCheck } from "react-icons/lu";
 
-interface TextVariant {
-  id: number;
-  title: string;
-  preheader: string;
-  body: string;
-}
-
-interface ImproveTextModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  originalVariant: TextVariant;
-  improvedVariant: TextVariant;
-  onApply: (variant: TextVariant) => void;
-}
+import { ImproveTextModalProps } from "../types/types";
 
 export default function ImproveTextModal({
   isOpen,
@@ -38,13 +25,17 @@ export default function ImproveTextModal({
   improvedVariant,
   onApply,
 }: ImproveTextModalProps) {
-  const [selectedVariantId, setSelectedVariantId] = useState<number>(1);
+  const [selectedVariantId, setSelectedVariantId] = useState<number>(originalVariant.id);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
 
-  useEffect(() => {
+  // Сброс выбора при каждом открытии модалки — без эффекта,
+  // через сравнение с предыдущим значением прямо во время рендера
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) {
       setSelectedVariantId(originalVariant.id);
     }
-  }, [isOpen, originalVariant.id]);
+  }
 
   const variants = [originalVariant, improvedVariant];
 

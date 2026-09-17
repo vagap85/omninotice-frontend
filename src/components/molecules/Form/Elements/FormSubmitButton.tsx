@@ -1,24 +1,38 @@
-import { useState } from 'react';
 import { Button } from '@chakra-ui/react';
-import { useFormsRegistry } from '../FormContext';
-import type { FormSubmitButtonProps } from '../../types/form';
+import { useState } from 'react';
 
-export function FormSubmitButton({ formIds, onSubmit, children, ...rest }: FormSubmitButtonProps) {
+import type { FormSubmitButtonProps } from '../../types/form';
+import { useFormsRegistry } from '../hooks/useFormsRegistry';
+
+export function FormSubmitButton({
+  formIds,
+  onSubmit,
+  onUnauthorized,
+  isAuthorized = true,
+  beforeSubmitValidate,
+  children,
+  ...rest
+}: FormSubmitButtonProps) {
   const registry = useFormsRegistry();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleClick = async () => {
+    if (!isAuthorized) {
+      onUnauthorized?.();
+      return;
+    }
+
     const stores = formIds.map((id) => {
       const store = registry.getStore(id);
       if (!store) throw new Error(`Форма с id="${id}" ещё не смонтирована`);
       return store;
     });
 
-    const allValid = stores.every((store) => store.validateAll());
+    const storeResults = stores.map((store) => store.validateAll());
+    const customValid = beforeSubmitValidate ? beforeSubmitValidate() : true;
+    const allValid = storeResults.every(Boolean) && customValid;
     if (!allValid) return;
 
-    // Внимание: если в разных формах есть поля с одинаковыми name — они перезапишут друг друга.
-    // Если это возможно в вашем случае, лучше неймспейсить values по formId (см. вариант ниже).
     const mergedValues = stores.reduce((acc, store) => ({ ...acc, ...store.getValues() }), {});
 
     setIsSubmitting(true);

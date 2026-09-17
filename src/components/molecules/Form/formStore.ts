@@ -13,7 +13,7 @@ export function createFormStore(): FormStore {
   const listeners = new Map<string, Set<Listener>>();
   const globalListeners = new Set<Listener>();
 
-  let valuesCache: Record<string, any> | null = null;
+  let valuesCache: Record<string, unknown> | null = null;
   let hasAttemptedSubmit = false;
 
   const invalidateValuesCache = () => {
@@ -28,7 +28,10 @@ export function createFormStore(): FormStore {
 
   const hasField = (name: string) => fields.has(name);
 
-  const registerField = (name: string, config: FieldConfig = {}) => {
+  const registerField = <T>(
+    name: string,
+    config: FieldConfig<T> = {} as FieldConfig<T>,
+  ) => {
     if (!fields.has(name)) {
       fields.set(name, {
         value: config.initialValue ?? "",
@@ -37,7 +40,7 @@ export function createFormStore(): FormStore {
       });
       invalidateValuesCache();
     }
-    configs.set(name, config);
+    configs.set(name, config as FieldConfig<unknown>);
   };
 
   const unregisterField = (name: string) => {
@@ -61,18 +64,18 @@ export function createFormStore(): FormStore {
     return () => globalListeners.delete(listener);
   };
 
-  const getValues = () => {
+  const getValues = <T = Record<string, unknown>>(): T => {
     if (valuesCache === null) {
-      const result: Record<string, any> = {};
+      const result: Record<string, unknown> = {};
       fields.forEach((state, name) => (result[name] = state.value));
       valuesCache = result;
     }
-    return valuesCache;
+    return valuesCache as T;
   };
 
   const runValidators = (
     name: string,
-    value: any,
+    value: unknown,
     onlyImmediate = false,
   ): string | undefined => {
     const cfg = configs.get(name);
@@ -86,7 +89,7 @@ export function createFormStore(): FormStore {
     return undefined;
   };
 
-  const setValue = (name: string, value: any) => {
+  const setValue = (name: string, value: unknown) => {
     const prev = fields.get(name) ?? EMPTY_STATE;
     fields.set(name, { ...prev, value });
     invalidateValuesCache();
@@ -151,7 +154,7 @@ export function createFormStore(): FormStore {
     validateField(name);
   };
 
-  const reset = (values: Record<string, any> = {}) => {
+  const reset = (values: Record<string, unknown> = {}) => {
     hasAttemptedSubmit = false;
     fields.forEach((_, name) => {
       fields.set(name, {

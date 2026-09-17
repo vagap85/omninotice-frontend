@@ -1,7 +1,11 @@
-import CustomButton from "@/components/atoms/Button/CustomButton";
 import { Box, Text, VStack } from "@chakra-ui/react";
-import { TariffCardProps } from "../types/types";
+
+import CustomButton from "@/components/atoms/Button/CustomButton";
 import TariffCardFeature from "@/components/molecules/TariffCardFeature/TariffCardFeature";
+
+import { TariffCardProps } from "../types/types";
+
+
 
 export default function TariffCard({
     isHighlighted,
