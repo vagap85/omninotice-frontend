@@ -1,9 +1,11 @@
 import { describe, test, expect, vi } from 'vitest';
-import { renderWithProviders } from '../test/utils';
+
 import CustomButton from '@/components/atoms/Button/CustomButton';
 import CustomInput from '@/components/atoms/Input/CustomInput';
-import CustomTextArea from '@/components/atoms/TextArea/CustomTextArea';
 import SpinnerLoader from '@/components/atoms/Loaders/SpinnerLoader/SpinnerLoader';
+import CustomTextArea from '@/components/atoms/TextArea/CustomTextArea';
+
+import { renderWithProviders } from '../test/utils';
 
 vi.mock('@/auth/AuthContext', () => ({
   useAuth: () => ({ isAuthorized: false, login: vi.fn() }),

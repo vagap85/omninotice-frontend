@@ -1,7 +1,7 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { MemoryRouter } from 'react-router-dom';
 import { render, RenderOptions } from '@testing-library/react';
 import { ReactElement, ReactNode } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 
 interface WrapperProps {
   children: ReactNode;

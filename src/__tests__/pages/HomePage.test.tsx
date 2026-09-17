@@ -1,6 +1,8 @@
 import { describe, test, expect, vi } from 'vitest';
-import { renderWithProviders } from '../../test/utils';
+
 import HomePage from '@/pages/HomePage/HomePage';
+
+import { renderWithProviders } from '../../test/utils';
 
 // Мокаем useAuth, чтобы не требовать AuthProvider
 vi.mock('@/auth/AuthContext', () => ({

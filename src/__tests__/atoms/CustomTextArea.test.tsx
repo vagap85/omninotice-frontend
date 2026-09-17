@@ -1,6 +1,8 @@
 import { describe, test, expect } from 'vitest';
-import { renderWithProviders, screen } from '../../test/utils';
+
 import CustomTextArea from '@/components/atoms/TextArea/CustomTextArea';
+
+import { renderWithProviders, screen } from '../../test/utils';
 
 describe('CustomTextArea', () => {
   test('рендерит textarea', () => {

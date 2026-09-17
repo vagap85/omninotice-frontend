@@ -1,13 +1,14 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders, screen } from '../../test/utils';
+
 import EmailNotification from '@/pages/Notifications/EmailNotification';
+
+import { renderWithProviders, screen } from '../../test/utils';
 
 // ===== МОКИ =====
 
-const mockNavigate = vi.fn();
 vi.mock('@/components/organisms/Forms/Email/Recipient/RecipientsPanel', () => ({
-  default: ({ canSend, onAuthClick }: any) => (
+  default: ({ canSend, onAuthClick }: { canSend: boolean; onAuthClick: () => void }) => (
     <div data-testid="recipients">
       <span data-testid="can-send">{String(canSend)}</span>
       <button onClick={onAuthClick}>Войти</button>
@@ -32,28 +33,22 @@ vi.mock('@/mailingDraftStorage', () => ({
   MAILING_DRAFT_KEY: 'test-draft-key',
 }));
 
-// УПРОЩЁННЫЙ мок RecipientsPanel — БЕЗ вызова onSend/onValidateEmailForm
-vi.mock('@/components/organisms/Forms/Recipient/RecipientsPanel', () => ({
-  default: ({ canSend, onAuthClick }: any) => (
-    <div data-testid="recipients">
-      <span data-testid="can-send">{String(canSend)}</span>
-      <button onClick={onAuthClick}>Войти</button>
-      <button data-testid="trigger-send">Отправить</button>
-    </div>
-  ),
-}));
-
 vi.mock('@/components/organisms/Forms/Email/EmailMainFields', () => ({
   default: () => <div data-testid="email-main">Main Fields</div>,
 }));
+
 vi.mock('@/components/organisms/Forms/Email/EmailThemeFields', () => ({
   default: () => <div data-testid="email-theme">Theme Fields</div>,
 }));
+
 vi.mock('@/components/molecules/Form/DraftAutoSave', () => ({
   default: () => null,
 }));
+
 vi.mock('@/components/molecules/PageHeader/PageHeader', () => ({
-  default: ({ title }: any) => <div data-testid="page-header">{title}</div>,
+  default: ({ title }: { title: string }) => (
+    <div data-testid="page-header">{title}</div>
+  ),
 }));
 
 describe('EmailNotification', () => {
@@ -97,10 +92,10 @@ describe('EmailNotification', () => {
   });
 
   test('кнопка авторизации присутствует в RecipientsPanel', () => {
-  mockIsAuthorized = false;
-  renderWithProviders(<EmailNotification />);
-  expect(screen.getByText('Войти')).toBeInTheDocument();
-});
+    mockIsAuthorized = false;
+    renderWithProviders(<EmailNotification />);
+    expect(screen.getByText('Войти')).toBeInTheDocument();
+  });
 
   test('читает черновик из sessionStorage при монтировании', () => {
     sessionStorage.setItem(
@@ -139,14 +134,12 @@ describe('EmailNotification', () => {
 
     renderWithProviders(<EmailNotification />);
 
-    // Просто клик по кнопке "Отправить" (мок не вызывает onSend)
     await user.click(screen.getByTestId('trigger-send'));
 
-    // sendEventEmail НЕ должен быть вызван, потому что форма пустая
     expect(mockSendEventEmail).not.toHaveBeenCalled();
   });
 
-  test('recripientsPanel присутствует в DOM', () => {
+  test('RecipientsPanel присутствует в DOM', () => {
     mockIsAuthorized = true;
     renderWithProviders(<EmailNotification />);
     expect(screen.getByTestId('recipients')).toBeInTheDocument();

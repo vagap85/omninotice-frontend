@@ -1,6 +1,8 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { renderWithProviders, screen } from '../../test/utils';
+
 import PushNotification from '@/pages/Notifications/PushNotification';
+
+import { renderWithProviders, screen } from '../../test/utils';
 
 // ===== МОКИ =====
 

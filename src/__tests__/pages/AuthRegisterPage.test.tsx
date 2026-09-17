@@ -1,7 +1,11 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders, screen, waitFor } from '../../test/utils';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
+
+import { loginUserCenter } from '@/api/userCenter';
 import AuthRegisterPage from '@/pages/Auth/AuthRegisterPage';
+
+import { renderWithProviders, screen, waitFor } from '../../test/utils';
+
 
 // ===== МОКИ =====
 
@@ -36,7 +40,6 @@ vi.mock('@/api/userCenter', () => ({
 vi.mock('@/assets/image 1.jpg', () => ({ default: 'bg.jpg' }));
 vi.mock('@/assets/Vector.svg', () => ({ default: 'logo.svg' }));
 
-import { loginUserCenter } from '@/api/userCenter';
 
 describe('AuthRegisterPage', () => {
   beforeEach(() => {

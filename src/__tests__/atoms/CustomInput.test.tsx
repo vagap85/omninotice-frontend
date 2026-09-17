@@ -1,7 +1,10 @@
-import { describe, test, expect } from 'vitest';
 import { createRef } from 'react';
-import { renderWithProviders, screen } from '../../test/utils';
+import { describe, test, expect } from 'vitest';
+
 import CustomInput from '@/components/atoms/Input/CustomInput';
+
+import { renderWithProviders, screen } from '../../test/utils';
+
 
 describe('CustomInput', () => {
   test('рендерит input', () => {

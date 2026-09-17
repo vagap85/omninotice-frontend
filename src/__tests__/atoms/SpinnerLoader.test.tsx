@@ -1,6 +1,8 @@
 import { describe, test, expect } from 'vitest';
-import { renderWithProviders } from '../../test/utils';
+
 import SpinnerLoader from '@/components/atoms/Loaders/SpinnerLoader/SpinnerLoader';
+
+import { renderWithProviders } from '../../test/utils';
 
 describe('SpinnerLoader', () => {
   test('рендерится без ошибок', () => {

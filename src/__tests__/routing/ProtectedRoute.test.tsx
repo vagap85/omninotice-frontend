@@ -1,7 +1,8 @@
-import { describe, test, expect, vi } from 'vitest';
+import { ChakraProvider } from '@chakra-ui/react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { ChakraProvider } from '@chakra-ui/react';
+import { describe, test, expect, vi } from 'vitest';
+
 import ProtectedRoute from '@/routing/ProtectedRoute';
 
 let mockIsAuthorized = false;

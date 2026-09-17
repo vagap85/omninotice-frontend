@@ -1,7 +1,10 @@
-import { describe, test, expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders, screen } from '../../test/utils';
+import { describe, test, expect, vi } from 'vitest';
+
 import CustomButton from '@/components/atoms/Button/CustomButton';
+
+import { renderWithProviders, screen } from '../../test/utils';
+
 
 describe('CustomButton', () => {
   test('рендерит текст', () => {
