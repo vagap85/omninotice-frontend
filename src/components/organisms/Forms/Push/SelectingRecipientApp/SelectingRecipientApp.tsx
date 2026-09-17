@@ -1,11 +1,13 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons/ArrowForward';
-import { Box, Button, Flex, Heading, useDisclosure } from '@chakra-ui/react';
-import { FormEvent, memo, useState } from 'react';
+import { Box, Flex, Heading, useDisclosure } from '@chakra-ui/react';
+import { memo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
+import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
 import SendController from '@/components/organisms/Modals/SendController/SendController';
 import type { PushPayload, PushNotificationFormValues } from '@/components/organisms/types/types';
+import { sanitizeSubmitValue } from '@/utils/sanitizeSubmitValue';
 
 import AllSelectBoxes from './AllSelectBoxes';
 import { useSelectedUsers } from './hooks/useSelectedUsers';
@@ -30,7 +32,6 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   const { selectedUsers } = useSelectedUsers();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // тестовый флаг — какой исход имитировать при следующей попытке отправки/повтора
   const [forceFail, setForceFail] = useState(false);
 
   const onAuthClick = () => navigate('/login');
@@ -38,12 +39,11 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   const recipientsCount =
     recipientsMode === 'all' ? selectedApp?.count ?? 0 : selectedUsers.length;
 
-  const validate = (): boolean => {
+  // теперь проверяет только то, что вне зоны ответственности formIds
+  // (валидацию самого контента формы pushNotification уже сделает FormSubmitButton)
+  const validateExtraFields = (): boolean => {
     setAppError(null);
     setRecipientsError(null);
-
-    const contentStore = registry.getStore('pushNotification');
-    const contentValid = contentStore?.validateAll() ?? false;
 
     let appValid = true;
     if (!selectedApp) {
@@ -57,28 +57,16 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
       recipientsValid = false;
     }
 
-    return contentValid && appValid && recipientsValid;
-  };
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault(); // не даём нативной форме перезагрузить страницу
-    if (!isAuthorized) {
-      onAuthClick();
-      return;
-    }
-    if (!validate()) return;
-
-    setForceFail(false);
-    onOpen();
+    return appValid && recipientsValid;
   };
 
   const buildPayload = (): PushPayload => {
     const contentStore = registry.getStore('pushNotification');
     const contentValues = contentStore!.getValues<PushNotificationFormValues>();
     return {
-      title: contentValues.title,
-      text: contentValues.text,
-      buttonText: contentValues.buttonText,
+      title: sanitizeSubmitValue(contentValues.title),
+      text: sanitizeSubmitValue(contentValues.text),
+      buttonText: sanitizeSubmitValue(contentValues.buttonText),
       buttonLink: contentValues.buttonLink,
       app: selectedApp,
       recipientsMode,
@@ -87,11 +75,8 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   };
 
   const sendPushNotification = async (payload: PushPayload) => {
-    // TODO: заменить на реальный вызов API отправки
     await new Promise<void>((resolve, reject) => {
       setTimeout(() => {
-        // имитация исхода запроса для проверки статусов "error"/успех —
-        // убрать forceFail и этот блок, когда будет реальный запрос
         if (forceFail) reject(new Error('Network error'));
         else resolve();
       }, 1200);
@@ -102,8 +87,7 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
 
   return (
     <Box
-      as="form"
-      onSubmit={handleSubmit}
+      as='form'
       maxW={{ base: "unset", md: '360px', xxl: '560px' }}
       p={
         {
@@ -141,20 +125,21 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
           gap={3}
         >
           <AllSelectBoxes />
-          <Button
-            type="submit"
-            bg="#3B6EA0"
-            color="white"
-            _hover={{ bg: '#2D547B' }}
+          <FormSubmitButton
             rightIcon={<ArrowForwardIcon />}
-            borderRadius="12px"
-            px={5}
-            fontWeight="600"
             maxW="fit-content"
             ml="auto"
+            isAuthorized={isAuthorized}
+            onUnauthorized={onAuthClick}
+            formIds={['pushNotification']}
+            beforeSubmitValidate={validateExtraFields}
+            onSubmit={() => {
+              setForceFail(false);
+              onOpen();
+            }}
           >
             {isAuthorized ? 'Отправить' : 'Авторизоваться для отправки'}
-          </Button>
+          </FormSubmitButton>
         </Flex>
       </Flex>
 

@@ -2,6 +2,7 @@ import { Button } from '@chakra-ui/react';
 import { useState } from 'react';
 
 import type { FormSubmitButtonProps } from '../../types/form';
+import { sanitizeFormValues } from '../helpers/sanitizeFormValues';
 import { useFormsRegistry } from '../hooks/useFormsRegistry';
 
 export function FormSubmitButton({
@@ -34,10 +35,11 @@ export function FormSubmitButton({
     if (!allValid) return;
 
     const mergedValues = stores.reduce((acc, store) => ({ ...acc, ...store.getValues() }), {});
+    const sanitizedValues = sanitizeFormValues(mergedValues);
 
     setIsSubmitting(true);
     try {
-      await onSubmit(mergedValues);
+      await onSubmit(sanitizedValues);
     } finally {
       setIsSubmitting(false);
     }
