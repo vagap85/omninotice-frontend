@@ -2,7 +2,6 @@ import { ChevronDownIcon } from "@chakra-ui/icons/ChevronDown";
 import { Box, Button, Flex, HStack, Icon, Link, Text, VStack } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 
-import { useAuth } from "@/auth/AuthContext";
 import CustomButton from "@/components/atoms/Button/CustomButton";
 import LogoCherryIcon from "@/components/atoms/Icons/home/LogoCherryIcon";
 import LogoMailIcon from "@/components/atoms/Icons/home/LogoMailIcon";
@@ -22,7 +21,6 @@ const submenuItems = [
 export default function Navigation() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const desktopMenuContainerRef = useRef<HTMLDivElement | null>(null);
-    const { isAuthorized } = useAuth();
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -134,7 +132,7 @@ export default function Navigation() {
                             <CustomButton
                                 key={label}
                                 as={"a"}
-                                href={label == "Push" && !isAuthorized ? "/login" : href}
+                                href={href}
                                 variant={"ghost"}
                                 role="link"
                                 display="flex"
