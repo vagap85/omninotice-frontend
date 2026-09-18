@@ -1,3 +1,5 @@
+import type { ImproveTextResponse } from "./types";
+
 const getProjectId = (): string => {
   const id = import.meta.env.VITE_SYNORA_PROJECT_ID?.trim();
   if (!id) {
@@ -14,10 +16,9 @@ const getPromttId = (): string => {
   return id;
 };
 
-export async function improveText(text: string): Promise<string> {
-  const responseFirst = await fetch(
-    "https://oracle.trends.skroy.ru/analysis/",
-    {
+export async function improveText(text: string): Promise<ImproveTextResponse> {
+  const fetchAnalysis = () =>
+    fetch("https://oracle.trends.skroy.ru/analysis/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -27,39 +28,23 @@ export async function improveText(text: string): Promise<string> {
         prompt_type: getPromttId(),
         text: text,
       }),
+    }).then((res) => res.json());
+
+  const [responseFirst, responseSecond] = await Promise.all([
+    fetchAnalysis(),
+    fetchAnalysis(),
+  ]);
+
+  return {
+    answerFirst: {
+      text: responseFirst.data[0].text,
+      title: responseFirst.data[0].title,
+      description: responseFirst.data[0].description,
     },
-  ).then((res) => res.json());
-
-  const responseSecond = await fetch(
-    "https://oracle.trends.skroy.ru/analysis/",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Project-ID": getProjectId(),
-      },
-      body: JSON.stringify({
-        prompt_type: getPromttId(),
-        text: text,
-      }),
+    answerSecond: {
+      text: responseSecond.data[0].text,
+      title: responseSecond.data[0].title,
+      description: responseSecond.data[0].description,
     },
-  ).then((res) => res.json());
-
-  const answerFirst = await responseFirst;
-  const answerSecond = await responseSecond;
-
-  return (
-    {
-      answerFirst: {
-        text: responseFirst.data[0].text,
-        title: responseFirst.data[0].title,
-        description: responseFirst.data[0].description,
-      },
-      answerSecond: {
-        text: responseSecond.data[0].text,
-        title: responseSecond.data[0].title,
-        description: responseSecond.data[0].description,
-      },
-    } || "Произошла ошибка"
-  );
+  };
 }

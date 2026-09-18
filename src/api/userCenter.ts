@@ -1,3 +1,5 @@
+import { UserCenterCreateSuccess, UserCenterLoginSuccess } from "./types";
+
 const DEFAULT_USERCENTER_BASE_URL = "https://api.users.skroy.ru";
 
 const getUserCenterBaseUrl = (): string => {
@@ -18,19 +20,6 @@ const getUserCenterProjectId = (): string => {
   }
   return id;
 };
-
-export interface UserCenterLoginSuccess {
-  accessToken: string;
-  tokenType: string;
-  login?: string;
-  firstName?: string;
-  lastName?: string;
-}
-
-export interface UserCenterCreateSuccess {
-  login: string;
-  password: string;
-}
 
 const getErrorMessage = (response: unknown): string | undefined => {
   if (!response || typeof response !== "object") {
@@ -156,11 +145,15 @@ export async function createUserCenter(
       }),
     });
   } catch (networkError) {
-    throw new Error("Сетевая ошибка при создании аккаунта. Повторите попытку.");
+    console.error(networkError);
+    throw new Error(
+      "Сетевая ошибка при создании аккаунта. Повторите попытку.",
+      { cause: networkError },
+    );
   }
 
   const rawText = await response.text();
-  let rawJson: unknown = null;
+  let rawJson: unknown;
   try {
     rawJson = rawText ? JSON.parse(rawText) : null;
   } catch {

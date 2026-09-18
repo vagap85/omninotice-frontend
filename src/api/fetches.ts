@@ -1,10 +1,6 @@
 import mockData from "../mocks/users-in-search.json";
 
-export interface User {
-  id: string;
-  full_name: string;
-  platform: string;
-}
+import { User } from "./types";
 
 // имитация сетевой задержки
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

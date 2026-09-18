@@ -64,7 +64,7 @@ export async function apiRequest<TResponse, TBody = unknown>(
     ...rest,
   });
 
-  let data: unknown = null;
+  let data: unknown;
   const contentType = response.headers.get("content-type");
   if (contentType && contentType.includes("application/json")) {
     data = await response.json().catch(() => null);
