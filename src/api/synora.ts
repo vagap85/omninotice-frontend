@@ -4,19 +4,7 @@
  * EventForEMail: send_to (email), template_name?, data?
  */
 
-export interface EventForEMail {
-  send_to: string
-  template_name?: string
-  data?: Record<string, unknown>
-}
-
-export interface EventForAPI {
-  send_to: string
-  answer_to?: string
-  method: string
-  data: Record<string, unknown>
-  headers?: Record<string, string>
-}
+import { EventForEMail } from "./types"
 
 const getBaseUrl = (): string => {
   const url = import.meta.env.VITE_SYNORA_BASE_URL
@@ -68,6 +56,7 @@ export async function sendEventEmail(
   const json: unknown = await res.json().catch(() => ({}))
 
   // Synora может возвращать event_id в разных местах — нормализуем для удобства логирования.
+  // !временное решение, обязательно убрать any
   const asAny = json as any
   const event_id: string | undefined =
     asAny?.event_id ?? asAny?.data?.[0]?.event_id ?? undefined

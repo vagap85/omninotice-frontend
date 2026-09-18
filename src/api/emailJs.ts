@@ -1,10 +1,6 @@
 import emailjs from "@emailjs/browser";
 
-type EmailParams = {
-	to_email: string;
-	title: string;
-	message: string;
-};
+import { EmailParams } from "./types";
 
 const sendEmailJs = async (params: EmailParams) => {
 	const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;

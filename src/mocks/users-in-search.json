@@ -1,0 +1,154 @@
+{
+    "users": [
+        {
+            "id": "1",
+            "full_name": "Васильев Михаил Борисович",
+            "platform": "sigma"
+        },
+        {
+            "id": "2",
+            "full_name": "Ширяева Варвара Алексеевна",
+            "platform": "sigma"
+        },
+        {
+            "id": "3",
+            "full_name": "Грибов Игорь Иванович",
+            "platform": "sigma"
+        },
+        {
+            "id": "4",
+            "full_name": "Артамонов Даниил Кириллович",
+            "platform": "sigma"
+        },
+        {
+            "id": "5",
+            "full_name": "Дорофеева Анастасия Данииловна",
+            "platform": "sigma"
+        },
+        {
+            "id": "6",
+            "full_name": "Черкасова Мария Ильинична",
+            "platform": "sigma"
+        },
+        {
+            "id": "7",
+            "full_name": "Чернышев Лев Константинович",
+            "platform": "sigma"
+        },
+        {
+            "id": "8",
+            "full_name": "Чижов Максим Михайлович",
+            "platform": "sigma"
+        },
+        {
+            "id": "9",
+            "full_name": "Зимина Вероника Семёновна",
+            "platform": "sigma"
+        },
+        {
+            "id": "10",
+            "full_name": "Столярова Василиса Кирилловна",
+            "platform": "sigma"
+        },
+        {
+            "id": "11",
+            "full_name": "Воронцова Сафия Степановна",
+            "platform": "sigma"
+        },
+        {
+            "id": "12",
+            "full_name": "Воробьева Ульяна Матвеевна",
+            "platform": "sigma"
+        },
+        {
+            "id": "13",
+            "full_name": "Сергеева Кристина Максимовна",
+            "platform": "sigma"
+        },
+        {
+            "id": "14",
+            "full_name": "Галкин Даниил Артёмович",
+            "platform": "sigma"
+        },
+        {
+            "id": "15",
+            "full_name": "Кондрашов Фёдор Алексеевич",
+            "platform": "sigma"
+        },
+        {
+            "id": "16",
+            "full_name": "Измайлов Илья Владимирович",
+            "platform": "sigma"
+        },
+        {
+            "id": "17",
+            "full_name": "Попова Татьяна Ивановна",
+            "platform": "sigma"
+        },
+        {
+            "id": "18",
+            "full_name": "Смирнов Станислав Дмитриевич",
+            "platform": "sigma"
+        },
+        {
+            "id": "19",
+            "full_name": "Ларионова Злата Вячеславовна",
+            "platform": "sigma"
+        },
+        {
+            "id": "20",
+            "full_name": "Емельянова Вероника Марковна",
+            "platform": "sigma"
+        },
+        {
+            "id": "21",
+            "full_name": "Новикова Пелагея Николаевна",
+            "platform": "sigma"
+        },
+        {
+            "id": "22",
+            "full_name": "Кириллова Николь Александровна",
+            "platform": "sigma"
+        },
+        {
+            "id": "23",
+            "full_name": "Романов Артём Давидович",
+            "platform": "sigma"
+        },
+        {
+            "id": "24",
+            "full_name": "Рыбаков Ярослав Алексеевич",
+            "platform": "sigma"
+        },
+        {
+            "id": "25",
+            "full_name": "Васильева Таисия Макаровна",
+            "platform": "sigma"
+        },
+        {
+            "id": "26",
+            "full_name": "Софронов Филипп Александрович",
+            "platform": "sigma"
+        },
+        {
+            "id": "27",
+            "full_name": "Калмыкова Эмилия Мирославовна",
+            "platform": "sigma"
+        },
+        {
+            "id": "28",
+            "full_name": "Щербаков Тимофей Егорович",
+            "platform": "sigma"
+        },
+        {
+            "id": "29",
+            "full_name": "Михайлов Даниил Георгиевич",
+            "platform": "sigma"
+        },
+        {
+            "id": "30",
+            "full_name": "Смирнова Софья Алексеевна",
+            "platform": "sigma"
+        }
+    ]
+}
