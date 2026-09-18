@@ -145,11 +145,15 @@ export async function createUserCenter(
       }),
     });
   } catch (networkError) {
+
+    
+
     console.error(networkError);
     throw new Error(
       "Сетевая ошибка при создании аккаунта. Повторите попытку.",
       { cause: networkError },
     );
+
   }
 
   const rawText = await response.text();
