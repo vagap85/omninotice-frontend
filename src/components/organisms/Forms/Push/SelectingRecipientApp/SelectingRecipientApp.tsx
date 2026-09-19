@@ -1,8 +1,9 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons/ArrowForward';
 import { Box, Button, Flex, Heading, useDisclosure } from '@chakra-ui/react';
-import { FormEvent, memo, useState } from 'react';
+import { FormEvent, memo } from 'react';
 import { useNavigate } from 'react-router';
 
+import { createDispatch, DispatchError, generateRequestId } from '@/api/vishenka';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
 import SendController from '@/components/organisms/Modals/SendController/SendController';
 import type { PushPayload, PushNotificationFormValues } from '@/components/organisms/types/types';
@@ -30,8 +31,7 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   const { selectedUsers } = useSelectedUsers();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // тестовый флаг — какой исход имитировать при следующей попытке отправки/повтора
-  const [forceFail, setForceFail] = useState(false);
+  
 
   const onAuthClick = () => navigate('/login');
 
@@ -67,8 +67,6 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
       return;
     }
     if (!validate()) return;
-
-    setForceFail(false);
     onOpen();
   };
 
@@ -87,18 +85,27 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   };
 
   const sendPushNotification = async (payload: PushPayload) => {
-    // TODO: заменить на реальный вызов API отправки
-    await new Promise<void>((resolve, reject) => {
-      setTimeout(() => {
-        // имитация исхода запроса для проверки статусов "error"/успех —
-        // убрать forceFail и этот блок, когда будет реальный запрос
-        if (forceFail) reject(new Error('Network error'));
-        else resolve();
-      }, 1200);
+  try {
+    const response = await createDispatch({
+      request_id: generateRequestId(),
+      application_id: (payload.app as { id: string })?.id ?? 'sigma',
+      channel: 'popup',
+      title: payload.title,
+      body: payload.text,
+      audience_type: payload.recipientsMode === 'all' ? 'all' : 'selected',
+      recipient_ids: payload.recipientsMode === 'individual'
+        ? payload.selectedUsers?.map((u) => u.id) ?? []
+        : [],
     });
 
-    console.log('Отправка push-рассылки', payload);
-  };
+    console.log('Push отправлен:', response.detail.code);
+     } catch (error) {
+    if (error instanceof DispatchError) {
+      console.error('Dispatch error:', error.status, error.detail);
+    }
+    throw error;
+  }
+};
 
   return (
     <Box
