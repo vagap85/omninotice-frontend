@@ -1,3 +1,4 @@
+![Tests](https://github.com/vagap85/omninotice-frontend/actions/workflows/test.yml/badge.svg)
 # 🎯 OmniNotice — Sigma Notification Widget
 Frontend для системы корпоративных уведомлений OmniNotice.
 
