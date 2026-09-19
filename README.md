@@ -1,59 +1,98 @@
-<<<<<<< README.md
-# OmniNotice
+🎯 OmniNotice — Sigma Notification Widget
+Frontend для системы корпоративных уведомлений OmniNotice.
 
-Платформа рассылок на все каналы. Первый сценарий: страница создания уведомления и отправка через Synora.
+React + TypeScript + Vite + Chakra UI. Atomic Design. 110 тестов (Vitest).
 
-## Стек
+Tests
 
-- React 18 + TypeScript
-- Vite
-- Chakra UI
+📖 О проекте
+OmniNotice — система отправки уведомлений через каналы:
 
-## Запуск
+Email — через Synora
+In-App (лента + всплывающая плашка) — через Vishenka-services
+Мой вклад:
 
-```bash
+✅ Настроил тестовое окружение с нуля (Vitest + Testing Library)
+✅ Написал 110 тестов (Unit + Integration + Snapshot)
+✅ Интегрировал 2 API (Synora, Vishenka-services)
+✅ Настроил ESLint + правила
+✅ Покрытие ключевых модулей: 82-100%
+🛠 Стек технологий
+Слой	Технологии
+Frontend	React 18, TypeScript, Vite
+UI	Chakra UI, Framer Motion
+Routing	react-router-dom v6
+State	React Context + custom formStore
+Тесты	Vitest, Testing Library, jsdom
+Линтер	ESLint, Biome
+CI/CD	GitLab CI, GitHub Actions
+🚀 Запуск
+1. Клонировать
+git clone https://github.com/vagap85/omninotice-frontend.git cd omninotice-frontend
+
+2. Установить зависимости
 npm install
-npm run dev
-```
 
-Откройте http://localhost:5173
+3. Скопировать env
+cp .env.example .env
 
-## Переменные окружения
+4. Запустить
+npm run dev Откройте: http://localhost:5173
 
-Скопируйте `.env.example` в `.env` и при необходимости измените:
+🧪 Тесты
+Watch-режим
+npm run test
 
-- `VITE_SYNORA_BASE_URL` — базовый URL API Synora (например, `https://api.synora.skroy.ru`)
-- `VITE_SYNORA_EVENT_TOPIC` — топик события для отправки (должен быть настроен в реестре Synora)
+Один прогон
+npm run test:run
 
-## Отправка через Synora
+С покрытием
+npm run test:coverage
 
-При нажатии «Отправить» фронтенд вызывает:
+UI-режим
+npm run test:ui
+Результат: ✅ 110 тестов в 16 файлах
 
-```
-POST {VITE_SYNORA_BASE_URL}/event/send/{VITE_SYNORA_EVENT_TOPIC}
-Content-Type: application/json
+Покрытие
+Слой Тестов
+Unit (атомы, validators, formStore) 62
+Integration (API, страницы) 41
+Snapshot (атомы) 5
+Routing (ProtectedRoute) 2
 
-{
-  "send_to": "email@example.com",
-  "data": {
-    "subject": "заголовок",
-    "body": "текст",
-    "textColor": "#10f48a",
-    "fontSize": "16px"
-  }
+📐 Архитектура (Atomic Design)
+src/
+├── api/ # API-клиенты (userCenter, synora, vishenka)
+├── auth/ # AuthContext
+├── components/
+│ ├── atoms/ # Button, Input, Icons
+│ ├── molecules/ # Form, PageHeader
+│ └── organisms/ # Header, Forms, Sections
+├── pages/ # Auth, HomePage, Notifications
+├── routing/ # ProtectedRoute
+├── test/ # setup, utils, mocks
+├── tests/ # все тесты
+└── utils/ # утилиты
+
+🔌API-интеграции
+Synora (Email)
+
+POST {VITE_SYNORA_BASE_URL}/event/send/{topic}
+{ send_to: "user@mail.com",
+data: { subject, body, ... }
 }
-```
+Vishenka-services (In-App)
 
-В Synora должны быть настроены:
+Vishenka-services (In-App) POST {VITE_VISHENKA_BASE_URL}/api/v1/dispatches { request_id: UUID, application_id: "sigma", channel: "feed" | "popup", title, body, audience_type: "all" | "selected", recipient_ids: UUID[] }
 
-1. Конфигурация события с `topic` = `VITE_SYNORA_EVENT_TOPIC` и действиями (например, `prepare_mail` → `mail_send`).
-2. Шаблон сообщения (если используется `template_name` в конфигурации).
-3. Конфигурация отправителя email (`event.sender.email`).
+📦 Переменные окружения
+VITE_SYNORA_BASE_URL=https://api.synora.example.ru
+VITE_SYNORA_PROJECT_ID=example
+VITE_USERCENTER_BASE_URL=https://api.users.example.ru
+VITE_USERCENTER_PROJECT_ID=example
+VITE_VISHENKA_BASE_URL=https://vishenka.example.ru
+📝 Лицензия MIT
 
-## Сборка
+👤 Автор Evgeny Agapov
 
-```bash
-npm run build
-npm run preview
-```
-
+GitHub: @vagap85
