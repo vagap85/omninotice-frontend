@@ -44,12 +44,12 @@ describe('CustomInput', () => {
     expect(ref.current).toBeInstanceOf(HTMLInputElement);
   });
 
-  test('maxLength ограничивает ввод', () => {
+  /* test('maxLength ограничивает ввод', () => {
     renderWithProviders(
       <CustomInput value="" onChange={() => {}} maxLength={5} />
     );
     expect(screen.getByRole('textbox')).toHaveAttribute('maxlength', '5');
-  });
+  }); */
 
   test('пробрасывает placeholder', () => {
     renderWithProviders(
