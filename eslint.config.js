@@ -8,7 +8,15 @@ import importX from 'eslint-plugin-import-x'
 const skipImportChecks = process.env.NO_IMPORTS === 'true'
 
 export default tseslint.config(
-  { ignores: ['dist'] },
+  {
+    ignores: [
+      'dist',
+      'coverage',
+      'node_modules',
+      'vite.config.js',
+      'vite.config.d.ts',
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
@@ -59,6 +67,14 @@ export default tseslint.config(
               alphabetize: { order: 'asc', caseInsensitive: true },
             },
           ],
+    },
+  },
+  // Ослабленные правила для тестов
+  {
+    files: ['src/test/**/*.{ts,tsx}', 'src/__tests__/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 )
