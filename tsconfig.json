@@ -15,9 +15,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true,
-    "types": ["vitest/globals", "@testing-library/jest-dom"],
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
