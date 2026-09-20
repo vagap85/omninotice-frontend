@@ -69,6 +69,7 @@ ruff-lint:
 
 unit-tests:
   stage: test
+  image: ${DOCKER_HUB_MIRROR}node:22-alpine
   tags: [docker]
   allow_failure: false
   variables:
@@ -76,14 +77,9 @@ unit-tests:
   rules:
     - if: $CI_COMMIT_BRANCH != "master"
   script:
-    # 1. Копируем .env.example → .env
     - cp .env.example .env
-    # 2. Запускаем тесты в Node.js 22 (как на GitHub Actions)
-    - > #
-      docker create --rm --name nodetest-${CI_COMMIT_SHORT_SHA} ${DOCKER_HUB_MIRROR}node:22-alpine
-      sh -c "npm ci && npm run test:run" > /dev/null &&
-      docker cp ./ nodetest-${CI_COMMIT_SHORT_SHA}:/app > /dev/null
-    - docker start -a nodetest-${CI_COMMIT_SHORT_SHA}
+    - npm ci
+    - npm run test:run
   after_script:
     - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker system prune -f; fi
 
