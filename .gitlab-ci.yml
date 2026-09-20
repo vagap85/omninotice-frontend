@@ -78,12 +78,12 @@ unit-tests:
   script:
     # 1. Копируем .env.example → .env
     - cp .env.example .env
-    # 2. Запускаем тесты в Bun-контейнере через npm
+    # 2. Запускаем тесты в Node.js 22 (как на GitHub Actions)
     - > #
-      docker create --rm --name buntest-${CI_COMMIT_SHORT_SHA} ${DOCKER_HUB_MIRROR}${BUN_VERSION}-debian
-      bash -c "npm ci && npm run test:run" > /dev/null &&
-      docker cp ./ buntest-${CI_COMMIT_SHORT_SHA}:/home/bun/app > /dev/null
-    - docker start -a buntest-${CI_COMMIT_SHORT_SHA}
+      docker create --rm --name nodetest-${CI_COMMIT_SHORT_SHA} ${DOCKER_HUB_MIRROR}node:22-alpine
+      sh -c "npm ci && npm run test:run" > /dev/null &&
+      docker cp ./ nodetest-${CI_COMMIT_SHORT_SHA}:/app > /dev/null
+    - docker start -a nodetest-${CI_COMMIT_SHORT_SHA}
   after_script:
     - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker system prune -f; fi
 
