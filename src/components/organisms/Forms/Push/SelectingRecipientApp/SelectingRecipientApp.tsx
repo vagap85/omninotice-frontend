@@ -1,9 +1,9 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons/ArrowForward';
-import { Box, Button, Flex, Heading, useDisclosure } from '@chakra-ui/react';
-import { FormEvent, memo } from 'react';
+import { Box, Flex, Heading, useDisclosure } from '@chakra-ui/react';
+import { memo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { createDispatch, DispatchError, generateRequestId } from '@/api/vishenka';
+import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
 import SendController from '@/components/organisms/Modals/SendController/SendController';
 import type { PushPayload, PushNotificationFormValues } from '@/components/organisms/types/types';
@@ -32,7 +32,7 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   const { selectedUsers } = useSelectedUsers();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  
+  const [forceFail, setForceFail] = useState(false);
 
   const onAuthClick = () => navigate('/login');
 
@@ -57,17 +57,7 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
       recipientsValid = false;
     }
 
-    return contentValid && appValid && recipientsValid;
-  };
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault(); // не даём нативной форме перезагрузить страницу
-    if (!isAuthorized) {
-      onAuthClick();
-      return;
-    }
-    if (!validate()) return;
-    onOpen();
+    return appValid && recipientsValid;
   };
 
   const buildPayload = (): PushPayload => {
@@ -85,27 +75,15 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   };
 
   const sendPushNotification = async (payload: PushPayload) => {
-  try {
-    const response = await createDispatch({
-      request_id: generateRequestId(),
-      application_id: (payload.app as { id: string })?.id ?? 'sigma',
-      channel: 'popup',
-      title: payload.title,
-      body: payload.text,
-      audience_type: payload.recipientsMode === 'all' ? 'all' : 'selected',
-      recipient_ids: payload.recipientsMode === 'individual'
-        ? payload.selectedUsers?.map((u) => u.id) ?? []
-        : [],
+    await new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        if (forceFail) reject(new Error('Network error'));
+        else resolve();
+      }, 1200);
     });
 
-    console.log('Push отправлен:', response.detail.code);
-     } catch (error) {
-    if (error instanceof DispatchError) {
-      console.error('Dispatch error:', error.status, error.detail);
-    }
-    throw error;
-  }
-};
+    console.log('Отправка push-рассылки', payload);
+  };
 
   return (
     <Box
