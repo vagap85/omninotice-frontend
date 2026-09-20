@@ -6,9 +6,12 @@ export const maxLength = (
   max: number,
   message = "Превышено количество знаков. Уберите лишние, чтобы отправить.",
 ): Validator<string> => {
-  const validator: Validator<string> = (value) =>
-    typeof value === "string" && value.length > max ? message : undefined;
-  validator.immediate = true; // проверяется сразу при вводе, а не только после сабмита
+  const validator: Validator<string> = (value) => {
+    if (typeof value !== "string") return undefined;
+    const meaningfulLength = value.replace(/\s/g, "").length;
+    return meaningfulLength > max ? message : undefined;
+  };
+  validator.immediate = true;
   return validator;
 };
 

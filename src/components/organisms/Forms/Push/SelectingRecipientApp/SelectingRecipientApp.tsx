@@ -7,6 +7,7 @@ import { createDispatch, DispatchError, generateRequestId } from '@/api/vishenka
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
 import SendController from '@/components/organisms/Modals/SendController/SendController';
 import type { PushPayload, PushNotificationFormValues } from '@/components/organisms/types/types';
+import { sanitizeSubmitValue } from '@/utils/sanitizeSubmitValue';
 
 import AllSelectBoxes from './AllSelectBoxes';
 import { useSelectedUsers } from './hooks/useSelectedUsers';
@@ -38,12 +39,11 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   const recipientsCount =
     recipientsMode === 'all' ? selectedApp?.count ?? 0 : selectedUsers.length;
 
-  const validate = (): boolean => {
+  // теперь проверяет только то, что вне зоны ответственности formIds
+  // (валидацию самого контента формы pushNotification уже сделает FormSubmitButton)
+  const validateExtraFields = (): boolean => {
     setAppError(null);
     setRecipientsError(null);
-
-    const contentStore = registry.getStore('pushNotification');
-    const contentValid = contentStore?.validateAll() ?? false;
 
     let appValid = true;
     if (!selectedApp) {
@@ -74,9 +74,9 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
     const contentStore = registry.getStore('pushNotification');
     const contentValues = contentStore!.getValues<PushNotificationFormValues>();
     return {
-      title: contentValues.title,
-      text: contentValues.text,
-      buttonText: contentValues.buttonText,
+      title: sanitizeSubmitValue(contentValues.title),
+      text: sanitizeSubmitValue(contentValues.text),
+      buttonText: sanitizeSubmitValue(contentValues.buttonText),
       buttonLink: contentValues.buttonLink,
       app: selectedApp,
       recipientsMode,
@@ -109,8 +109,7 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
 
   return (
     <Box
-      as="form"
-      onSubmit={handleSubmit}
+      as='form'
       maxW={{ base: "unset", md: '360px', xxl: '560px' }}
       p={
         {
@@ -148,20 +147,21 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
           gap={3}
         >
           <AllSelectBoxes />
-          <Button
-            type="submit"
-            bg="#3B6EA0"
-            color="white"
-            _hover={{ bg: '#2D547B' }}
+          <FormSubmitButton
             rightIcon={<ArrowForwardIcon />}
-            borderRadius="12px"
-            px={5}
-            fontWeight="600"
             maxW="fit-content"
             ml="auto"
+            isAuthorized={isAuthorized}
+            onUnauthorized={onAuthClick}
+            formIds={['pushNotification']}
+            beforeSubmitValidate={validateExtraFields}
+            onSubmit={() => {
+              setForceFail(false);
+              onOpen();
+            }}
           >
             {isAuthorized ? 'Отправить' : 'Авторизоваться для отправки'}
-          </Button>
+          </FormSubmitButton>
         </Flex>
       </Flex>
 

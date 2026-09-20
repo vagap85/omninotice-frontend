@@ -63,16 +63,7 @@ export default function RecipientsPanel({
 
                 <Flex justify="end">
                     <FormSubmitButton
-                        bg="#3B6EA0"
-                        color="white"
-                        _hover={{ bg: '#2D547B' }}
                         rightIcon={<ArrowForwardIcon boxSize={5} />}
-                        borderRadius="12px"
-                        h="auto"
-                        whiteSpace="normal"
-                        py={3}
-                        px={5}
-                        fontWeight="600"
                         isAuthorized={canSend}
                         onUnauthorized={onAuthClick}
                         onSubmit={onOpen}

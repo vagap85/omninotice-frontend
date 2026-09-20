@@ -1,7 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { Box, Button, Link, Stack, Text, VStack, useToast } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { loginUserCenter } from '@/api/userCenter';
 import authBg from '@/assets/image 1.jpg';
@@ -15,6 +15,13 @@ import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider
 import { FormsRegistryProvider } from '@/components/molecules/Form/Providers/FormsRegistryProvider';
 import { required, email as emailValidator } from '@/components/molecules/Form/validators/validators';
 
+type LocationState = {
+  from?: {
+    pathname: string;
+    search?: string;
+  };
+};
+
 export default function AuthLoginPage() {
   return (
     <FormsRegistryProvider>
@@ -27,10 +34,15 @@ export default function AuthLoginPage() {
 
 function AuthLoginPageInner() {
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
   const registry = useFormsRegistry();
   const { login: setAuth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  const state = location.state as LocationState | null;
+  const from = state?.from;
+  const redirectTo = from ? `${from.pathname}${from.search ?? ''}` : '/';
 
   const handleSubmit = async () => {
     const store = registry.getOrCreateStore('login');
@@ -65,7 +77,7 @@ function AuthLoginPageInner() {
           </Box>
         ),
       });
-      navigate('/create/email');
+      navigate(redirectTo, { replace: true });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Ошибка авторизации';
       store.setFieldError('password', message);
