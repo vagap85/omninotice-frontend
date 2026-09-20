@@ -96,9 +96,9 @@ describe('AuthLoginPage', () => {
     await user.type(screen.getByPlaceholderText(/введите пароль/i), 'password123');
     await user.click(screen.getByText('Войти'));
 
-    await waitFor(() => {
+        await waitFor(() => {
       expect(mockLogin).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith('/create/email');
+      expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true });
     });
   });
 });

@@ -68,7 +68,6 @@ exports[`Snapshot tests > CustomTextArea — с счётчиком 1`] = `
 >
   <textarea
     class="chakra-textarea css-1sjsctz"
-    maxlength="100"
   >
     Тест
   </textarea>
