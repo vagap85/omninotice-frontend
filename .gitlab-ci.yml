@@ -69,7 +69,6 @@ ruff-lint:
 
 unit-tests:
   stage: test
-  image: ${DOCKER_HUB_MIRROR}node:22-alpine
   tags: [docker]
   allow_failure: false
   variables:
@@ -78,10 +77,22 @@ unit-tests:
     - if: $CI_COMMIT_BRANCH != "master"
   script:
     - cp .env.example .env
-    - npm ci
-    - npm run test:run
+    - mkdir -p .npm-cache
+    - >
+      docker run --rm
+      -v "$CI_PROJECT_DIR:/app"
+      -v "$CI_PROJECT_DIR/.npm-cache:/root/.npm"
+      -w /app
+      -e npm_config_cache=/root/.npm
+      -e CI=true
+      ${DOCKER_HUB_MIRROR}node:22-alpine
+      sh -c "npm ci && npm run test:run"
   after_script:
-    - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker system prune -f; fi
+    - if [ $(df / --output='pcent' | grep -o "[0-9]*" | head -1 || echo 0) -gt 80 ]; then docker system prune -f; fi
+  cache:
+    key: "npm-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .npm-cache/
 
 test-build:
   stage: test
