@@ -1,8 +1,9 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons/ArrowForward';
 import { Box, Flex, Heading, useDisclosure } from '@chakra-ui/react';
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { useNavigate } from 'react-router';
 
+import { createDispatch, DispatchError, generateRequestId } from '@/api/vishenka';
 import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
 import SendController from '@/components/organisms/Modals/SendController/SendController';
@@ -31,8 +32,6 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   const { selectedApp, recipientsMode, setAppError, setRecipientsError } = useSelectingRecipientApp();
   const { selectedUsers } = useSelectedUsers();
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const [forceFail, setForceFail] = useState(false);
 
   const onAuthClick = () => navigate('/login');
 
@@ -75,14 +74,26 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   };
 
   const sendPushNotification = async (payload: PushPayload) => {
-    await new Promise<void>((resolve, reject) => {
-      setTimeout(() => {
-        if (forceFail) reject(new Error('Network error'));
-        else resolve();
-      }, 1200);
-    });
+    try {
+      const response = await createDispatch({
+        request_id: generateRequestId(),
+        application_id: (payload.app as { id: string })?.id ?? 'sigma',
+        channel: 'popup',
+        title: payload.title,
+        body: payload.text,
+        audience_type: payload.recipientsMode === 'all' ? 'all' : 'selected',
+        recipient_ids: payload.recipientsMode === 'individual'
+          ? payload.selectedUsers?.map((u) => u.id) ?? []
+          : [],
+      });
 
-    console.log('Отправка push-рассылки', payload);
+      console.log('Push отправлен:', response.detail.code);
+    } catch (error) {
+      if (error instanceof DispatchError) {
+        console.error('Dispatch error:', error.status, error.detail);
+      }
+      throw error;
+    }
   };
 
   return (
@@ -133,10 +144,7 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
             onUnauthorized={onAuthClick}
             formIds={['pushNotification']}
             beforeSubmitValidate={validateExtraFields}
-            onSubmit={() => {
-              setForceFail(false);
-              onOpen();
-            }}
+            onSubmit={() => onOpen()}
           >
             {isAuthorized ? 'Отправить' : 'Авторизоваться для отправки'}
           </FormSubmitButton>

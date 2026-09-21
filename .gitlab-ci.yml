@@ -67,6 +67,21 @@ ruff-lint:
   after_script:
     - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker system prune -f; fi
 
+unit-tests:
+  stage: test
+  image: ${DOCKER_HUB_MIRROR}node:22-alpine
+  tags: [docker]
+  allow_failure: false
+  variables:
+    BUILD_VERSION: $CI_COMMIT_SHORT_SHA
+  rules:
+    - if: $CI_COMMIT_BRANCH != "master"
+  script:
+    - cp .env.example .env
+    - npm ci
+    - npm run test:run
+  after_script:
+    - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker system prune -f; fi
 
 test-build:
   stage: test

@@ -10,7 +10,6 @@ import { countMeaningfulLength } from '@/utils/meaningfulLength'
 
 import { CustomInputProps } from '../types/types'
 
-
 const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
   ({ value, maxLength, showCounter = true, ...rest }, ref) => {
     const currentLength =
