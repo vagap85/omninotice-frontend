@@ -34,7 +34,10 @@ export function FormSubmitButton({
     const allValid = storeResults.every(Boolean) && customValid;
     if (!allValid) return;
 
-    const mergedValues = stores.reduce((acc, store) => ({ ...acc, ...store.getValues() }), {});
+    const mergedValues = stores.reduce(
+      (acc, store) => ({ ...acc, ...store.getValues() }),
+      {}
+    );
     const sanitizedValues = sanitizeFormValues(mergedValues);
 
     setIsSubmitting(true);
@@ -46,7 +49,11 @@ export function FormSubmitButton({
   };
 
   return (
-    <Button {...rest} isLoading={isSubmitting} onClick={handleClick}>
+    <Button
+      {...rest}
+      isLoading={isSubmitting}
+      onClick={handleClick}
+    >
       {children}
     </Button>
   );

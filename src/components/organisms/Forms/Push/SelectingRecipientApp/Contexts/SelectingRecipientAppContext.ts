@@ -1,5 +1,6 @@
-import { createContext } from "react";
+import { createContext } from 'react';
 
-import { SelectingRecipientAppContextValue } from "../types/types";
+import { SelectingRecipientAppContextValue } from '../types/types';
 
-export const SelectingRecipientAppContext = createContext<SelectingRecipientAppContextValue | null>(null);
+export const SelectingRecipientAppContext =
+  createContext<SelectingRecipientAppContextValue | null>(null);

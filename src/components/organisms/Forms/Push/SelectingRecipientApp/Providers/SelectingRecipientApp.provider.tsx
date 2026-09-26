@@ -1,11 +1,20 @@
-import { ReactNode, useCallback, useMemo, useState } from "react";
+import { ReactNode, useCallback, useMemo, useState } from 'react';
 
-import { SelectingRecipientAppContext } from "../Contexts/SelectingRecipientAppContext";
-import type { RecipientsMode, SelectedApp, SelectedAppIcon } from "../types/types";
+import { SelectingRecipientAppContext } from '../Contexts/SelectingRecipientAppContext';
+import type {
+  RecipientsMode,
+  SelectedApp,
+  SelectedAppIcon
+} from '../types/types';
 
-export default function SelectingRecipientAppProvider({ children }: { children: ReactNode }) {
+export default function SelectingRecipientAppProvider({
+  children
+}: {
+  children: ReactNode;
+}) {
   const [selectedApp, setSelectedAppState] = useState<SelectedApp | null>(null);
-  const [recipientsMode, setRecipientsModeState] = useState<RecipientsMode>('all');
+  const [recipientsMode, setRecipientsModeState] =
+    useState<RecipientsMode>('all');
   const [appError, setAppError] = useState<string | null>(null);
   const [recipientsError, setRecipientsError] = useState<string | null>(null);
 
@@ -33,9 +42,17 @@ export default function SelectingRecipientAppProvider({ children }: { children: 
       appError,
       setAppError,
       recipientsError,
-      setRecipientsError,
+      setRecipientsError
     }),
-    [selectedApp, setSelectedApp, setSelectedIcon, recipientsMode, setRecipientsMode, appError, recipientsError],
+    [
+      selectedApp,
+      setSelectedApp,
+      setSelectedIcon,
+      recipientsMode,
+      setRecipientsMode,
+      appError,
+      recipientsError
+    ]
   );
 
   return (

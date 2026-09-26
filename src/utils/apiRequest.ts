@@ -1,6 +1,10 @@
-type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD" | "OPTIONS";
+type HttpMethod =
+  'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
 
-interface ApiRequestOptions<TBody = unknown> extends Omit<RequestInit, "method" | "body"> {
+interface ApiRequestOptions<TBody = unknown> extends Omit<
+  RequestInit,
+  'method' | 'body'
+> {
   url: string;
   method?: HttpMethod;
   body?: TBody;
@@ -15,11 +19,11 @@ class ApiError extends Error {
     public data: unknown
   ) {
     super(`API Error ${status}: ${statusText}`);
-    this.name = "ApiError";
+    this.name = 'ApiError';
   }
 }
 
-function buildUrl(url: string, params?: ApiRequestOptions["params"]): string {
+function buildUrl(url: string, params?: ApiRequestOptions['params']): string {
   if (!params) return url;
 
   const searchParams = new URLSearchParams();
@@ -41,32 +45,25 @@ function buildUrl(url: string, params?: ApiRequestOptions["params"]): string {
 export async function apiRequest<TResponse, TBody = unknown>(
   options: ApiRequestOptions<TBody>
 ): Promise<TResponse> {
-  const {
-    url,
-    method = "GET",
-    body,
-    headers,
-    params,
-    ...rest
-  } = options;
+  const { url, method = 'GET', body, headers, params, ...rest } = options;
 
   const finalUrl = buildUrl(url, params);
 
   const finalHeaders: HeadersInit = {
-    ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
-    ...headers,
+    ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+    ...headers
   };
 
   const response = await fetch(finalUrl, {
     method,
     headers: finalHeaders,
     body: body !== undefined ? JSON.stringify(body) : undefined,
-    ...rest,
+    ...rest
   });
 
   let data: unknown;
-  const contentType = response.headers.get("content-type");
-  if (contentType && contentType.includes("application/json")) {
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
     data = await response.json().catch(() => null);
   } else {
     data = await response.text().catch(() => null);

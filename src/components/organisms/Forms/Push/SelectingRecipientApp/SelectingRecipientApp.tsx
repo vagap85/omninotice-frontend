@@ -1,13 +1,20 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons/ArrowForward';
 import { Box, Flex, Heading, useDisclosure } from '@chakra-ui/react';
 import { memo } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
-import { createDispatch, DispatchError, generateRequestId } from '@/api/vishenka';
+import {
+  createDispatch,
+  DispatchError,
+  generateRequestId
+} from '@/api/vishenka';
 import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
 import SendController from '@/components/organisms/Modals/SendController/SendController';
-import type { PushPayload, PushNotificationFormValues } from '@/components/organisms/types/types';
+import type {
+  PushPayload,
+  PushNotificationFormValues
+} from '@/components/organisms/types/types';
 import { sanitizeSubmitValue } from '@/utils/sanitizeSubmitValue';
 
 import AllSelectBoxes from './AllSelectBoxes';
@@ -29,14 +36,15 @@ function SelectingRecipientApp({ isAuthorized }: { isAuthorized: boolean }) {
 function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   const navigate = useNavigate();
   const registry = useFormsRegistry();
-  const { selectedApp, recipientsMode, setAppError, setRecipientsError } = useSelectingRecipientApp();
+  const { selectedApp, recipientsMode, setAppError, setRecipientsError } =
+    useSelectingRecipientApp();
   const { selectedUsers } = useSelectedUsers();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const onAuthClick = () => navigate('/login');
 
   const recipientsCount =
-    recipientsMode === 'all' ? selectedApp?.count ?? 0 : selectedUsers.length;
+    recipientsMode === 'all' ? (selectedApp?.count ?? 0) : selectedUsers.length;
 
   // теперь проверяет только то, что вне зоны ответственности formIds
   // (валидацию самого контента формы pushNotification уже сделает FormSubmitButton)
@@ -69,7 +77,7 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
       buttonLink: contentValues.buttonLink,
       app: selectedApp,
       recipientsMode,
-      selectedUsers: recipientsMode === 'individual' ? selectedUsers : undefined,
+      selectedUsers: recipientsMode === 'individual' ? selectedUsers : undefined
     };
   };
 
@@ -82,9 +90,10 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
         title: payload.title,
         body: payload.text,
         audience_type: payload.recipientsMode === 'all' ? 'all' : 'selected',
-        recipient_ids: payload.recipientsMode === 'individual'
-          ? payload.selectedUsers?.map((u) => u.id) ?? []
-          : [],
+        recipient_ids:
+          payload.recipientsMode === 'individual'
+            ? (payload.selectedUsers?.map((u) => u.id) ?? [])
+            : []
       });
 
       console.log('Push отправлен:', response.detail.code);
@@ -98,37 +107,36 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
 
   return (
     <Box
-      as='form'
-      maxW={{ base: "unset", md: '360px', xxl: '560px' }}
-      p={
-        {
-          base: "clamp(12px, 1.7vw + 0.125rem, 24px)",
-          md: "unset"
-        }
-      }
+      as="form"
+      maxW={{ base: 'unset', md: '360px', xxl: '29.17vw' }}
+      p={{
+        base: 'clamp(12px, 1.7vw + 0.125rem, 24px)',
+        md: 'unset'
+      }}
       borderLeft="1px solid"
       borderColor="gray.200"
       minH={{
-        base: "unset",
-        md: "calc(100vh - 73px)"
+        base: 'unset',
+        md: 'calc(100vh - 73px)'
       }}
-      w={"full"}
+      w={'full'}
     >
       <Flex
         w="100%"
-        h={"100%"}
+        h={'100%'}
         px={6}
         py={5}
         bg="white"
-        flexDirection={"column"}
-        borderRadius={
-          {
-            'base': "10px",
-            'md': "none"
-          }
-        }
+        flexDirection={'column'}
+        borderRadius={{
+          base: '10px',
+          md: 'none'
+        }}
       >
-        <Heading size="md" mb={6}>
+        <Heading
+          size="md"
+          mb={6}
+        >
           Настройка рассылки
         </Heading>
         <Flex

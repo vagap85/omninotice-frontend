@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode
+} from 'react';
 
 import { AuthContext } from './AuthContext';
 import type { AuthState } from './types';
@@ -19,7 +25,9 @@ const readStoredAuth = (): AuthState | null => {
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [authState, setAuthState] = useState<AuthState | null>(() => readStoredAuth());
+  const [authState, setAuthState] = useState<AuthState | null>(() =>
+    readStoredAuth()
+  );
 
   const login = useCallback((auth: AuthState) => {
     localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
@@ -46,7 +54,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ authState, isAuthorized: Boolean(authState?.accessToken), login, logout }),
+    () => ({
+      authState,
+      isAuthorized: Boolean(authState?.accessToken),
+      login,
+      logout
+    }),
     [authState, login, logout]
   );
 

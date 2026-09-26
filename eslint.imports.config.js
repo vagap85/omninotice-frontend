@@ -1,6 +1,6 @@
-import globals from 'globals'
-import tseslint from 'typescript-eslint'
-import importX from 'eslint-plugin-import-x'
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+import importX from 'eslint-plugin-import-x';
 
 export default tseslint.config(
   { ignores: ['dist', 'vite.config.ts', 'vite.config.d.ts', '**/*.d.ts'] },
@@ -11,22 +11,22 @@ export default tseslint.config(
       globals: globals.browser,
       parser: tseslint.parser,
       parserOptions: {
-        project: './tsconfig.json',
-      },
+        project: './tsconfig.json'
+      }
     },
     plugins: {
-      'import-x': importX,
+      'import-x': importX
     },
     settings: {
       'import-x/resolver': {
         typescript: {
           alwaysTryTypes: true,
-          project: './tsconfig.json',
-        },
-      },
+          project: './tsconfig.json'
+        }
+      }
     },
     rules: {
-      'import-x/no-unresolved': 'error',
-    },
-  },
-)
+      'import-x/no-unresolved': 'error'
+    }
+  }
+);

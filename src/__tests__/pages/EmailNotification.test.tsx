@@ -8,47 +8,53 @@ import { renderWithProviders, screen } from '../../test/utils';
 // ===== МОКИ =====
 
 vi.mock('@/components/organisms/Forms/Email/Recipient/RecipientsPanel', () => ({
-  default: ({ canSend, onAuthClick }: { canSend: boolean; onAuthClick: () => void }) => (
+  default: ({
+    canSend,
+    onAuthClick
+  }: {
+    canSend: boolean;
+    onAuthClick: () => void;
+  }) => (
     <div data-testid="recipients">
       <span data-testid="can-send">{String(canSend)}</span>
       <button onClick={onAuthClick}>Войти</button>
       <button data-testid="trigger-send">Отправить</button>
     </div>
-  ),
+  )
 }));
 
 let mockIsAuthorized = false;
 vi.mock('@/auth/AuthContext', () => ({
-  useAuth: () => ({ isAuthorized: mockIsAuthorized, login: vi.fn() }),
+  useAuth: () => ({ isAuthorized: mockIsAuthorized, login: vi.fn() })
 }));
 
 const mockSendEventEmail = vi.fn();
 vi.mock('@/api/synora', () => ({
   sendEventEmail: (...args: unknown[]) => mockSendEventEmail(...args),
   getSynoraMailTopic: () => 'mail-send',
-  getSynoraMailTemplateName: () => null,
+  getSynoraMailTemplateName: () => null
 }));
 
 vi.mock('@/mailingDraftStorage', () => ({
-  MAILING_DRAFT_KEY: 'test-draft-key',
+  MAILING_DRAFT_KEY: 'test-draft-key'
 }));
 
 vi.mock('@/components/organisms/Forms/Email/EmailMainFields', () => ({
-  default: () => <div data-testid="email-main">Main Fields</div>,
+  default: () => <div data-testid="email-main">Main Fields</div>
 }));
 
 vi.mock('@/components/organisms/Forms/Email/EmailThemeFields', () => ({
-  default: () => <div data-testid="email-theme">Theme Fields</div>,
+  default: () => <div data-testid="email-theme">Theme Fields</div>
 }));
 
 vi.mock('@/components/molecules/Form/DraftAutoSave', () => ({
-  default: () => null,
+  default: () => null
 }));
 
 vi.mock('@/components/molecules/PageHeader/PageHeader', () => ({
   default: ({ title }: { title: string }) => (
     <div data-testid="page-header">{title}</div>
-  ),
+  )
 }));
 
 describe('EmailNotification', () => {
@@ -103,7 +109,7 @@ describe('EmailNotification', () => {
       JSON.stringify({
         subject: 'Тестовая тема',
         messageTitle: 'Заголовок',
-        body: 'Тело письма',
+        body: 'Тело письма'
       })
     );
 

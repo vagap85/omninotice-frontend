@@ -1,11 +1,19 @@
 import { ArrowBackIcon } from '@chakra-ui/icons';
-import { Box, Button, Link, Stack, Text, VStack, useToast } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Link,
+  Stack,
+  Text,
+  VStack,
+  useToast
+} from '@chakra-ui/react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { loginUserCenter } from '@/api/userCenter';
-import authBg from '@/assets/image 1.jpg';
-import logo from '@/assets/Vector.svg';
+import authBg from '@/assets/background.jpg';
+import logo from '@/assets/logo.svg';
 import { useAuth } from '@/auth/AuthContext';
 import { FormPasswordField } from '@/components/molecules/Form/Elements/FormPasswordField';
 import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
@@ -13,7 +21,10 @@ import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegi
 import { useFormValues } from '@/components/molecules/Form/hooks/useFormValues';
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
 import { FormsRegistryProvider } from '@/components/molecules/Form/Providers/FormsRegistryProvider';
-import { required, email as emailValidator } from '@/components/molecules/Form/validators/validators';
+import {
+  required,
+  email as emailValidator
+} from '@/components/molecules/Form/validators/validators';
 
 type LocationState = {
   from?: {
@@ -48,7 +59,10 @@ function AuthLoginPageInner() {
     const store = registry.getOrCreateStore('login');
     if (!store.validateAll()) return;
 
-    const { login, password } = store.getValues<{ login: string; password: string }>();
+    const { login, password } = store.getValues<{
+      login: string;
+      password: string;
+    }>();
 
     setIsLoading(true);
     try {
@@ -61,7 +75,7 @@ function AuthLoginPageInner() {
         tokenType: auth.tokenType,
         login: auth.login,
         firstName: auth.firstName,
-        lastName: auth.lastName,
+        lastName: auth.lastName
       });
 
       toast({
@@ -69,13 +83,24 @@ function AuthLoginPageInner() {
         duration: 4000,
         isClosable: true,
         render: () => (
-          <Box bg="#1FAE4B" color="white" px={5} py={4} borderRadius="16px" boxShadow="lg" minW="470px">
-            <Text fontWeight="700" mb={1}>
+          <Box
+            bg="#1FAE4B"
+            color="white"
+            px={5}
+            py={4}
+            borderRadius="16px"
+            boxShadow="lg"
+            minW="470px"
+          >
+            <Text
+              fontWeight="700"
+              mb={1}
+            >
               Вы успешно вошли
             </Text>
             <Text>Теперь можно отправлять рассылки и улучшать текст</Text>
           </Box>
-        ),
+        )
       });
       navigate(redirectTo, { replace: true });
     } catch (e) {
@@ -124,8 +149,22 @@ function AuthLoginPageInner() {
         На главную
       </Button>
 
-      <VStack spacing={10} position="relative" zIndex={1} w="100%" maxW="460px" mx="auto" mt="8vh">
-        <Box as="img" src={logo} alt="OmniNotice" w="220px" h="80px" />
+      <VStack
+        spacing={10}
+        position="relative"
+        zIndex={1}
+        w="100%"
+        maxW="460px"
+        mx="auto"
+        mt="8vh"
+      >
+        <Box
+          as="img"
+          src={logo}
+          alt="OmniNotice"
+          w="220px"
+          h="80px"
+        />
 
         <Box
           w="100%"
@@ -140,7 +179,10 @@ function AuthLoginPageInner() {
                 name="login"
                 label="Логин"
                 placeholder="example@omninotice"
-                validators={[required('Введите логин и пароль'), emailValidator()]}
+                validators={[
+                  required('Введите логин и пароль'),
+                  emailValidator()
+                ]}
               />
               <FormPasswordField
                 name="password"
@@ -152,7 +194,10 @@ function AuthLoginPageInner() {
             </Stack>
 
             <VStack spacing={1}>
-              <LoginSubmitButton isLoading={isLoading} onSubmit={() => void handleSubmit()} />
+              <LoginSubmitButton
+                isLoading={isLoading}
+                onSubmit={() => void handleSubmit()}
+              />
               <Link
                 color="#3B6EA0"
                 fontSize="16px"
@@ -166,7 +211,11 @@ function AuthLoginPageInner() {
           </Stack>
         </Box>
 
-        <Text color="#2D547B" fontSize="14px" fontWeight="500">
+        <Text
+          color="#2D547B"
+          fontSize="14px"
+          fontWeight="500"
+        >
           Не помню пароль
         </Text>
       </VStack>
@@ -176,7 +225,13 @@ function AuthLoginPageInner() {
 
 // Вынесено в лист, чтобы useFormValues (подписка на ВСЕ поля формы, нужная только
 // для расчёта opacity) не тянула за собой ре-рендер всей страницы при каждом нажатии клавиши.
-function LoginSubmitButton({ isLoading, onSubmit }: { isLoading: boolean; onSubmit: () => void }) {
+function LoginSubmitButton({
+  isLoading,
+  onSubmit
+}: {
+  isLoading: boolean;
+  onSubmit: () => void;
+}) {
   const values = useFormValues<{ login: string; password: string }>('login');
   const isFilled = Boolean(values.login?.trim() && values.password?.trim());
 

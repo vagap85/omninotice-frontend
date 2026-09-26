@@ -1,7 +1,5 @@
-import "./SpinnerLoader.css"
+import './SpinnerLoader.css';
 
 export default function SpinnerLoader() {
-  return (
-    <div className="spinner-loader"></div>
-  )
+  return <div className="spinner-loader"></div>;
 }

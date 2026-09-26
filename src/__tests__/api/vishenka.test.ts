@@ -1,6 +1,10 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 
-import { createDispatch, DispatchError, generateRequestId } from '@/api/vishenka';
+import {
+  createDispatch,
+  DispatchError,
+  generateRequestId
+} from '@/api/vishenka';
 
 describe('createDispatch (Vishenka API)', () => {
   beforeEach(() => {
@@ -19,15 +23,23 @@ describe('createDispatch (Vishenka API)', () => {
       status: 201,
       json: async () => ({
         detail: { code: 'OK', message: 'Рассылка принята' },
-        data: [{
-          request_id: 'uuid-1',
-          status: 'accepted',
-          already_applied: false,
-          author_user_id: 'uuid-2',
-          created_at: '2026-09-19T10:00:00Z',
-        }],
-        info: { api_version: '2.8.0', count: 1, total: 1, page: 1, page_size: 1 },
-      }),
+        data: [
+          {
+            request_id: 'uuid-1',
+            status: 'accepted',
+            already_applied: false,
+            author_user_id: 'uuid-2',
+            created_at: '2026-09-19T10:00:00Z'
+          }
+        ],
+        info: {
+          api_version: '2.8.0',
+          count: 1,
+          total: 1,
+          page: 1,
+          page_size: 1
+        }
+      })
     });
 
     const result = await createDispatch({
@@ -37,7 +49,7 @@ describe('createDispatch (Vishenka API)', () => {
       title: 'Тест',
       body: 'Текст',
       audience_type: 'selected',
-      recipient_ids: ['uuid-3'],
+      recipient_ids: ['uuid-3']
     });
 
     expect(result.detail.code).toBe('OK');
@@ -51,15 +63,17 @@ describe('createDispatch (Vishenka API)', () => {
       status: 201,
       json: async () => ({
         detail: { code: 'ALREADY_APPLIED', message: 'Уже применено' },
-        data: [{
-          request_id: 'uuid-1',
-          status: 'replayed',
-          already_applied: true,
-          author_user_id: 'uuid-2',
-          created_at: '2026-09-19T10:00:00Z',
-        }],
-        info: { api_version: '2.8.0' },
-      }),
+        data: [
+          {
+            request_id: 'uuid-1',
+            status: 'replayed',
+            already_applied: true,
+            author_user_id: 'uuid-2',
+            created_at: '2026-09-19T10:00:00Z'
+          }
+        ],
+        info: { api_version: '2.8.0' }
+      })
     });
 
     const result = await createDispatch({
@@ -69,7 +83,7 @@ describe('createDispatch (Vishenka API)', () => {
       title: 'Тест',
       body: 'Текст',
       audience_type: 'all',
-      recipient_ids: [],
+      recipient_ids: []
     });
 
     expect(result.detail.code).toBe('ALREADY_APPLIED');
@@ -81,19 +95,21 @@ describe('createDispatch (Vishenka API)', () => {
       ok: false,
       status: 422,
       json: async () => ({
-        detail: [{ loc: ['body', 'recipient_ids'], msg: 'Обязательно' }],
-      }),
+        detail: [{ loc: ['body', 'recipient_ids'], msg: 'Обязательно' }]
+      })
     });
 
-    await expect(createDispatch({
-      request_id: 'uuid-1',
-      application_id: 'sigma',
-      channel: 'popup',
-      title: 'Тест',
-      body: 'Текст',
-      audience_type: 'selected',
-      recipient_ids: [],
-    })).rejects.toThrow(DispatchError);
+    await expect(
+      createDispatch({
+        request_id: 'uuid-1',
+        application_id: 'sigma',
+        channel: 'popup',
+        title: 'Тест',
+        body: 'Текст',
+        audience_type: 'selected',
+        recipient_ids: []
+      })
+    ).rejects.toThrow(DispatchError);
   });
 
   test('503 → DispatchError "Synora should retry"', async () => {
@@ -101,8 +117,8 @@ describe('createDispatch (Vishenka API)', () => {
       ok: false,
       status: 503,
       json: async () => ({
-        detail: 'Upstream service timeout. Synora should retry.',
-      }),
+        detail: 'Upstream service timeout. Synora should retry.'
+      })
     });
 
     const error = await createDispatch({
@@ -112,7 +128,7 @@ describe('createDispatch (Vishenka API)', () => {
       title: 'Тест',
       body: 'Текст',
       audience_type: 'all',
-      recipient_ids: [],
+      recipient_ids: []
     }).catch((e) => e);
 
     expect(error).toBeInstanceOf(DispatchError);
@@ -127,8 +143,8 @@ describe('createDispatch (Vishenka API)', () => {
       json: async () => ({
         detail: { code: 'OK' },
         data: [],
-        info: { api_version: '2.8.0' },
-      }),
+        info: { api_version: '2.8.0' }
+      })
     });
 
     const payload = {
@@ -138,7 +154,7 @@ describe('createDispatch (Vishenka API)', () => {
       title: 'Тест',
       body: 'Текст',
       audience_type: 'selected' as const,
-      recipient_ids: ['uuid-3'],
+      recipient_ids: ['uuid-3']
     };
 
     await createDispatch(payload);
@@ -148,7 +164,7 @@ describe('createDispatch (Vishenka API)', () => {
       expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload)
       })
     );
   });
@@ -157,7 +173,9 @@ describe('createDispatch (Vishenka API)', () => {
 describe('generateRequestId', () => {
   test('возвращает валидный UUID v4', () => {
     const id = generateRequestId();
-    expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+    expect(id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    );
   });
 
   test('генерирует уникальные ID', () => {

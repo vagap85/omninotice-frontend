@@ -3,20 +3,20 @@ import {
   InputRightElement,
   Text,
   Textarea
-} from '@chakra-ui/react'
-import { forwardRef } from 'react'
+} from '@chakra-ui/react';
+import { forwardRef } from 'react';
 
-import { countMeaningfulLength } from '@/utils/meaningfulLength'
+import { countMeaningfulLength } from '@/utils/meaningfulLength';
 
-import type { CustomTextareaProps } from '../types/types'
-
+import type { CustomTextareaProps } from '../types/types';
 
 const CustomTextarea = forwardRef<HTMLTextAreaElement, CustomTextareaProps>(
   ({ value, maxLength, showCounter = true, ...rest }, ref) => {
     const currentLength =
-      typeof value === 'string' ? countMeaningfulLength(value) : 0
-    const isOverLimit = typeof maxLength === 'number' && currentLength > maxLength
-    const hasCounter = showCounter && typeof maxLength === 'number'
+      typeof value === 'string' ? countMeaningfulLength(value) : 0;
+    const isOverLimit =
+      typeof maxLength === 'number' && currentLength > maxLength;
+    const hasCounter = showCounter && typeof maxLength === 'number';
 
     return (
       <InputGroup>
@@ -31,17 +31,24 @@ const CustomTextarea = forwardRef<HTMLTextAreaElement, CustomTextareaProps>(
           {...rest}
         />
         {hasCounter && (
-          <InputRightElement h="44px" w="72px" pointerEvents="none">
-            <Text color={isOverLimit ? 'error.500' : 'gray.400'} fontSize="md">
+          <InputRightElement
+            h="44px"
+            w="72px"
+            pointerEvents="none"
+          >
+            <Text
+              color={isOverLimit ? 'error.500' : 'gray.400'}
+              fontSize="md"
+            >
               {currentLength}/{maxLength}
             </Text>
           </InputRightElement>
         )}
       </InputGroup>
-    )
+    );
   }
-)
+);
 
-CustomTextarea.displayName = 'CustomTextarea'
+CustomTextarea.displayName = 'CustomTextarea';
 
-export default CustomTextarea
+export default CustomTextarea;

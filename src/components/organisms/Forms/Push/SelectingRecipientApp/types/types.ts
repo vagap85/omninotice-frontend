@@ -1,11 +1,11 @@
-import type { ComponentType } from "react";
+import type { ComponentType } from 'react';
 
-import { User } from "@/api/types";
-import type { IconProps } from "@/components/atoms/types/types";
+import { User } from '@/api/types';
+import type { IconProps } from '@/components/atoms/types/types';
 
 export interface SelectedApp {
   title: string;
-  icon: SelectedAppIcon;         // текущая выбранная иконка
+  icon: SelectedAppIcon; // текущая выбранная иконка
   standartIcon: SelectedAppIcon; // иконка по умолчанию для этого приложения
   iconColor: string;
   bgIconColor: string;
@@ -51,7 +51,7 @@ export interface AppSelectProps {
   onChange?: (app: SelectingApp) => void;
 }
 
-export type RecipientsMode = "all" | "individual";
+export type RecipientsMode = 'all' | 'individual';
 
 export interface UsersSelectProps {
   value?: RecipientsMode;

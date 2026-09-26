@@ -5,22 +5,35 @@ import CustomInput from '@/components/atoms/Input/CustomInput';
 
 import { renderWithProviders, screen } from '../../test/utils';
 
-
 describe('CustomInput', () => {
   test('рендерит input', () => {
-    renderWithProviders(<CustomInput value="" onChange={() => {}} />);
+    renderWithProviders(
+      <CustomInput
+        value=""
+        onChange={() => {}}
+      />
+    );
     expect(screen.getByRole('textbox')).toBeInTheDocument();
   });
 
   test('показывает счётчик при maxLength', () => {
     renderWithProviders(
-      <CustomInput value="Привет" onChange={() => {}} maxLength={70} />
+      <CustomInput
+        value="Привет"
+        onChange={() => {}}
+        maxLength={70}
+      />
     );
     expect(screen.getByText('6/70')).toBeInTheDocument();
   });
 
   test('не показывает счётчик без maxLength', () => {
-    renderWithProviders(<CustomInput value="Привет" onChange={() => {}} />);
+    renderWithProviders(
+      <CustomInput
+        value="Привет"
+        onChange={() => {}}
+      />
+    );
     expect(screen.queryByText(/\d+\/\d+/)).not.toBeInTheDocument();
   });
 
@@ -39,7 +52,11 @@ describe('CustomInput', () => {
   test('пробрасывает ref', () => {
     const ref = createRef<HTMLInputElement>();
     renderWithProviders(
-      <CustomInput ref={ref} value="" onChange={() => {}} />
+      <CustomInput
+        ref={ref}
+        value=""
+        onChange={() => {}}
+      />
     );
     expect(ref.current).toBeInstanceOf(HTMLInputElement);
   });
@@ -53,7 +70,11 @@ describe('CustomInput', () => {
 
   test('пробрасывает placeholder', () => {
     renderWithProviders(
-      <CustomInput value="" onChange={() => {}} placeholder="Введите текст" />
+      <CustomInput
+        value=""
+        onChange={() => {}}
+        placeholder="Введите текст"
+      />
     );
     expect(screen.getByPlaceholderText('Введите текст')).toBeInTheDocument();
   });

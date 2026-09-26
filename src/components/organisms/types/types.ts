@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 
-import { User } from "@/api/types";
-import type { TariffFeatureData } from "@/components/molecules/types/types";
+import { User } from '@/api/types';
+import type { TariffFeatureData } from '@/components/molecules/types/types';
 
-import type { SelectedAppIcon } from "../Forms/Push/SelectingRecipientApp/types/types";
+import type { SelectedAppIcon } from '../Forms/Push/SelectingRecipientApp/types/types';
 
 export interface TariffCardProps {
   title: string;
@@ -40,7 +40,7 @@ export interface LogoutModalProps {
   isOpen: boolean;
 }
 
-export type SendStatus = "confirm" | "loading" | "error";
+export type SendStatus = 'confirm' | 'loading' | 'error';
 
 export interface ModalSendProps {
   isOpen: boolean;
@@ -85,7 +85,7 @@ export interface RecipientsPanelProps {
   onSend: (validEmails: string[]) => Promise<void>;
 }
 
-export type SendVariant = "email" | "push";
+export type SendVariant = 'email' | 'push';
 
 export interface SendControllerProps<TPayload> {
   variant: SendVariant;

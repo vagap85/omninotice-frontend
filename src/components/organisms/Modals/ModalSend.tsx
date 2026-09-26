@@ -8,10 +8,10 @@ import {
   ModalCloseButton,
   Button,
   Text,
-  Box,
-} from "@chakra-ui/react";
+  Box
+} from '@chakra-ui/react';
 
-import type { ModalSendProps } from "../types/types";
+import type { ModalSendProps } from '../types/types';
 
 export default function ModalSend({
   isOpen,
@@ -20,12 +20,16 @@ export default function ModalSend({
   progress,
   onConfirm,
   onRetry,
-  confirmMessage,
+  confirmMessage
 }: ModalSendProps) {
-  const progressColor = status === "error" ? "#EF4444" : "teal.400";
+  const progressColor = status === 'error' ? '#EF4444' : 'teal.400';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      isCentered
+    >
       <ModalOverlay bg="blackAlpha.300" />
 
       <ModalContent
@@ -36,20 +40,27 @@ export default function ModalSend({
         px={6}
         py={4}
       >
-        <ModalHeader fontSize="2xl" fontWeight="700" px={0} pt={2} pb={2}>
-          {status === "confirm"
-            ? "Подтверждение отправки"
-            : "Отправляем рассылку"}
+        <ModalHeader
+          fontSize="2xl"
+          fontWeight="700"
+          px={0}
+          pt={2}
+          pb={2}
+        >
+          {status === 'confirm'
+            ? 'Подтверждение отправки'
+            : 'Отправляем рассылку'}
         </ModalHeader>
 
         <ModalCloseButton />
 
-        <ModalBody px={0} pt={4}>
-          {status === "confirm" && (
-            <Text fontSize="lg">{confirmMessage}</Text>
-          )}
+        <ModalBody
+          px={0}
+          pt={4}
+        >
+          {status === 'confirm' && <Text fontSize="lg">{confirmMessage}</Text>}
 
-          {(status === "loading" || status === "error") && (
+          {(status === 'loading' || status === 'error') && (
             <>
               <Box mt={2}>
                 <Box
@@ -69,8 +80,12 @@ export default function ModalSend({
                 </Box>
               </Box>
 
-              {status === "error" && (
-                <Text fontSize="md" color="#EF4444" mt={6}>
+              {status === 'error' && (
+                <Text
+                  fontSize="md"
+                  color="#EF4444"
+                  mt={6}
+                >
                   При отправке произошла ошибка
                 </Text>
               )}
@@ -78,16 +93,23 @@ export default function ModalSend({
           )}
         </ModalBody>
 
-        <ModalFooter px={0} pt={6}>
-          {status === "confirm" && (
+        <ModalFooter
+          px={0}
+          pt={6}
+        >
+          {status === 'confirm' && (
             <>
-              <Button variant="outline" mr={3} onClick={onClose}>
+              <Button
+                variant="outline"
+                mr={3}
+                onClick={onClose}
+              >
                 Отмена
               </Button>
               <Button
                 bg="black"
                 color="white"
-                _hover={{ bg: "gray.800" }}
+                _hover={{ bg: 'gray.800' }}
                 onClick={onConfirm}
               >
                 Отправить
@@ -95,21 +117,28 @@ export default function ModalSend({
             </>
           )}
 
-          {status === "loading" && (
-            <Button variant="outline" onClick={onClose}>
+          {status === 'loading' && (
+            <Button
+              variant="outline"
+              onClick={onClose}
+            >
               Отмена
             </Button>
           )}
 
-          {status === "error" && (
+          {status === 'error' && (
             <>
-              <Button variant="outline" mr={3} onClick={onClose}>
+              <Button
+                variant="outline"
+                mr={3}
+                onClick={onClose}
+              >
                 Отмена
               </Button>
               <Button
                 bg="black"
                 color="white"
-                _hover={{ bg: "gray.800" }}
+                _hover={{ bg: 'gray.800' }}
                 onClick={onRetry}
               >
                 Повторить
