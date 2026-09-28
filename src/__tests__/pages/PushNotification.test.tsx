@@ -42,9 +42,6 @@ vi.mock(
     default: () => <div data-testid="recipients">Recipients Panel</div>
   })
 );
-vi.mock('@/components/molecules/PageHeader/PageHeader', () => ({
-  default: ({ title }: any) => <div data-testid="page-header">{title}</div>
-}));
 
 describe('PushNotification', () => {
   beforeEach(() => {
@@ -61,21 +58,12 @@ describe('PushNotification', () => {
     mockIsAuthorized = true;
     renderWithProviders(<PushNotification />);
 
-    expect(screen.getByTestId('page-header')).toBeInTheDocument();
     expect(screen.getByTestId('notif-cont')).toBeInTheDocument();
     expect(screen.getByTestId('action-sect')).toBeInTheDocument();
     expect(screen.getByTestId('recipients')).toBeInTheDocument();
   });
 
-  test('показывает заголовок страницы', () => {
-    mockIsAuthorized = true;
-    renderWithProviders(<PushNotification />);
-
-    expect(screen.getByTestId('page-header')).toHaveTextContent(
-      /Создание рассылки push-уведомлений/i
-    );
-  });
-
+  
   test('не редиректит если авторизован', () => {
     mockIsAuthorized = true;
     renderWithProviders(<PushNotification />);

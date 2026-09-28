@@ -51,11 +51,7 @@ vi.mock('@/components/molecules/Form/DraftAutoSave', () => ({
   default: () => null
 }));
 
-vi.mock('@/components/molecules/PageHeader/PageHeader', () => ({
-  default: ({ title }: { title: string }) => (
-    <div data-testid="page-header">{title}</div>
-  )
-}));
+// ❌ УДАЛЕНО: мок PageHeader — страница его больше не рендерит
 
 describe('EmailNotification', () => {
   beforeEach(() => {
@@ -69,15 +65,10 @@ describe('EmailNotification', () => {
 
   test('рендерится без ошибок', () => {
     renderWithProviders(<EmailNotification />);
-    expect(screen.getByTestId('page-header')).toBeInTheDocument();
+    expect(screen.getByTestId('email-main')).toBeInTheDocument();
   });
 
-  test('показывает заголовок страницы', () => {
-    renderWithProviders(<EmailNotification />);
-    expect(screen.getByTestId('page-header')).toHaveTextContent(
-      /Создание e-mail рассылки/i
-    );
-  });
+  // ❌ УДАЛЕНО: тест «показывает заголовок страницы» — PageHeader теперь в SidebarLayout
 
   test('показывает поля формы', () => {
     renderWithProviders(<EmailNotification />);
@@ -114,7 +105,7 @@ describe('EmailNotification', () => {
     );
 
     renderWithProviders(<EmailNotification />);
-    expect(screen.getByTestId('page-header')).toBeInTheDocument();
+    expect(screen.getByTestId('email-main')).toBeInTheDocument();
   });
 
   // ===== ЛОГИРОВАНИЕ =====
