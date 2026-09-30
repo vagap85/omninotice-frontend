@@ -1,12 +1,13 @@
 import { Flex } from '@chakra-ui/react';
 import { useEffect, lazy, Suspense, ComponentType } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import SpinnerLoader from './components/atoms/Loaders/SpinnerLoader/SpinnerLoader';
 import { registerClearMailingDraftBeforeUnload } from './mailingDraftStorage';
 import ProtectedRoute from './routing/ProtectedRoute';
 import SidebarLayout from './components/layouts/SidebarLayout';
 import { OverviewPage } from './pages/OverviewPage/OverviewPage';
+import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage';
 
 function lazyWithMinDelay<P extends object>(
   factory: () => Promise<{ default: ComponentType<P> }>,
@@ -82,12 +83,7 @@ function App() {
         />
         <Route
           path="*"
-          element={
-            <Navigate
-              to="/"
-              replace
-            />
-          }
+          element={<NotFoundPage />}
         />
       </Routes>
     </Suspense>
