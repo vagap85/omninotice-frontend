@@ -7,7 +7,7 @@ import {
   pattern,
   httpUrl,
   email,
-  matchesField,
+  matchesField
 } from '@/components/molecules/Form/validators/validators';
 
 describe('validators', () => {
@@ -141,7 +141,9 @@ describe('validators', () => {
 
     test('возвращает ошибку если значения не совпадают', () => {
       const validate = matchesField('password');
-      expect(validate('secret', { password: 'other' })).toBe('Пароли не совпадают');
+      expect(validate('secret', { password: 'other' })).toBe(
+        'Пароли не совпадают'
+      );
     });
 
     test('использует кастомное сообщение', () => {

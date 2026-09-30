@@ -6,7 +6,7 @@ import {
   IconButton,
   Input,
   InputGroup,
-  InputRightElement,
+  InputRightElement
 } from '@chakra-ui/react';
 import { memo, useState } from 'react';
 
@@ -19,15 +19,23 @@ function FormPasswordFieldBase({
   placeholder,
   initialValue,
   validators,
-  onEnter,
+  onEnter
 }: FormPasswordFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const { value, error, onChange, onBlur } = useFormField<string>(name, { initialValue, validators });
+  const { value, error, onChange, onBlur } = useFormField<string>(name, {
+    initialValue,
+    validators
+  });
 
   return (
     <FormControl isInvalid={Boolean(error)}>
       {label && (
-        <FormLabel htmlFor={name} fontSize="14px" fontWeight="500" color="#12233F">
+        <FormLabel
+          htmlFor={name}
+          fontSize="14px"
+          fontWeight="500"
+          color="#12233F"
+        >
           {label}
         </FormLabel>
       )}
@@ -42,7 +50,7 @@ function FormPasswordFieldBase({
           _hover={{ borderColor: error ? '#EF4444' : '#94A3B8' }}
           _focusVisible={{
             borderColor: error ? '#EF4444' : '#3B6EA0',
-            boxShadow: '0 0 0 1px #3B6EA0',
+            boxShadow: '0 0 0 1px #3B6EA0'
           }}
           value={value}
           onChange={onChange}
@@ -52,7 +60,10 @@ function FormPasswordFieldBase({
             if (e.key === 'Enter') onEnter?.();
           }}
         />
-        <InputRightElement h="48px" pr={2}>
+        <InputRightElement
+          h="48px"
+          pr={2}
+        >
           <IconButton
             aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
             icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
@@ -64,7 +75,10 @@ function FormPasswordFieldBase({
         </InputRightElement>
       </InputGroup>
       {error && (
-        <FormErrorMessage mt={1} fontSize="12px">
+        <FormErrorMessage
+          mt={1}
+          fontSize="12px"
+        >
           {error}
         </FormErrorMessage>
       )}

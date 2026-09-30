@@ -1,6 +1,8 @@
-import { sanitizeSubmitValue } from "@/utils/sanitizeSubmitValue";
+import { sanitizeSubmitValue } from '@/utils/sanitizeSubmitValue';
 
-export function sanitizeFormValues<T extends Record<string, unknown>>(values: T): T {
+export function sanitizeFormValues<T extends Record<string, unknown>>(
+  values: T
+): T {
   const result = { ...values };
 
   for (const key in result) {

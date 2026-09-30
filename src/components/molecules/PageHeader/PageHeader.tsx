@@ -11,7 +11,7 @@ import {
 import { memo } from 'react';
 import { LuHouse } from 'react-icons/lu';
 
-import AccountWidget from '../AccountWidget/AccountWidget';
+import { AccountWidget } from '../AccountWidget/AccountWidget';
 import type { PageHeaderProps } from '../types/types';
 
 function PageHeader({ isAuthorized, title }: PageHeaderProps) {
@@ -20,8 +20,7 @@ function PageHeader({ isAuthorized, title }: PageHeaderProps) {
       bg="white"
       borderBottom="1px solid"
       borderColor="gray.200"
-      px={6}
-      py={4}
+      padding={'16px clamp(24px, 2vw, 40px) 12px'}
     >
       <Flex
         justify="space-between"
@@ -42,7 +41,7 @@ function PageHeader({ isAuthorized, title }: PageHeaderProps) {
               />
             }
             fontSize="12px"
-            mb={1}
+            mb={2}
           >
             <BreadcrumbItem>
               <BreadcrumbLink
@@ -65,7 +64,12 @@ function PageHeader({ isAuthorized, title }: PageHeaderProps) {
             </BreadcrumbItem>
           </Breadcrumb>
 
-          <Heading size="md">{title}</Heading>
+          <Heading
+            size="md"
+            lineHeight={'38px'}
+          >
+            {title}
+          </Heading>
         </Box>
 
         {isAuthorized ? <AccountWidget /> : null}

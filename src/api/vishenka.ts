@@ -5,13 +5,13 @@
  */
 
 export interface DispatchRequest {
-  request_id: string;              // UUID, генерирует фронт
-  application_id: string;          // "sigma", "raida", ...
-  channel: 'feed' | 'popup';       // UC-02 / UC-02a
-  title: string;                   // 1-200
-  body: string;                    // 1-4000
+  request_id: string; // UUID, генерирует фронт
+  application_id: string; // "sigma", "raida", ...
+  channel: 'feed' | 'popup'; // UC-02 / UC-02a
+  title: string; // 1-200
+  body: string; // 1-4000
   audience_type: 'all' | 'selected';
-  recipient_ids: string[];         // обязательно при selected
+  recipient_ids: string[]; // обязательно при selected
 }
 
 export interface ResponseDetail {
@@ -45,7 +45,7 @@ export interface SuccessfulResponse {
 export class DispatchError extends Error {
   constructor(
     public status: number,
-    public detail: unknown,
+    public detail: unknown
   ) {
     super(`Dispatch error ${status}`);
     this.name = 'DispatchError';
@@ -62,14 +62,14 @@ const getBaseUrl = (): string => {
 };
 
 export async function createDispatch(
-  payload: DispatchRequest,
+  payload: DispatchRequest
 ): Promise<SuccessfulResponse> {
   const base = getBaseUrl();
 
   const response = await fetch(`${base}/api/v1/dispatches`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(payload)
   });
 
   if (!response.ok) {

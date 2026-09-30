@@ -1,6 +1,6 @@
-import mockData from "../mocks/users-in-search.json";
+import mockData from '../mocks/users-in-search.json';
 
-import { User } from "./types";
+import { User } from './types';
 
 // имитация сетевой задержки
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -8,12 +8,12 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export const fetchGetUsers = async (
   full_name: string,
   platform: string,
-  options?: { signal?: AbortSignal },
+  options?: { signal?: AbortSignal }
 ): Promise<{ users: User[] }> => {
   await delay(400);
 
   if (options?.signal?.aborted) {
-    throw new DOMException("Aborted", "AbortError");
+    throw new DOMException('Aborted', 'AbortError');
   }
 
   const query = full_name.trim().toLowerCase();

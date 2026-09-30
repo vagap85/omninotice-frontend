@@ -1,6 +1,9 @@
-import { ButtonProps } from "@chakra-ui/react";
+import { ButtonProps } from '@chakra-ui/react';
 
-import { CustomInputProps, CustomTextareaProps } from "@/components/atoms/types/types";
+import {
+  CustomInputProps,
+  CustomTextareaProps
+} from '@/components/atoms/types/types';
 
 export type Validator<T = unknown> = {
   (value: T, allValues: Record<string, unknown>): string | undefined;
@@ -37,7 +40,10 @@ export interface FormStore {
   reset: (values?: Record<string, unknown>) => void;
 }
 
-export interface FormSubmitButtonProps extends Omit<ButtonProps, 'onClick' | 'onSubmit'> {
+export interface FormSubmitButtonProps extends Omit<
+  ButtonProps,
+  'onClick' | 'onSubmit'
+> {
   formIds: string[];
   onSubmit: (values: Record<string, unknown>) => void | Promise<void>;
   onUnauthorized?: () => void;
@@ -45,7 +51,10 @@ export interface FormSubmitButtonProps extends Omit<ButtonProps, 'onClick' | 'on
   beforeSubmitValidate?: () => boolean;
 }
 
-export interface FormTextAreaFieldProps extends Omit<CustomTextareaProps, 'value' | 'onChange' | 'onBlur'> {
+export interface FormTextAreaFieldProps extends Omit<
+  CustomTextareaProps,
+  'value' | 'onChange' | 'onBlur'
+> {
   name: string;
   label?: string;
   initialValue?: string;
@@ -55,7 +64,10 @@ export interface FormTextAreaFieldProps extends Omit<CustomTextareaProps, 'value
   maxLengthMessage?: string;
 }
 
-export interface FormTextFieldProps extends Omit<CustomInputProps, 'value' | 'onChange' | 'onBlur'> {
+export interface FormTextFieldProps extends Omit<
+  CustomInputProps,
+  'value' | 'onChange' | 'onBlur'
+> {
   name: string;
   label?: string;
   initialValue?: string;

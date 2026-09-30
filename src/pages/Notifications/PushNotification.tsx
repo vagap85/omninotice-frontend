@@ -8,8 +8,6 @@ import NotificationContentFields from '@/components/organisms/Forms/Push/Notific
 import PushDraftUrlSync from '@/components/organisms/Forms/Push/PushDraftUrlSync';
 import SelectingRecipientApp from '@/components/organisms/Forms/Push/SelectingRecipientApp/SelectingRecipientApp';
 
-import PageHeader from '../../components/molecules/PageHeader/PageHeader';
-
 export default function PushNotification() {
   const { isAuthorized } = useAuth();
 
@@ -20,28 +18,34 @@ export default function PushNotification() {
   );
 }
 
-function PushCreateNotificatonInner({ isAuthorized }: { isAuthorized: boolean }) {
+function PushCreateNotificatonInner({
+  isAuthorized
+}: {
+  isAuthorized: boolean;
+}) {
   return (
     <FormProvider formId="pushNotification">
       <PushDraftUrlSync />
       <Flex>
-        <Box flex="1" bg="#ECF2F8">
-          <PageHeader
-            isAuthorized={isAuthorized}
-            title="Создание рассылки push-уведомлений"
-          />
+        <Box
+          flex="1"
+          bg="#ECF2F8"
+        >
           <Flex
             flexDirection={{
-              md: "row",
-              base: "column"
+              md: 'row',
+              base: 'column'
             }}
+            justifyContent={'space-between'}
           >
             <Flex
               as="form"
               direction="column"
               gap={5}
               flex="1"
-              p={"clamp(12px, 1.7vw + 0.125rem, 24px)"}
+              p={'clamp(12px, 1.7vw + 0.125rem, 24px)'}
+              maxW={'900px'}
+              mx={'auto'}
             >
               <NotificationContentFields />
               <ActionFields />

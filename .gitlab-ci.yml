@@ -31,20 +31,22 @@ stages:
   - build_prod
 
 init_vars:
-   stage: init
-   variables:
-      PROJECTS: $CI_PROJECT_ID
-      PRIVATE_TOKEN: $INIT_TOKEN
-   trigger:
-      project: synora/cicd/env-init
-      strategy: depend
+  stage: init
+  variables:
+    PROJECTS: $CI_PROJECT_ID
+    PRIVATE_TOKEN: $INIT_TOKEN
+  trigger:
+    project: synora/cicd/env-init
+    strategy: depend
 
 init_pipeline:
   stage: init
   tags: [docker]
   script: # Update docker credetionals
-    - echo CI_REGISTRY_IMAGE=$(echo $CI_REGISTRY_IMAGE | sed -r "s/(.*):8090(.*)/\1\2/") >> build.env
-    - echo CI_REGISTRY=$(echo $CI_REGISTRY | sed -r "s/(.*):8090(.*)/\1\2/") >> build.env
+    - echo CI_REGISTRY_IMAGE=$(echo $CI_REGISTRY_IMAGE | sed -r
+      "s/(.*):8090(.*)/\1\2/") >> build.env
+    - echo CI_REGISTRY=$(echo $CI_REGISTRY | sed -r "s/(.*):8090(.*)/\1\2/") >>
+      build.env
     - echo SERVICE_IP=$(echo $GET_IP_SH | base64 -d | bash) >> build.env
   artifacts:
     reports:
@@ -60,37 +62,33 @@ ruff-lint:
     - if: $CI_COMMIT_BRANCH != "master"
   script:
     - > #
-      docker create --rm --name bunlint-${CI_COMMIT_SHORT_SHA} ${DOCKER_HUB_MIRROR}${BUN_VERSION}-debian
-      bash -c "bunx @biomejs/biome lint --colors=force" > /dev/null &&
-      docker cp ./ bunlint-${CI_COMMIT_SHORT_SHA}:/home/bun/app > /dev/null
+      docker create --rm --name bunlint-${CI_COMMIT_SHORT_SHA}
+      ${DOCKER_HUB_MIRROR}${BUN_VERSION}-debian bash -c "bunx @biomejs/biome
+      lint --colors=force" > /dev/null && docker cp ./
+      bunlint-${CI_COMMIT_SHORT_SHA}:/home/bun/app > /dev/null
     - docker start -a bunlint-${CI_COMMIT_SHORT_SHA}
   after_script:
-    - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker system prune -f; fi
+    - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker
+      system prune -f; fi
 
 unit-tests:
   stage: test
   tags: [docker]
   allow_failure: false
-  variables:
-    BUILD_VERSION: $CI_COMMIT_SHORT_SHA
   rules:
     - if: $CI_COMMIT_BRANCH != "master"
   script:
     - cp .env.example .env
     - mkdir -p .npm-cache
     - >
-      docker run --rm
-      -v "$CI_PROJECT_DIR:/app"
-      -v "$CI_PROJECT_DIR/.npm-cache:/root/.npm"
-      -w /app
-      -e npm_config_cache=/root/.npm
-      -e CI=true
-      ${DOCKER_HUB_MIRROR}node:22-alpine
-      sh -c "npm ci && npm run test:run"
+      docker run --rm --user "$(id -u):$(id -g)" -v "$CI_PROJECT_DIR:/app" -w
+      /app -e HOME=/tmp -e npm_config_cache=/app/.npm-cache -e CI=true
+      ${DOCKER_HUB_MIRROR}node:22-alpine sh -c "npm ci && npm run test:run"
   after_script:
-    - if [ $(df / --output='pcent' | grep -o "[0-9]*" | head -1 || echo 0) -gt 80 ]; then docker system prune -f; fi
+    - if [ $(df / --output='pcent' | grep -o "[0-9]*" | head -1 || echo 0) -gt
+      80 ]; then docker system prune -f; fi
   cache:
-    key: "npm-$CI_COMMIT_REF_SLUG"
+    key: 'npm-$CI_COMMIT_REF_SLUG'
     paths:
       - .npm-cache/
 
@@ -105,14 +103,15 @@ test-build:
   script:
     - cp $ENV_FILE ./.env.production
     - > #
-      docker build --cache-from $CI_REGISTRY_IMAGE:latest
-      --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
-      --build-arg BUILDER=${DOCKER_HUB_MIRROR}${BUN_VERSION}-alpine
-      --build-arg APP_RUNNER=${NGINX_VERSION}
-      --build-arg BUILD_VERSION=${CI_COMMIT_SHORT_SHA} .
+      docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag
+      $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg
+      BUILDER=${DOCKER_HUB_MIRROR}${BUN_VERSION}-alpine --build-arg
+      APP_RUNNER=${NGINX_VERSION} --build-arg
+      BUILD_VERSION=${CI_COMMIT_SHORT_SHA} .
   after_script:
     - docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
-    - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker system prune -f; fi
+    - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker
+      system prune -f; fi
 
 .build-image:
   stage: build
@@ -129,20 +128,22 @@ test-build:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker pull $CI_REGISTRY_IMAGE:$DOCKER_TAG_NEW || true
-    - docker tag $CI_REGISTRY_IMAGE:$DOCKER_TAG_NEW $CI_REGISTRY_IMAGE:$DOCKER_TAG_OLD || true
+    - docker tag $CI_REGISTRY_IMAGE:$DOCKER_TAG_NEW
+      $CI_REGISTRY_IMAGE:$DOCKER_TAG_OLD || true
     - docker push $CI_REGISTRY_IMAGE:$DOCKER_TAG_OLD || true
   script:
     - cp $ENV_FILE ./.env.production
     - > #
-      docker build  --cache-from $CI_REGISTRY_IMAGE:$DOCKER_TAG_OLD
-      --tag $CI_REGISTRY_IMAGE:$DOCKER_TAG_NEW
-      --build-arg BUILDER=${DOCKER_HUB_MIRROR}${BUN_VERSION}-alpine
-      --build-arg APP_RUNNER=${DOCKER_HUB_MIRROR}${NGINX_VERSION}
-      --build-arg VITE_BASE_URL=${VITE_BASE_URL}
-      --build-arg BUILD_VERSION=${BUILD_VERSION} .
+      docker build  --cache-from $CI_REGISTRY_IMAGE:$DOCKER_TAG_OLD --tag
+      $CI_REGISTRY_IMAGE:$DOCKER_TAG_NEW --build-arg
+      BUILDER=${DOCKER_HUB_MIRROR}${BUN_VERSION}-alpine --build-arg
+      APP_RUNNER=${DOCKER_HUB_MIRROR}${NGINX_VERSION} --build-arg
+      VITE_BASE_URL=${VITE_BASE_URL} --build-arg BUILD_VERSION=${BUILD_VERSION}
+      .
     - docker push $CI_REGISTRY_IMAGE:$DOCKER_TAG_NEW
   after_script:
-    - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker system prune -f; fi
+    - if [ $(df / --output='pcent' | grep -o "[0-9]*") -gt 80 ]; then docker
+      system prune -f; fi
 
 build-image-dev:
   extends: .build-image
@@ -181,22 +182,30 @@ deploy-job:
     DOCKER_COMPOSE_PORT: '${SERVICE_IP}:8080'
   before_script:
     - *ssh-add
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER"
+      --password-stdin "$CI_REGISTRY"
   script:
     - echo $SERVICE_IP
     - ssh -F $SSH_CONF deploy.host "mkdir -p ${HOST_PROJECT_DIR} || true"
-    - sed -ie "s/{{APP}}/${CI_PROJECT_PATH_SLUG}/g;" deploy/compose.yml
-    - rsync --delete -auzvpe "ssh -F $SSH_CONF" deploy/compose.yml deploy.host:${HOST_PROJECT_DIR}/compose.yml
-    - > #   Установка переменных окружения и запуск контейнера
+    - sed -ie "s/__APP__/${CI_PROJECT_PATH_SLUG}/g;" deploy/compose.yml
+    - rsync --delete -auzvpe "ssh -F $SSH_CONF" deploy/compose.yml
+      deploy.host:${HOST_PROJECT_DIR}/compose.yml
+    - | #   Установка переменных окружения и запуск контейнера
       ssh -F $SSH_CONF deploy.host "
         echo IMAGE=$CONTAINER_IMAGE > ${HOST_PROJECT_DIR}/.env &&
         echo CONTAINER_NAME=$CONTAINER_NAME >> ${HOST_PROJECT_DIR}/.env &&
         echo PORT=$DOCKER_COMPOSE_PORT >> ${HOST_PROJECT_DIR}/.env &&
         echo COMPOSE_NAME=$COMPOSE_NAME >> ${HOST_PROJECT_DIR}/.env &&
-        sudo docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-        cd ${HOST_PROJECT_DIR} && sudo docker compose pull && sudo docker compose up -d "
-    - sed -ie "s/{{SERVICE_DOMAIN}}/${SERVICE_DOMAIN:=${CI_PROJECT_PATH_SLUG}.com}/g; s/{{SERVICE_IP}}/${SERVICE_IP}/g" deploy/nginx-template.conf
-    - rsync -auzvpe "ssh -F $SSH_CONF" deploy/nginx-template.conf deploy.host:${HOST_MAIN_DIR}/nginx-host/sites-enabled/${CI_PROJECT_PATH_SLUG}.conf
+        echo '$CI_REGISTRY_PASSWORD' | sudo docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY &&
+        cd ${HOST_PROJECT_DIR} &&
+        sudo docker compose pull &&
+        sudo docker compose up -d
+      "
+    - sed -ie
+      "s/{{SERVICE_DOMAIN}}/${SERVICE_DOMAIN:=${CI_PROJECT_PATH_SLUG}.com}/g;
+      s/{{SERVICE_IP}}/${SERVICE_IP}/g" deploy/nginx-template.conf
+    - rsync -auzvpe "ssh -F $SSH_CONF" deploy/nginx-template.conf
+      deploy.host:${HOST_MAIN_DIR}/nginx-host/sites-enabled/${CI_PROJECT_PATH_SLUG}.conf
     - ssh -F $SSH_CONF deploy.host 'sudo docker exec nginx-host nginx -t'
     - ssh -F $SSH_CONF deploy.host 'sudo docker exec nginx-host nginx -s reload'
 
@@ -211,16 +220,21 @@ push-to-prod:
     PROD_REGISTRY: $CI_REGISTRY
   before_script:
     #   Стараемся сохранить предыдущий образ на случай быстрого отката
-    - docker login -u $PROD_REGISTRY_USER -p $PROD_REGISTRY_PASSWORD $PROD_REGISTRY
+    - docker login -u $PROD_REGISTRY_USER -p $PROD_REGISTRY_PASSWORD
+      $PROD_REGISTRY
     - docker pull $PROD_REGISTRY_REPO/$CI_PROJECT_NAME:latest_full || true
-    - docker tag $PROD_REGISTRY_REPO/$CI_PROJECT_NAME:latest_full $PROD_REGISTRY_REPO/$CI_PROJECT_NAME:old || true
+    - docker tag $PROD_REGISTRY_REPO/$CI_PROJECT_NAME:latest_full
+      $PROD_REGISTRY_REPO/$CI_PROJECT_NAME:old || true
     - docker push $PROD_REGISTRY_REPO/$CI_PROJECT_NAME:old || true
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker pull $CI_REGISTRY_IMAGE:latest
-    - docker image tag $CI_REGISTRY_IMAGE:latest $PROD_REGISTRY_REPO/$CI_PROJECT_NAME:latest
+    - docker image tag $CI_REGISTRY_IMAGE:latest
+      $PROD_REGISTRY_REPO/$CI_PROJECT_NAME:latest
     - docker pull $CI_REGISTRY_IMAGE:latest_full
-    - docker image tag $CI_REGISTRY_IMAGE:latest_full $PROD_REGISTRY_REPO/$CI_PROJECT_NAME:latest_full
-    - docker login -u $PROD_REGISTRY_USER -p $PROD_REGISTRY_PASSWORD $PROD_REGISTRY
+    - docker image tag $CI_REGISTRY_IMAGE:latest_full
+      $PROD_REGISTRY_REPO/$CI_PROJECT_NAME:latest_full
+    - docker login -u $PROD_REGISTRY_USER -p $PROD_REGISTRY_PASSWORD
+      $PROD_REGISTRY
     - docker push $PROD_REGISTRY_REPO/$CI_PROJECT_NAME:latest
     - docker push $PROD_REGISTRY_REPO/$CI_PROJECT_NAME:latest_full
