@@ -182,23 +182,25 @@ deploy-job:
     DOCKER_COMPOSE_PORT: '${SERVICE_IP}:8080'
   before_script:
     - *ssh-add
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER"
+      --password-stdin "$CI_REGISTRY"
   script:
     - echo $SERVICE_IP
     - ssh -F $SSH_CONF deploy.host "mkdir -p ${HOST_PROJECT_DIR} || true"
     - sed -ie "s/{{APP}}/${CI_PROJECT_PATH_SLUG}/g;" deploy/compose.yml
     - rsync --delete -auzvpe "ssh -F $SSH_CONF" deploy/compose.yml
       deploy.host:${HOST_PROJECT_DIR}/compose.yml
-    - > #   Установка переменных окружения и запуск контейнера
+    - | #   Установка переменных окружения и запуск контейнера
       ssh -F $SSH_CONF deploy.host "
         echo IMAGE=$CONTAINER_IMAGE > ${HOST_PROJECT_DIR}/.env &&
         echo CONTAINER_NAME=$CONTAINER_NAME >> ${HOST_PROJECT_DIR}/.env &&
         echo PORT=$DOCKER_COMPOSE_PORT >> ${HOST_PROJECT_DIR}/.env &&
         echo COMPOSE_NAME=$COMPOSE_NAME >> ${HOST_PROJECT_DIR}/.env &&
-        sudo docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
-      $CI_REGISTRY &&
-        cd ${HOST_PROJECT_DIR} && sudo docker compose pull && sudo docker
-      compose up -d "
+        echo '$CI_REGISTRY_PASSWORD' | sudo docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY &&
+        cd ${HOST_PROJECT_DIR} &&
+        sudo docker compose pull &&
+        sudo docker compose up -d
+      "
     - sed -ie
       "s/{{SERVICE_DOMAIN}}/${SERVICE_DOMAIN:=${CI_PROJECT_PATH_SLUG}.com}/g;
       s/{{SERVICE_IP}}/${SERVICE_IP}/g" deploy/nginx-template.conf
