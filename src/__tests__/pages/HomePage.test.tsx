@@ -10,8 +10,8 @@ vi.mock('@/auth/AuthContext', () => ({
     isAuthorized: false,
     login: vi.fn(),
     logout: vi.fn(),
-    auth: null,
-  }),
+    auth: null
+  })
 }));
 
 describe('HomePage', () => {

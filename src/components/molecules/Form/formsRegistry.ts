@@ -11,6 +11,6 @@ export function createFormsRegistry(): FormsRegistry {
     },
     getStore(formId) {
       return stores.get(formId);
-    },
+    }
   };
 }

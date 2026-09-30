@@ -1,7 +1,7 @@
 html {
-    scroll-behavior: smooth;
+  scroll-behavior: smooth;
 }
 
 section {
-    scroll-margin-top: 60px;
+  scroll-margin-top: 60px;
 }

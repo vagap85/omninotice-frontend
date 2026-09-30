@@ -9,12 +9,18 @@ import { required } from '@/components/molecules/Form/validators/validators';
 function NotificationContentFields() {
   return (
     <Box
-      as='fieldset'
+      as="fieldset"
       bg="white"
       borderRadius="10px"
       p={6}
     >
-      <Heading fontSize="26px" lineHeight="32px" fontWeight="600" color="#12233F" mb={4}>
+      <Heading
+        fontSize="26px"
+        lineHeight="32px"
+        fontWeight="600"
+        color="#12233F"
+        mb={4}
+      >
         Текст уведомления
       </Heading>
 
@@ -38,15 +44,20 @@ function NotificationContentFields() {
         />
       </Box>
 
-      <HStack justify="flex-end" mt={4}>
+      <HStack
+        justify="flex-end"
+        mt={4}
+      >
         <Button
           variant="accent"
-          leftIcon={<LuSparkles />}
+          leftIcon={<LuSparkles size={20}/>}
           color="white"
           borderRadius="12px"
-          h="40px"
-          px={6}
+          h={"auto"}
+          px={5}
+          py={3}
           loadingText="Обработка..."
+          lineHeight={'1.5em'}
           disabled
         >
           Улучшить текст

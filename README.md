@@ -1,7 +1,9 @@
 <<<<<<< README.md
+
 # OmniNotice
 
-Платформа рассылок на все каналы. Первый сценарий: страница создания уведомления и отправка через Synora.
+Платформа рассылок на все каналы. Первый сценарий: страница создания уведомления
+и отправка через Synora.
 
 ## Стек
 
@@ -22,8 +24,10 @@ npm run dev
 
 Скопируйте `.env.example` в `.env` и при необходимости измените:
 
-- `VITE_SYNORA_BASE_URL` — базовый URL API Synora (например, `https://api.synora.skroy.ru`)
-- `VITE_SYNORA_EVENT_TOPIC` — топик события для отправки (должен быть настроен в реестре Synora)
+- `VITE_SYNORA_BASE_URL` — базовый URL API Synora (например,
+  `https://api.synora.skroy.ru`)
+- `VITE_SYNORA_EVENT_TOPIC` — топик события для отправки (должен быть настроен в
+  реестре Synora)
 
 ## Отправка через Synora
 
@@ -46,7 +50,8 @@ Content-Type: application/json
 
 В Synora должны быть настроены:
 
-1. Конфигурация события с `topic` = `VITE_SYNORA_EVENT_TOPIC` и действиями (например, `prepare_mail` → `mail_send`).
+1. Конфигурация события с `topic` = `VITE_SYNORA_EVENT_TOPIC` и действиями
+   (например, `prepare_mail` → `mail_send`).
 2. Шаблон сообщения (если используется `template_name` в конфигурации).
 3. Конфигурация отправителя email (`event.sender.email`).
 
@@ -56,4 +61,3 @@ Content-Type: application/json
 npm run build
 npm run preview
 ```
-

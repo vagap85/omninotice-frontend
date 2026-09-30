@@ -2,10 +2,10 @@ import type {
   FieldConfig,
   FieldState,
   FormStore,
-  Listener,
-} from "../types/form";
+  Listener
+} from '../types/form';
 
-const EMPTY_STATE: FieldState = { value: "", error: undefined, touched: false };
+const EMPTY_STATE: FieldState = { value: '', error: undefined, touched: false };
 
 export function createFormStore(): FormStore {
   const fields = new Map<string, FieldState>();
@@ -30,13 +30,13 @@ export function createFormStore(): FormStore {
 
   const registerField = <T>(
     name: string,
-    config: FieldConfig<T> = {} as FieldConfig<T>,
+    config: FieldConfig<T> = {} as FieldConfig<T>
   ) => {
     if (!fields.has(name)) {
       fields.set(name, {
-        value: config.initialValue ?? "",
+        value: config.initialValue ?? '',
         error: undefined,
-        touched: false,
+        touched: false
       });
       invalidateValuesCache();
     }
@@ -76,7 +76,7 @@ export function createFormStore(): FormStore {
   const runValidators = (
     name: string,
     value: unknown,
-    onlyImmediate = false,
+    onlyImmediate = false
   ): string | undefined => {
     const cfg = configs.get(name);
     if (!cfg?.validators?.length) return undefined;
@@ -158,9 +158,9 @@ export function createFormStore(): FormStore {
     hasAttemptedSubmit = false;
     fields.forEach((_, name) => {
       fields.set(name, {
-        value: values[name] ?? configs.get(name)?.initialValue ?? "",
+        value: values[name] ?? configs.get(name)?.initialValue ?? '',
         error: undefined,
-        touched: false,
+        touched: false
       });
       notify(name);
     });
@@ -179,6 +179,6 @@ export function createFormStore(): FormStore {
     validateAll,
     handleBlur,
     getValues,
-    reset,
+    reset
   };
 }

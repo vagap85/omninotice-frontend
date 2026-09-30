@@ -2,16 +2,16 @@ import {
   useCallback,
   useEffect,
   useSyncExternalStore,
-  ChangeEvent,
-} from "react";
+  ChangeEvent
+} from 'react';
 
-import { FieldConfig } from "../../types/form";
+import { FieldConfig } from '../../types/form';
 
-import { useFormStore } from "./useFormStore";
+import { useFormStore } from './useFormStore';
 
 export function useFormField<T = string>(
   name: string,
-  config?: FieldConfig<T>,
+  config?: FieldConfig<T>
 ) {
   const store = useFormStore();
 
@@ -23,7 +23,7 @@ export function useFormField<T = string>(
 
   const subscribe = useCallback(
     (cb: () => void) => store.subscribe(name, cb),
-    [store, name],
+    [store, name]
   );
   const getSnapshot = useCallback(() => store.getSnapshot(name), [store, name]);
   const state = useSyncExternalStore(subscribe, getSnapshot);
@@ -34,15 +34,15 @@ export function useFormField<T = string>(
         | ChangeEvent<
             HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
           >
-        | T,
+        | T
     ) => {
       const value =
-        eOrValue && typeof eOrValue === "object" && "target" in eOrValue
+        eOrValue && typeof eOrValue === 'object' && 'target' in eOrValue
           ? eOrValue.target.value
           : eOrValue;
       store.setValue(name, value);
     },
-    [store, name],
+    [store, name]
   );
 
   const onBlur = useCallback(() => store.handleBlur(name), [store, name]);
@@ -52,6 +52,6 @@ export function useFormField<T = string>(
     error: state.error,
     touched: state.touched,
     onChange,
-    onBlur,
+    onBlur
   };
 }

@@ -1,70 +1,72 @@
-import { ChevronDownIcon } from "@chakra-ui/icons";
-import { Box, Flex, Text, Icon, useOutsideClick } from "@chakra-ui/react";
-import { motion } from "framer-motion";
-import { useState, useRef } from "react";
+import { ChevronDownIcon } from '@chakra-ui/icons';
+import { Box, Flex, Text, Icon, useOutsideClick } from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import { useState, useRef } from 'react';
 
-import BellRingIcon from "@/components/atoms/Icons/collections/Sigma/BellRingIcon";
+import BellRingIcon from '@/components/atoms/Icons/collections/Sigma/BellRingIcon';
 
-import { useSelectingRecipientApp } from "../hooks/useSelectingRecipientApp";
-import type { AppSelectProps, SelectingApp } from "../types/types";
+import { useSelectingRecipientApp } from '../hooks/useSelectingRecipientApp';
+import type { AppSelectProps, SelectingApp } from '../types/types';
 
 const DEFAULT_APPS: SelectingApp[] = [
   {
-    id: "sigma",
-    name: "Сигма",
+    id: 'sigma',
+    name: 'Сигма',
     count: 235,
     isActive: true,
-    platform: "Sigma",
-    iconColor: "#487BFE",
-    bgIconColor: "#D1DEFF",
+    platform: 'Sigma',
+    iconColor: '#487BFE',
+    bgIconColor: '#D1DEFF',
     standartIcon: {
-      id: "sigma",
+      id: 'sigma',
       Icon: BellRingIcon,
-      title: "Стандартная иконка Сигма",
-      description: "Если не выбрать другую, получатель увидит эту",
+      title: 'Стандартная иконка Сигма',
+      description: 'Если не выбрать другую, получатель увидит эту'
     }
   },
   {
-    id: "raida",
-    name: "Raida",
+    id: 'raida',
+    name: 'Raida',
     count: 0,
     isActive: false,
-    platform: "Raida",
-    iconColor: "#131313",
-    bgIconColor: "#621e1e",
+    platform: 'Raida',
+    iconColor: '#131313',
+    bgIconColor: '#621e1e',
     standartIcon: {
-      id: "raida",
+      id: 'raida',
       Icon: BellRingIcon,
-      title: "Стандартная иконка Raida",
-      description: "Если не выбрать другую, получатель увидит эту",
+      title: 'Стандартная иконка Raida',
+      description: 'Если не выбрать другую, получатель увидит эту'
     }
   },
   {
-    id: "classhub",
-    name: "Class Hub",
+    id: 'classhub',
+    name: 'Class Hub',
     count: 0,
     isActive: false,
-    platform: "ClassHub",
-    iconColor: "",
-    bgIconColor: "",
+    platform: 'ClassHub',
+    iconColor: '',
+    bgIconColor: '',
     standartIcon: {
-      id: "classhub",
+      id: 'classhub',
       Icon: BellRingIcon,
-      title: "Стандартная иконка Class Hub",
-      description: "Если не выбрать другую, получатель увидит эту",
+      title: 'Стандартная иконка Class Hub',
+      description: 'Если не выбрать другую, получатель увидит эту'
     }
-  },
+  }
 ];
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 export default function AppSelect({
   apps = DEFAULT_APPS,
   value,
-  onChange,
+  onChange
 }: AppSelectProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [internalSelected, setInternalSelected] = useState<SelectingApp | null>(null);
+  const [internalSelected, setInternalSelected] = useState<SelectingApp | null>(
+    null
+  );
   const { setSelectedApp, appError } = useSelectingRecipientApp();
   const containerRef = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLDivElement>(null);
@@ -75,7 +77,7 @@ export default function AppSelect({
 
   useOutsideClick({
     ref: containerRef,
-    handler: () => setIsOpen(false),
+    handler: () => setIsOpen(false)
   });
 
   const handleSelect = (app: SelectingApp): void => {
@@ -83,7 +85,7 @@ export default function AppSelect({
     if (value === undefined) setInternalSelected(app);
     setSelectedApp({
       title: app.name,
-      description: "Если не выбрать другую, получатель увидит эту",
+      description: 'Если не выбрать другую, получатель увидит эту',
       icon: app.standartIcon,
       standartIcon: app.standartIcon,
       iconColor: app.iconColor,
@@ -97,28 +99,38 @@ export default function AppSelect({
   };
 
   const handleTriggerKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
+    if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       setIsOpen((v) => !v);
-    } else if (e.key === "ArrowDown") {
+    } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       if (!isOpen) setIsOpen(true);
       // фокус на первый пункт после открытия
       requestAnimationFrame(() => {
-        listRef.current?.querySelector<HTMLButtonElement>("button:not([disabled])")?.focus();
+        listRef.current
+          ?.querySelector<HTMLButtonElement>('button:not([disabled])')
+          ?.focus();
       });
-    } else if (e.key === "Escape") {
+    } else if (e.key === 'Escape') {
       setIsOpen(false);
     }
   };
 
   return (
     <Box>
-      <Text fontSize="lg" mb={1.5} color="#12233F">
+      <Text
+        fontSize="lg"
+        mb={1.5}
+        color="#12233F"
+      >
         Приложение
       </Text>
 
-      <Box ref={containerRef} position="relative" w="100%">
+      <Box
+        ref={containerRef}
+        position="relative"
+        w="100%"
+      >
         <Flex
           ref={triggerRef}
           as="button"
@@ -131,22 +143,26 @@ export default function AppSelect({
           align="center"
           justify="space-between"
           w="100%"
-          px={"18px"}
+          px={'18px'}
           py={2.5}
           bg="#F8FAFC"
           borderRadius="10px"
           border="1px solid"
-          borderColor={appError ? "red.500" : "#E2EBF3"}
+          borderColor={appError ? 'red.500' : '#E2EBF3'}
           cursor="pointer"
         >
-          <Text color="#12233F" fontSize="md" lineHeight={6}>
-            {selected ? selected.name : "Выберите приложение"}
+          <Text
+            color="#12233F"
+            fontSize="md"
+            lineHeight={6}
+          >
+            {selected ? selected.name : 'Выберите приложение'}
           </Text>
           <Icon
             as={ChevronDownIcon}
             boxSize={5}
             color="#12233F"
-            transform={isOpen ? "rotate(180deg)" : "rotate(0deg)"}
+            transform={isOpen ? 'rotate(180deg)' : 'rotate(0deg)'}
             transition="transform 0.2s ease"
           />
         </Flex>
@@ -160,34 +176,42 @@ export default function AppSelect({
           <Box
             ref={hintRef}
             mt={1.5}
-            position={isOpen ? "absolute" : "relative"}
+            position={isOpen ? 'absolute' : 'relative'}
             top={isOpen ? 0 : undefined}
             left={0}
             right={0}
             opacity={isOpen ? 0 : 1}
             transition="opacity 0.01s ease"
-            pointerEvents={isOpen ? "none" : "auto"}
+            pointerEvents={isOpen ? 'none' : 'auto'}
           >
-            {appError
-              ?
-              <Text color="red.500" fontSize="xs" fontWeight="normal">
+            {appError ? (
+              <Text
+                color="red.500"
+                fontSize="xs"
+                fontWeight="normal"
+              >
                 Выбор приложение обязателен
               </Text>
-              :
-              <Text color="#52525B" fontSize="xs" fontWeight="normal">
-                В этом списке отображаются все доступные вам приложения. Уведомление появится в выбранном приложении
+            ) : (
+              <Text
+                color="#52525B"
+                fontSize="xs"
+                fontWeight="normal"
+              >
+                В этом списке отображаются все доступные вам приложения.
+                Уведомление появится в выбранном приложении
               </Text>
-            }
+            )}
           </Box>
 
           <Box
             ref={listRef}
             mt={2}
-            position={isOpen ? "relative" : "absolute"}
+            position={isOpen ? 'relative' : 'absolute'}
             left={0}
             right={0}
             opacity={isOpen ? 1 : 0}
-            pointerEvents={isOpen ? "auto" : "none"}
+            pointerEvents={isOpen ? 'auto' : 'none'}
             role="listbox"
           >
             <Box
@@ -208,7 +232,7 @@ export default function AppSelect({
                   tabIndex={isOpen ? 0 : -1}
                   onClick={() => handleSelect(app)}
                   onKeyDown={(e) => {
-                    if (e.key === "Escape") {
+                    if (e.key === 'Escape') {
                       setIsOpen(false);
                       triggerRef.current?.focus();
                     }
@@ -218,15 +242,26 @@ export default function AppSelect({
                   justify="space-between"
                   px={5}
                   py={2.5}
-                  bg={selected?.id === app.id && app.isActive ? "gray.50" : "transparent"}
-                  _hover={{ bg: app.isActive ? "gray.50" : "transparent" }}
-                  cursor={app.isActive ? "pointer" : "unset"}
+                  bg={
+                    selected?.id === app.id && app.isActive
+                      ? 'gray.50'
+                      : 'transparent'
+                  }
+                  _hover={{ bg: app.isActive ? 'gray.50' : 'transparent' }}
+                  cursor={app.isActive ? 'pointer' : 'unset'}
                   disabled={!app.isActive}
                 >
-                  <Text fontSize="md" color={app.isActive ? "#12233F" : "#8A8A99"} lineHeight={6}>
+                  <Text
+                    fontSize="md"
+                    color={app.isActive ? '#12233F' : '#8A8A99'}
+                    lineHeight={6}
+                  >
                     {app.name}
                   </Text>
-                  <Text fontSize="sm" color="#A1A1AA">
+                  <Text
+                    fontSize="sm"
+                    color="#A1A1AA"
+                  >
                     {app.count}
                   </Text>
                 </Flex>

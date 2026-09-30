@@ -1,4 +1,7 @@
-export function pluralize(count: number, forms: [string, string, string]): string {
+export function pluralize(
+  count: number,
+  forms: [string, string, string]
+): string {
   const n = Math.abs(count) % 100;
   const n1 = n % 10;
 

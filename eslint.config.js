@@ -1,11 +1,11 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
-import importX from 'eslint-plugin-import-x'
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import tseslint from 'typescript-eslint';
+import importX from 'eslint-plugin-import-x';
 
-const skipImportChecks = process.env.NO_IMPORTS === 'true'
+const skipImportChecks = process.env.NO_IMPORTS === 'true';
 
 export default tseslint.config(
   { ignores: ['dist'] },
@@ -14,26 +14,26 @@ export default tseslint.config(
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser,
+      globals: globals.browser
     },
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
-      'import-x': importX,
+      'import-x': importX
     },
     settings: {
       'import-x/resolver': {
         typescript: {
           alwaysTryTypes: true,
-          project: './tsconfig.json',
-        },
-      },
+          project: './tsconfig.json'
+        }
+      }
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
-        { allowConstantExport: true },
+        { allowConstantExport: true }
       ],
 
       'import-x/no-unresolved': skipImportChecks ? 'off' : 'error',
@@ -53,12 +53,12 @@ export default tseslint.config(
                 'internal',
                 'parent',
                 'sibling',
-                'index',
+                'index'
               ],
               'newlines-between': 'always',
-              alphabetize: { order: 'asc', caseInsensitive: true },
-            },
-          ],
-    },
-  },
-)
+              alphabetize: { order: 'asc', caseInsensitive: true }
+            }
+          ]
+    }
+  }
+);

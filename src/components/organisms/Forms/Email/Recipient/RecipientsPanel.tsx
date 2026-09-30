@@ -15,74 +15,92 @@ import { isValidEmail } from '@/utils/recipient';
 import RecipientsCounter from './RecipientCounter';
 
 export default function RecipientsPanel({
-    initialEmails,
-    canSend,
-    onAuthClick,
-    onValidateEmailForm,
-    onSend,
+  initialEmails,
+  canSend,
+  onAuthClick,
+  onValidateEmailForm,
+  onSend
 }: RecipientsPanelProps) {
-    const registry = useFormsRegistry();
-    const { isOpen, onOpen, onClose } = useDisclosure();
+  const registry = useFormsRegistry();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-    const getValidEmails = () => {
-        const { emails } = registry.getOrCreateStore('recipients').getValues<RecipientsFormValues>();
-        return (emails ?? '').trim().split(/\s+/).filter(Boolean).filter(isValidEmail);
-    };
+  const getValidEmails = () => {
+    const { emails } = registry
+      .getOrCreateStore('recipients')
+      .getValues<RecipientsFormValues>();
+    return (emails ?? '')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter(isValidEmail);
+  };
 
-    const recipientsCount = getValidEmails().length;
+  const recipientsCount = getValidEmails().length;
 
-    return (
-        <FormProvider formId="recipients">
-            <Box
-                as='form'
-                maxW="560px"
-                w={"full"}
-                bg="white"
-                px={6}
-                py={5}
-                borderLeft="1px solid"
-                borderColor="gray.200"
-                minH="calc(100vh - 73px)"
-            >
-                <Heading size="md" mb={6}>Настройка рассылки</Heading>
+  return (
+    <FormProvider formId="recipients">
+      <Box
+        as="form"
+        maxW={{ base: 'unset', md: '360px', xxl: '29.17vw' }}
+        p={{
+          base: 'clamp(12px, 1.7vw + 0.125rem, 24px)',
+          md: '20px 24px'
+        }}
+        w={'full'}
+        bg="white"
+        borderLeft="1px solid"
+        borderColor="gray.200"
+        minH="calc(100vh - 73px)"
+      >
+        <Heading
+          size="md"
+          mb={6}
+        >
+          Настройка рассылки
+        </Heading>
 
-                <FormTextAreaField
-                    name="emails"
-                    label="Получатели"
-                    placeholder="example@mail.com user@yandex.ru client@gmail.com"
-                    minH="180px"
-                    bg="gray.50"
-                    initialValue={initialEmails}
-                    validators={[hasValidRecipient(), required()]}
-                />
-                <Text fontSize="xs" color="gray.500" mb={2} mt={1}>
-                    Введите электронные адреса всех получателей через пробел
-                </Text>
+        <FormTextAreaField
+          name="emails"
+          label="Получатели"
+          placeholder="example@mail.com user@yandex.ru client@gmail.com"
+          minH="180px"
+          bg="gray.50"
+          initialValue={initialEmails}
+          validators={[hasValidRecipient(), required()]}
+        />
+        <Text
+          fontSize="xs"
+          color="gray.500"
+          mb={2}
+          mt={1}
+        >
+          Введите электронные адреса всех получателей через пробел
+        </Text>
 
-                <RecipientsCounter />
+        <RecipientsCounter />
 
-                <Flex justify="end">
-                    <FormSubmitButton
-                        rightIcon={<ArrowForwardIcon boxSize={5} />}
-                        isAuthorized={canSend}
-                        onUnauthorized={onAuthClick}
-                        onSubmit={onOpen}
-                        formIds={["email", "recipients"]}
-                        beforeSubmitValidate={() => onValidateEmailForm() === null}
-                    >
-                        {canSend ? 'Отправить' : 'Авторизоваться для отправки'}
-                    </FormSubmitButton>
-                </Flex>
+        <Flex justify="end">
+          <FormSubmitButton
+            rightIcon={<ArrowForwardIcon boxSize={5} />}
+            isAuthorized={canSend}
+            onUnauthorized={onAuthClick}
+            onSubmit={onOpen}
+            formIds={['email', 'recipients']}
+            beforeSubmitValidate={() => onValidateEmailForm() === null}
+          >
+            {canSend ? 'Отправить' : 'Авторизоваться для отправки'}
+          </FormSubmitButton>
+        </Flex>
 
-                <SendController
-                    variant="email"
-                    isOpen={isOpen}
-                    onClose={onClose}
-                    recipientsCount={recipientsCount}
-                    getPayload={getValidEmails}
-                    onSend={onSend}
-                />
-            </Box>
-        </FormProvider>
-    );
+        <SendController
+          variant="email"
+          isOpen={isOpen}
+          onClose={onClose}
+          recipientsCount={recipientsCount}
+          getPayload={getValidEmails}
+          onSend={onSend}
+        />
+      </Box>
+    </FormProvider>
+  );
 }

@@ -5,6 +5,7 @@ import { FormsRegistryContext } from '../FormContext';
 
 export function useFormsRegistry(): FormsRegistry {
   const ctx = useContext(FormsRegistryContext);
-  if (!ctx) throw new Error('Компонент должен быть внутри <FormsRegistryProvider>');
+  if (!ctx)
+    throw new Error('Компонент должен быть внутри <FormsRegistryProvider>');
   return ctx;
 }

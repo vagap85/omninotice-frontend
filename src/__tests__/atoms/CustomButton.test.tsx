@@ -5,7 +5,6 @@ import CustomButton from '@/components/atoms/Button/CustomButton';
 
 import { renderWithProviders, screen } from '../../test/utils';
 
-
 describe('CustomButton', () => {
   test('рендерит текст', () => {
     renderWithProviders(<CustomButton>Нажми</CustomButton>);
@@ -34,7 +33,10 @@ describe('CustomButton', () => {
     const handleClick = vi.fn();
 
     renderWithProviders(
-      <CustomButton onClick={handleClick} disabled>
+      <CustomButton
+        onClick={handleClick}
+        disabled
+      >
         Нажми
       </CustomButton>
     );

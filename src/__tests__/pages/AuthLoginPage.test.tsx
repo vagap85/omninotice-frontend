@@ -6,7 +6,6 @@ import AuthLoginPage from '@/pages/Auth/AuthLoginPage';
 
 import { renderWithProviders, screen, waitFor } from '../../test/utils';
 
-
 // ===== МОКИ =====
 
 const mockNavigate = vi.fn();
@@ -14,13 +13,13 @@ vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useNavigate: () => mockNavigate,
+    useNavigate: () => mockNavigate
   };
 });
 
 const mockLogin = vi.fn();
 vi.mock('@/auth/AuthContext', () => ({
-  useAuth: () => ({ login: mockLogin }),
+  useAuth: () => ({ login: mockLogin })
 }));
 
 const mockToast = vi.fn();
@@ -28,18 +27,17 @@ vi.mock('@chakra-ui/react', async () => {
   const actual = await vi.importActual('@chakra-ui/react');
   return {
     ...actual,
-    useToast: () => mockToast,
+    useToast: () => mockToast
   };
 });
 
 vi.mock('@/api/userCenter', () => ({
   loginUserCenter: vi.fn(),
-  createUserCenter: vi.fn(),
+  createUserCenter: vi.fn()
 }));
 
-vi.mock('@/assets/image 1.jpg', () => ({ default: 'bg.jpg' }));
-vi.mock('@/assets/Vector.svg', () => ({ default: 'logo.svg' }));
-
+vi.mock('@/assets/background.jpg', () => ({ default: 'bg.jpg' }));
+vi.mock('@/assets/logo.svg', () => ({ default: 'logo.svg' }));
 
 describe('AuthLoginPage', () => {
   beforeEach(() => {
@@ -48,7 +46,9 @@ describe('AuthLoginPage', () => {
 
   test('рендерит форму логина', () => {
     renderWithProviders(<AuthLoginPage />);
-    expect(screen.getByPlaceholderText(/example@omninotice/i)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/example@omninotice/i)
+    ).toBeInTheDocument();
     expect(screen.getByText('Войти')).toBeInTheDocument();
   });
 
@@ -87,16 +87,22 @@ describe('AuthLoginPage', () => {
       tokenType: 'bearer',
       login: 'user@mail.com',
       firstName: 'Иван',
-      lastName: 'Иванов',
+      lastName: 'Иванов'
     });
 
     renderWithProviders(<AuthLoginPage />);
 
-    await user.type(screen.getByPlaceholderText(/example@omninotice/i), 'user@mail.com');
-    await user.type(screen.getByPlaceholderText(/введите пароль/i), 'password123');
+    await user.type(
+      screen.getByPlaceholderText(/example@omninotice/i),
+      'user@mail.com'
+    );
+    await user.type(
+      screen.getByPlaceholderText(/введите пароль/i),
+      'password123'
+    );
     await user.click(screen.getByText('Войти'));
 
-        await waitFor(() => {
+    await waitFor(() => {
       expect(mockLogin).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true });
     });

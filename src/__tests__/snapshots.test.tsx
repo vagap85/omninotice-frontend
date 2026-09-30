@@ -8,7 +8,7 @@ import SpinnerLoader from '@/components/atoms/Loaders/SpinnerLoader/SpinnerLoade
 import { renderWithProviders } from '../test/utils';
 
 vi.mock('@/auth/AuthContext', () => ({
-  useAuth: () => ({ isAuthorized: false, login: vi.fn() }),
+  useAuth: () => ({ isAuthorized: false, login: vi.fn() })
 }));
 
 describe('Snapshot tests', () => {

@@ -23,17 +23,17 @@ export interface UserCenterCreateSuccess {
 }
 
 export interface EventForEMail {
-  send_to: string
-  template_name?: string
-  data?: Record<string, unknown>
+  send_to: string;
+  template_name?: string;
+  data?: Record<string, unknown>;
 }
 
 export interface EventForAPI {
-  send_to: string
-  answer_to?: string
-  method: string
-  data: Record<string, unknown>
-  headers?: Record<string, string>
+  send_to: string;
+  answer_to?: string;
+  method: string;
+  data: Record<string, unknown>;
+  headers?: Record<string, string>;
 }
 
 export interface User {
@@ -43,7 +43,7 @@ export interface User {
 }
 
 export type EmailParams = {
-	to_email: string;
-	title: string;
-	message: string;
+  to_email: string;
+  title: string;
+  message: string;
 };
