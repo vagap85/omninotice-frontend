@@ -7,17 +7,20 @@ import ProtectedRoute from '@/routing/ProtectedRoute';
 
 let mockIsAuthorized = false;
 vi.mock('@/auth/AuthContext', () => ({
-  useAuth: () => ({ isAuthorized: mockIsAuthorized }),
+  useAuth: () => ({ isAuthorized: mockIsAuthorized })
 }));
 
-function renderWithRouting(ui: React.ReactNode, initialEntries: string[] = ['/']) {
+function renderWithRouting(
+  ui: React.ReactNode,
+  initialEntries: string[] = ['/']
+) {
   return render(
     <ChakraProvider>
       <MemoryRouter
         initialEntries={initialEntries}
         future={{
           v7_startTransition: true,
-          v7_relativeSplatPath: true,
+          v7_relativeSplatPath: true
         }}
       >
         {ui}
@@ -33,9 +36,15 @@ describe('ProtectedRoute', () => {
     renderWithRouting(
       <Routes>
         <Route element={<ProtectedRoute />}>
-          <Route path="/create/push" element={<div data-testid="secret">Secret</div>} />
+          <Route
+            path="/create/push"
+            element={<div data-testid="secret">Secret</div>}
+          />
         </Route>
-        <Route path="/login" element={<div data-testid="login-page">Login</div>} />
+        <Route
+          path="/login"
+          element={<div data-testid="login-page">Login</div>}
+        />
       </Routes>,
       ['/create/push']
     );
@@ -50,9 +59,15 @@ describe('ProtectedRoute', () => {
     renderWithRouting(
       <Routes>
         <Route element={<ProtectedRoute />}>
-          <Route path="/create/push" element={<div data-testid="secret">Secret</div>} />
+          <Route
+            path="/create/push"
+            element={<div data-testid="secret">Secret</div>}
+          />
         </Route>
-        <Route path="/login" element={<div data-testid="login-page">Login</div>} />
+        <Route
+          path="/login"
+          element={<div data-testid="login-page">Login</div>}
+        />
       </Routes>,
       ['/create/push']
     );
