@@ -1,5 +1,5 @@
 services:
-  { { APP } }:
+  __APP__:
     image: $IMAGE
     container_name: $CONTAINER_NAME
     pull_policy: always

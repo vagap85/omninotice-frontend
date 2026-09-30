@@ -187,7 +187,7 @@ deploy-job:
   script:
     - echo $SERVICE_IP
     - ssh -F $SSH_CONF deploy.host "mkdir -p ${HOST_PROJECT_DIR} || true"
-    - sed -ie "s/{{APP}}/${CI_PROJECT_PATH_SLUG}/g;" deploy/compose.yml
+    - sed -ie "s/__APP__/${CI_PROJECT_PATH_SLUG}/g;" deploy/compose.yml
     - rsync --delete -auzvpe "ssh -F $SSH_CONF" deploy/compose.yml
       deploy.host:${HOST_PROJECT_DIR}/compose.yml
     - | #   Установка переменных окружения и запуск контейнера
