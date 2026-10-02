@@ -9,8 +9,10 @@ import LogoMailIcon from '@/components/atoms/Icons/home/LogoMailIcon';
 import LogoMaxIcon from '@/components/atoms/Icons/home/LogoMaxIcon';
 import LogoSmsIcon from '@/components/atoms/Icons/home/LogoSmsIcon';
 import LogoTelegramIcon from '@/components/atoms/Icons/home/LogoTelegramIcon';
-import { SidebarMenuEntry, SidebarMenuItemProps } from '@/components/molecules/types/sidebar';
-
+import {
+  SidebarMenuEntry,
+  SidebarMenuItemProps
+} from '@/components/molecules/types/sidebar';
 
 const SUB_MENU_ICON_SIZE = 20;
 const MENU_ICON_SIZE = 24;
@@ -156,7 +158,8 @@ export const sidebarMenuItems: SidebarMenuItemProps[] = [
       />
     ),
     text: 'Шаблоны',
-    disabled: true
+    as: 'a',
+    href: '/templates'
   },
   {
     leftIcon: (

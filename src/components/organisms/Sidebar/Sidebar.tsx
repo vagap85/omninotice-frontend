@@ -14,9 +14,10 @@ function SidebarContent() {
       as="nav"
       alignSelf="flex-start"
       maxW={isCollapsed ? '80px' : '240px'}
+      position={'sticky'}
+      top={0}
       w={'100%'}
       minH="100vh"
-      h={'stretch'}
       flexShrink={0}
       padding={'20px'}
       bg={'white'}

@@ -96,6 +96,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             borderRadius="8px"
             display="block"
             h="36px"
+            py="px"
             px="14px"
             fontSize="sm"
             fontWeight="medium"

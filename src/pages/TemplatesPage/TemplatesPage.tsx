@@ -137,7 +137,7 @@ const TemplatesPage: React.FC = () => {
       >
         <Heading
           as="h1"
-          color="#0F172A"
+          color="#12233F"
           fontSize="3xl"
           fontWeight="semibold"
           lineHeight="38px"
@@ -169,10 +169,9 @@ const TemplatesPage: React.FC = () => {
               />
             </InputLeftElement>
             <Input
-              bg="white"
-              borderColor="#E2E8F0"
+              bg="#F8FAFC"
               borderRadius="12px"
-              color="#1E293B"
+              color="#A1A1AA"
               fontSize="md"
               fontWeight="normal"
               lineHeight="24px"
@@ -221,9 +220,9 @@ const TemplatesPage: React.FC = () => {
                   fontWeight="medium"
                   lineHeight="20px"
                   letterSpacing="0"
-                  h="40px"
                   isDisabled={tab.isDisabled}
-                  px={4}
+                  px="22px"
+                  py="14px"
                   flexShrink={0}
                   whiteSpace="nowrap"
                   leftIcon={

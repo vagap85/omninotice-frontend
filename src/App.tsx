@@ -8,6 +8,7 @@ import ProtectedRoute from './routing/ProtectedRoute';
 import SidebarLayout from './components/layouts/SidebarLayout';
 import { OverviewPage } from './pages/OverviewPage/OverviewPage';
 import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage';
+import TemplatesPage from './pages/TemplatesPage/TemplatesPage';
 
 function lazyWithMinDelay<P extends object>(
   factory: () => Promise<{ default: ComponentType<P> }>,
@@ -72,6 +73,10 @@ function App() {
             path="/overview"
             element={<OverviewPage />}
           />
+          <Route
+            path="/templates"
+            element={<TemplatesPage />}
+          />
         </Route>
         <Route
           path="/login"
@@ -81,6 +86,7 @@ function App() {
           path="/registration"
           element={<AuthRegisterPage />}
         />
+
         <Route
           path="*"
           element={<NotFoundPage />}
