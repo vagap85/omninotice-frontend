@@ -21,16 +21,18 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
       borderRadius="20px"
       p="24px"
       w="100%"
-      h="100%" // ← Карточка занимает всю высоту ячейки SimpleGrid
+      h="100%"
       display="flex"
       flexDirection="column"
-      gap="16px"
       boxShadow="0 1px 3px rgba(30, 41, 59, 0.08)"
       border="1px solid"
       borderColor="#E2E8F0"
     >
       {/* Название канала */}
-      <HStack spacing={2}>
+      <HStack
+        spacing={2}
+        mb="16px"
+      >
         <Image
           src={cherryIcon}
           alt="Вишенка Push"
@@ -42,7 +44,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
           fontWeight="medium"
           lineHeight="20px"
           letterSpacing="0"
-          color="#12233F"
+          color="#11023B"
         >
           Вишенка Push
         </Text>
@@ -54,7 +56,8 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
         fontWeight="bold"
         lineHeight="30px"
         letterSpacing="0"
-        color="#0F172A"
+        color="#12233F"
+        mb="12px"
       >
         {template.title}
       </Text>
@@ -63,11 +66,12 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
       <Box
         bg="#F8FAFC"
         borderRadius="12px"
-        p="16px"
+        p="20px"
         display="flex"
         flexDirection="column"
-        gap="16px"
-        flex={1} // ← Растягивается, чтобы все серые блоки были одинаковой высоты
+        gap="8px"
+        mb="8px"
+        flex={1}
       >
         <Text
           fontSize="sm"
@@ -96,8 +100,8 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             borderRadius="8px"
             display="block"
             h="36px"
-            py="px"
             px="14px"
+            py="8px"
             fontSize="sm"
             fontWeight="medium"
             lineHeight="20px"
@@ -113,7 +117,8 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
       {/* Теги переменных */}
       <Flex
         wrap="wrap"
-        gap={2}
+        gap="8px"
+        mb="16px"
       >
         {template.variables.map((variable) => (
           <Tag
@@ -137,7 +142,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
       </Flex>
 
       {/* Статистика */}
-      <Box>
+      <Box mb="16px">
         <Text
           fontSize="sm"
           fontWeight="medium"
@@ -164,6 +169,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
         h="0.5px"
         bg="#A1A1AA"
         opacity={0.3}
+        mb="16px"
       />
 
       {/* Кнопка "Использовать" — прижата к низу */}

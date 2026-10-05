@@ -30,6 +30,7 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
   const initialTemplateId = searchParams.get('templateId') || '';
   const [selectedId, setSelectedId] = useState(initialTemplateId);
   const [searchQuery, setSearchQuery] = useState('');
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -37,6 +38,10 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
   const initialTemplate = MOCK_TEMPLATES.find(
     (t) => t.id === initialTemplateId
   );
+
+  // ✅ ИСПРАВЛЕНИЕ: Вычисляемое состояние (Derived State).
+  // Никакого useState и useEffect не нужно!
+  const isLoadFailed = MOCK_TEMPLATES.length === 0;
 
   // Фильтрация шаблонов по поиску
   const filteredTemplates = MOCK_TEMPLATES.filter((template) => {
@@ -47,7 +52,7 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
     );
   });
 
-  // Закрытие при клике вне компонента
+  // Закрытие при клике вне компонента (это легитимный side-effect)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -68,7 +73,7 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
     };
   }, [isOpen, onClose]);
 
-  // Фокус на поиск при открытии
+  // Фокус на поиск при открытии (тоже легитимный side-effect)
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
       setTimeout(() => searchInputRef.current?.focus(), 100);
@@ -100,6 +105,12 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
     }
   };
 
+  const handleRetry = () => {
+    // Здесь в будущем будет реальная логика повторного запроса к API
+    // Например: fetchTemplates().catch(() => ...)
+    console.log('Повторная загрузка...');
+  };
+
   return (
     <Box
       position="relative"
@@ -110,7 +121,7 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
       <Flex
         align="center"
         bg="#F8FAFC"
-        borderRadius="16px"
+        borderRadius="8px"
         border="1px solid"
         borderColor="#E2EBF3"
         cursor="pointer"
@@ -184,40 +195,41 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
           zIndex={10}
           overflow="hidden"
         >
-          {/* Поиск */}
-          <Box
-            borderBottom="1px solid"
-            borderColor="#A1A1AA"
-          >
-            <Flex
-              align="center"
-              bg="white"
-              px="18px"
-              py="12px"
+          {!isLoadFailed && (
+            <Box
+              borderBottom="1px solid"
+              borderColor="#A1A1AA"
             >
-              <Icon
-                as={LuSearch}
-                color="#A1A1AA"
-                boxSize={4}
-                mr="8px"
-              />
-              <Input
-                ref={searchInputRef}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Поиск по названию или тексту"
-                border="none"
-                bg="transparent"
-                p={0}
-                fontSize="md"
-                _focus={{ boxShadow: 'none' }}
-                _placeholder={{ color: '#A1A1AA' }}
-                onClick={(e) => e.stopPropagation()}
-              />
-            </Flex>
-          </Box>
+              <Flex
+                align="center"
+                bg="white"
+                px="18px"
+                py="12px"
+              >
+                <Icon
+                  as={LuSearch}
+                  color="#A1A1AA"
+                  boxSize={4}
+                  mr="8px"
+                />
+                <Input
+                  ref={searchInputRef}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Поиск по названию или тексту"
+                  border="none"
+                  bg="transparent"
+                  p={0}
+                  fontSize="md"
+                  _focus={{ boxShadow: 'none' }}
+                  _placeholder={{ color: '#A1A1AA' }}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </Flex>
+            </Box>
+          )}
 
-          {/* Список шаблонов */}
+          {/* Список шаблонов или ошибка */}
           <VStack
             spacing={0}
             align="stretch"
@@ -236,20 +248,20 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
               }
             }}
           >
-            {filteredTemplates.length === 0 ? (
+            {isLoadFailed ? (
+              // 1. Состояние ошибки загрузки
               <Box
                 py="24px"
                 textAlign="center"
               >
-                {/* Иконка ошибки */}
                 <Icon
                   as={LuCircleAlert}
-                  boxSize={8}
-                  color="#E53E3E"
-                  mb="4px"
+                  w="20px"
+                  h="20px"
+                  boxSize="20px"
+                  color="#EF4444"
+                  mb="8px"
                 />
-
-                {/* Текст ошибки */}
                 <Text
                   fontSize="sm"
                   color="#64748B"
@@ -264,26 +276,35 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
                 >
                   Проверьте соединение и повторите.
                 </Text>
-
-                {/* Кнопка "Повторить" */}
                 <Button
                   variant="outline"
                   borderColor="#3B6EA0"
                   color="#3B6EA0"
-                  borderRadius="8px"
-                  px={4}
-                  py={2}
-                  fontSize="sm"
-                  onClick={() => {
-                    // Логика повторной загрузки шаблонов
-                    // Например, можно добавить состояние isFailed и сбросить его
-                    setSearchQuery('');
-                  }}
+                  borderRadius="12px"
+                  px="10px"
+                  py="8px"
+                  fontSize="xs"
+                  fontWeight="500"
+                  onClick={handleRetry}
                 >
                   Повторить
                 </Button>
               </Box>
+            ) : filteredTemplates.length === 0 ? (
+              // 2. Поиск не дал результатов
+              <Box
+                py="24px"
+                textAlign="center"
+              >
+                <Text
+                  fontSize="sm"
+                  color="#A1A1AA"
+                >
+                  Шаблоны не найдены
+                </Text>
+              </Box>
             ) : (
+              // 3. Список найденных шаблонов
               filteredTemplates.map((template) => (
                 <Box
                   key={template.id}

@@ -199,14 +199,17 @@ export function NotificationContentFields() {
         {variables.length > 0 && !allVariablesFilled && (
           <HStack
             mt={2}
-            color="#DD6B20"
+            color="#EA580C"
             fontSize="xs"
           >
             <Icon
               as={LuCircleAlert}
               boxSize={4}
             />
-            <Text>Заполните все переменные перед отправкой</Text>
+            <Text>
+              В тексте есть переменные вида {`{{  }}`} — замените их на реальные
+              значения перед отправкой.
+            </Text>
           </HStack>
         )}
       </Box>

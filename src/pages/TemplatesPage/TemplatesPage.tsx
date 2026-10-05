@@ -154,7 +154,7 @@ const TemplatesPage: React.FC = () => {
         >
           <InputGroup
             flex="1"
-            maxW="700px"
+            maxW="984px"
             size="md"
           >
             <InputLeftElement
@@ -166,11 +166,12 @@ const TemplatesPage: React.FC = () => {
                 alt="Поиск"
                 boxSize="16px"
                 objectFit="contain"
+                ml="18px"
               />
             </InputLeftElement>
             <Input
               bg="#F8FAFC"
-              borderRadius="12px"
+              borderRadius="10px"
               color="#A1A1AA"
               fontSize="md"
               fontWeight="normal"
@@ -257,7 +258,6 @@ const TemplatesPage: React.FC = () => {
 
       {/* 🔀 Логика отображения контента */}
       {isLoading ? (
-        // 1. Показываем спиннер во время загрузки
         <Center py={20}>
           <Spinner
             color="#346895"
@@ -266,10 +266,8 @@ const TemplatesPage: React.FC = () => {
           />
         </Center>
       ) : error ? (
-        // 2. Если была ошибка — показываем ErrorState с кнопкой "Повторить"
         <ErrorState onRetry={handleRetry} />
       ) : filteredTemplates.length === 0 ? (
-        // 3. Если шаблонов нет (пустой поиск или фильтр)
         <Center
           flexDirection="column"
           py={20}
@@ -289,7 +287,6 @@ const TemplatesPage: React.FC = () => {
           </Text>
         </Center>
       ) : (
-        // 4. Иначе показываем карточки
         <SimpleGrid
           columns={{ base: 1, md: 2, lg: 3 }}
           spacing={6}

@@ -1,4 +1,5 @@
-import { Box, Button, Center, Text } from '@chakra-ui/react';
+import { Box, Button, Center, Text, Icon } from '@chakra-ui/react';
+import { LuFileText } from 'react-icons/lu';
 import React from 'react';
 
 interface ErrorStateProps {
@@ -24,9 +25,25 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
         display="flex"
         flexDirection="column"
         alignItems="center"
-        gap="12px"
         boxShadow="0 1px 3px rgba(30, 41, 59, 0.08)"
       >
+        {/* Иконка документа в красном квадрате */}
+        <Box
+          bg="#FEF2F2"
+          borderRadius="8px"
+          w="44px"
+          h="44px"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          mb="24px"
+        >
+          <Icon
+            as={LuFileText}
+            boxSize={6}
+            color="#EF4444"
+          />
+        </Box>
         {/* Заголовок ошибки: xl / font-bold */}
         <Text
           fontSize="xl"
@@ -35,6 +52,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
           letterSpacing="0"
           color="#12233F"
           textAlign="center"
+          mb="4px"
         >
           {message}
         </Text>
@@ -47,6 +65,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
           letterSpacing="0"
           color="#52525B"
           textAlign="center"
+          mb="12px"
         >
           {description}
         </Text>
