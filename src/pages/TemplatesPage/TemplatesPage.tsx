@@ -65,33 +65,30 @@ const TemplatesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeTab, setActiveTab] = useState<ChannelTab>('cherry');
 
-  // 🔁 ОДНА функция загрузки — используется и при монтировании, и при retry
   const loadTemplates = useCallback(async () => {
     setIsLoading(true);
-    setError(false); // Сбрасываем ошибку перед новой попыткой
+    setError(false);
 
     try {
       const data = await getTemplates();
       setTemplates(data);
-      setError(false); // Явно подтверждаем успех
+      setError(false);
     } catch (err) {
       console.error('Ошибка загрузки шаблонов:', err);
       setError(true);
-      setTemplates([]); // Очищаем шаблоны при ошибке
+      setTemplates([]);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  // Загрузка при монтировании страницы
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadTemplates();
   }, [loadTemplates]);
 
-  // Обработчик кнопки "Повторить"
   const handleRetry = () => {
-    loadTemplates(); // Та же функция — тот же результат
+    loadTemplates();
   };
 
   const handleUseTemplate = (template: NotificationTemplate) => {
@@ -105,15 +102,24 @@ const TemplatesPage: React.FC = () => {
       result = result.filter((tpl) => tpl.channel === activeTab);
     }
 
-    const query = searchQuery.trim().toLowerCase();
-    if (query) {
-      result = result.filter((tpl) => {
-        const matchName = tpl.name?.toLowerCase().includes(query);
-        const matchTitle = tpl.title?.toLowerCase().includes(query);
-        const matchBody = tpl.body?.toLowerCase().includes(query);
-        return matchName || matchTitle || matchBody;
-      });
+    const query = searchQuery.toLowerCase().replace(/\s+/g, '');
+
+    if (!query) {
+      return result;
     }
+
+    result = result.filter((tpl) => {
+      const normalizedName = tpl.name?.toLowerCase().replace(/\s+/g, '') || '';
+      const normalizedTitle =
+        tpl.title?.toLowerCase().replace(/\s+/g, '') || '';
+      const normalizedBody = tpl.body?.toLowerCase().replace(/\s+/g, '') || '';
+
+      return (
+        normalizedName.includes(query) ||
+        normalizedTitle.includes(query) ||
+        normalizedBody.includes(query)
+      );
+    });
 
     return result;
   }, [templates, searchQuery, activeTab]);

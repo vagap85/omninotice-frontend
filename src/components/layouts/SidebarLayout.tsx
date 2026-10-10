@@ -9,7 +9,8 @@ import PageHeader from '@/components/molecules/PageHeader/PageHeader';
 const pageTitles: Record<string, string> = {
   '/create/email': 'Создание e-mail рассылки',
   '/create/push': 'Создание рассылки push-уведомлений',
-  '/overview': 'Обзор'
+  '/overview': 'Обзор',
+  '/templates': 'Шаблоны рассылок'
 };
 
 function SidebarLayout() {

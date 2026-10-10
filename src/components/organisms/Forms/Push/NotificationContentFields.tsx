@@ -1,43 +1,55 @@
-import { useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import {
-  Box,
-  Button,
-  Heading,
-  HStack,
-  Input,
-  Text,
-  Textarea,
-  Icon
-} from '@chakra-ui/react';
+  useState,
+  useMemo,
+  useCallback,
+  useSyncExternalStore,
+  memo
+} from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Box, Button, Heading, HStack, Icon, Text } from '@chakra-ui/react';
 import { LuSparkles, LuCircleAlert } from 'react-icons/lu';
 
+import { FormTextAreaField } from '@/components/molecules/Form/Elements/FormTextAreaField';
+import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
+import {
+  required,
+  maxLength
+} from '@/components/molecules/Form/validators/validators';
 import { MOCK_TEMPLATES } from '@/mocks/templates';
 import TemplateSelector from '@/components/molecules/TemplateSelector/TemplateSelector';
 import EditableTextWithVariables from '@/components/molecules/EditableTextWithVariables/EditableTextWithVariables';
 import { NotificationTemplate } from '@/types/template';
+import { useFormStore } from '@/components/molecules/Form/hooks/useFormStore';
 
 type VariableValues = Record<string, string>;
 
-export function NotificationContentFields() {
-  // Читаем templateId из URL
+interface NotificationContentFieldsProps {
+  formId: string;
+}
+
+export function NotificationContentFields({
+  formId
+}: NotificationContentFieldsProps) {
   const [searchParams] = useSearchParams();
   const initialTemplateId = searchParams.get('templateId') || '';
   const initialTemplate = MOCK_TEMPLATES.find(
     (t) => t.id === initialTemplateId
   );
 
-  // Инициализируем состояние данными из шаблона, если он передан в URL
-  const [title, setTitle] = useState(initialTemplate?.title || '');
-  const [text, setText] = useState(initialTemplate?.body || '');
-  const [buttonText, setButtonText] = useState(
-    initialTemplate?.buttonText || ''
+  const store = useFormStore(formId);
+
+  const text = useSyncExternalStore(
+    useCallback((cb) => store.subscribe('text', cb), [store]),
+    useCallback(
+      () => (store.getSnapshot('text')?.value as string | undefined) ?? '',
+      [store]
+    )
   );
-  const [buttonLink, setButtonLink] = useState('');
-  const [variableValues, setVariableValues] = useState<VariableValues>({});
-  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const [selectedTemplate, setSelectedTemplate] =
     useState<NotificationTemplate | null>(initialTemplate || null);
+
+  const [variableValues, setVariableValues] = useState<VariableValues>({});
 
   const variables = useMemo(() => {
     const matches = text.match(/\{\{([^}]+)\}\}/g);
@@ -52,71 +64,29 @@ export function NotificationContentFields() {
     );
   }, [variables, variableValues]);
 
-  const handleTemplateSelect = (template: NotificationTemplate | null) => {
-    setSelectedTemplate(template);
-
-    if (template) {
-      setTitle(template.title);
-      setText(template.body);
-      setButtonText(template.buttonText || '');
-      setButtonLink('');
+  const handleTemplateSelect = useCallback(
+    (template: NotificationTemplate | null) => {
+      setSelectedTemplate(template);
+      store.setValue('title', template?.title ?? '');
+      store.setValue('text', template?.body ?? '');
       setVariableValues({});
-      setErrors({});
-    } else {
-      setTitle('');
-      setText('');
-      setButtonText('');
-      setButtonLink('');
-      setVariableValues({});
-      setErrors({});
-    }
-  };
+    },
+    [store]
+  );
 
-  const handleVariableChange = (variable: string, value: string) => {
-    setVariableValues((prev) => ({
-      ...prev,
-      [variable]: value
-    }));
+  const handleTextChange = useCallback(
+    (newText: string) => {
+      store.setValue('text', newText);
+    },
+    [store]
+  );
 
-    if (errors[variable]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[variable];
-        return newErrors;
-      });
-    }
-  };
-
-  const validateVariables = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    variables.forEach((v) => {
-      if (!variableValues[v]?.trim()) {
-        newErrors[v] = `Заполните "${v}"`;
-      }
-    });
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = () => {
-    if (!validateVariables()) {
-      const firstErrorField = document.querySelector(
-        'input[placeholder*="{{"]'
-      ) as HTMLElement | null;
-      firstErrorField?.focus();
-      return;
-    }
-
-    console.log('Отправка формы:', {
-      title,
-      text,
-      buttonText,
-      buttonLink,
-      variables: variableValues
-    });
-  };
+  const handleVariableChange = useCallback(
+    (variable: string, value: string) => {
+      setVariableValues((prev) => ({ ...prev, [variable]: value }));
+    },
+    []
+  );
 
   return (
     <Box
@@ -124,7 +94,6 @@ export function NotificationContentFields() {
       bg="white"
       borderRadius="10px"
       p={6}
-      key={initialTemplateId}
     >
       <Heading
         fontSize="26px"
@@ -141,58 +110,45 @@ export function NotificationContentFields() {
 
       {/* Заголовок уведомления */}
       <Box mt={4}>
-        <Text
-          fontSize="sm"
-          fontWeight="600"
-          color="#12233F"
-          mb={2}
-        >
-          Заголовок уведомления
-        </Text>
-        <Input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+        <FormTextField
+          name="title"
+          label="Заголовок уведомления"
           placeholder="Например, Вам назначена задача"
-          bg="#F8FAFC"
-          borderRadius="8px"
-          borderColor="#E2E8F0"
-          _focus={{ borderColor: '#3B6EA0', boxShadow: '0 0 0 1px #3B6EA0' }}
+          subTitlte="Отображается первой строкой в ленте уведомлений более крупно и заметно"
+          validators={[required()]}
+          initialValue={initialTemplate?.title ?? ''}
         />
       </Box>
 
       {/* Текст уведомления */}
       <Box mt={4}>
-        <Text
-          fontSize="sm"
-          fontWeight="600"
-          color="#12233F"
-          mb={2}
-        >
-          Текст уведомления
-        </Text>
-
         {selectedTemplate ? (
-          <EditableTextWithVariables
-            text={text}
-            variableValues={variableValues}
-            onVariableChange={handleVariableChange}
-            onTextChange={setText}
-            placeholder="Введите текст уведомления"
-          />
+          <>
+            <Text
+              fontSize="sm"
+              fontWeight="600"
+              color="#12233F"
+              mb={2}
+            >
+              Текст уведомления
+            </Text>
+            <EditableTextWithVariables
+              text={text}
+              variableValues={variableValues}
+              onVariableChange={handleVariableChange}
+              onTextChange={handleTextChange}
+              placeholder="Введите текст уведомления"
+            />
+          </>
         ) : (
-          <Textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
+          <FormTextAreaField
+            name="text"
+            label="Текст уведомления"
             placeholder="Введите текст уведомления"
-            bg="#F8FAFC"
-            borderRadius="8px"
-            border="1px solid"
-            borderColor="#E2E8F0"
-            resize="vertical"
-            _focus={{
-              borderColor: '#3B6EA0',
-              boxShadow: '0 0 0 1px #3B6EA0'
-            }}
+            minH="155px"
+            maxLength={155}
+            validators={[required(), maxLength(155)]}
+            initialValue={initialTemplate?.body ?? ''}
           />
         )}
 
@@ -214,59 +170,6 @@ export function NotificationContentFields() {
         )}
       </Box>
 
-      {/* Блок действия */}
-      <Box mt={6}>
-        <Heading
-          fontSize="26px"
-          lineHeight="32px"
-          fontWeight="600"
-          color="#12233F"
-          mb={4}
-        >
-          Действие
-        </Heading>
-
-        <Box mt={4}>
-          <Text
-            fontSize="sm"
-            fontWeight="600"
-            color="#12233F"
-            mb={2}
-          >
-            Текст кнопки
-          </Text>
-          <Input
-            value={buttonText}
-            onChange={(e) => setButtonText(e.target.value)}
-            placeholder="Ссылка на задачу"
-            bg="#F8FAFC"
-            borderRadius="8px"
-            borderColor="#E2E8F0"
-            _focus={{ borderColor: '#3B6EA0', boxShadow: '0 0 0 1px #3B6EA0' }}
-          />
-        </Box>
-
-        <Box mt={4}>
-          <Text
-            fontSize="sm"
-            fontWeight="600"
-            color="#12233F"
-            mb={2}
-          >
-            Ссылка для кнопки
-          </Text>
-          <Input
-            value={buttonLink}
-            onChange={(e) => setButtonLink(e.target.value)}
-            placeholder="Вставьте ссылку"
-            bg="#F8FAFC"
-            borderRadius="8px"
-            borderColor="#E2E8F0"
-            _focus={{ borderColor: '#3B6EA0', boxShadow: '0 0 0 1px #3B6EA0' }}
-          />
-        </Box>
-      </Box>
-
       <HStack
         justify="flex-end"
         mt={6}
@@ -285,21 +188,9 @@ export function NotificationContentFields() {
         >
           Улучшить текст
         </Button>
-
-        <Button
-          variant="solid"
-          colorScheme="blue"
-          borderRadius="12px"
-          h={'auto'}
-          px={5}
-          py={3}
-          onClick={handleSubmit}
-        >
-          Создать рассылку
-        </Button>
       </HStack>
     </Box>
   );
 }
 
-export default NotificationContentFields;
+export default memo(NotificationContentFields);

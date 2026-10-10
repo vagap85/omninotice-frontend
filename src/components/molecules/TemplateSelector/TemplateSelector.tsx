@@ -39,17 +39,18 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
     (t) => t.id === initialTemplateId
   );
 
-  // ✅ ИСПРАВЛЕНИЕ: Вычисляемое состояние (Derived State).
-  // Никакого useState и useEffect не нужно!
   const isLoadFailed = MOCK_TEMPLATES.length === 0;
 
   // Фильтрация шаблонов по поиску
   const filteredTemplates = MOCK_TEMPLATES.filter((template) => {
-    const query = searchQuery.toLowerCase();
-    return (
-      template.name.toLowerCase().includes(query) ||
-      template.body.toLowerCase().includes(query)
-    );
+    const query = searchQuery.toLowerCase().replace(/\s+/g, '');
+
+    if (!query) return true;
+
+    const normalizedName = template.name.toLowerCase().replace(/\s+/g, '');
+    const normalizedBody = template.body.toLowerCase().replace(/\s+/g, '');
+
+    return normalizedName.includes(query) || normalizedBody.includes(query);
   });
 
   // Закрытие при клике вне компонента (это легитимный side-effect)

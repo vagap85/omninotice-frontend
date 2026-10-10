@@ -49,8 +49,9 @@ function SidebarContent() {
 
 function SidebarComponent() {
   const { pathname } = useLocation();
-  const isCollapsed =
-    pathname === '/create/email' || pathname === '/create/push';
+  const pathnames = ['/create/email', '/create/push', '/templates'];
+
+  const isCollapsed = pathnames.includes(pathname);
 
   return (
     <SidebarProvider isCollapsed={isCollapsed}>
