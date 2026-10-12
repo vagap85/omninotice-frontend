@@ -11,4 +11,5 @@ export interface PushNotificationFormValues {
   title: string;
   text: string;
   buttonText: string;
+  variableValues?: Record<string, string>;
 }

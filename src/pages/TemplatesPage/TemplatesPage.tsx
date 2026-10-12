@@ -126,11 +126,10 @@ const TemplatesPage: React.FC = () => {
 
   return (
     <Container
-      maxW="container.xl"
-      as="main"
+      maxW="1760px"
       bg="#ECF2F8"
       minH="100vh"
-      px="40px"
+      py="40px"
     >
       {/* Липкая шапка */}
       <Box
@@ -138,8 +137,8 @@ const TemplatesPage: React.FC = () => {
         top="0"
         zIndex={10}
         bg="#ECF2F8"
+        pt="10px"
         pb="32px"
-        pt="40px"
       >
         <Heading
           as="h1"

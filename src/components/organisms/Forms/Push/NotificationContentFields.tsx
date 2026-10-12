@@ -1,10 +1,4 @@
-import {
-  useState,
-  useMemo,
-  useCallback,
-  useSyncExternalStore,
-  memo
-} from 'react';
+import { useState, useMemo, useEffect, useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Box, Button, Heading, HStack, Icon, Text } from '@chakra-ui/react';
 import { LuSparkles, LuCircleAlert } from 'react-icons/lu';
@@ -19,9 +13,7 @@ import { MOCK_TEMPLATES } from '@/mocks/templates';
 import TemplateSelector from '@/components/molecules/TemplateSelector/TemplateSelector';
 import EditableTextWithVariables from '@/components/molecules/EditableTextWithVariables/EditableTextWithVariables';
 import { NotificationTemplate } from '@/types/template';
-import { useFormStore } from '@/components/molecules/Form/hooks/useFormStore';
-
-type VariableValues = Record<string, string>;
+import { FormsRegistryContext } from '@/components/molecules/Form/FormContext';
 
 interface NotificationContentFieldsProps {
   formId: string;
@@ -36,20 +28,19 @@ export function NotificationContentFields({
     (t) => t.id === initialTemplateId
   );
 
-  const store = useFormStore(formId);
+  const registryContext = useContext(FormsRegistryContext);
+  const store = registryContext
+    ? registryContext.getOrCreateStore(formId)
+    : null;
 
-  const text = useSyncExternalStore(
-    useCallback((cb) => store.subscribe('text', cb), [store]),
-    useCallback(
-      () => (store.getSnapshot('text')?.value as string | undefined) ?? '',
-      [store]
-    )
+  const [title, setTitle] = useState(initialTemplate?.title || '');
+  const [text, setText] = useState(initialTemplate?.body || '');
+  const [variableValues, setVariableValues] = useState<Record<string, string>>(
+    {}
   );
-
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedTemplate, setSelectedTemplate] =
     useState<NotificationTemplate | null>(initialTemplate || null);
-
-  const [variableValues, setVariableValues] = useState<VariableValues>({});
 
   const variables = useMemo(() => {
     const matches = text.match(/\{\{([^}]+)\}\}/g);
@@ -64,29 +55,43 @@ export function NotificationContentFields({
     );
   }, [variables, variableValues]);
 
-  const handleTemplateSelect = useCallback(
-    (template: NotificationTemplate | null) => {
-      setSelectedTemplate(template);
-      store.setValue('title', template?.title ?? '');
-      store.setValue('text', template?.body ?? '');
+  useEffect(() => {
+    if (store) {
+      store.setValue('title', title);
+      store.setValue('text', text);
+      store.setValue('variableValues', variableValues);
+    }
+  }, [title, text, variableValues, store]);
+
+  const handleTemplateSelect = (template: NotificationTemplate | null) => {
+    setSelectedTemplate(template);
+    if (template) {
+      setTitle(template.title);
+      setText(template.body);
       setVariableValues({});
-    },
-    [store]
-  );
+      setErrors({});
+    } else {
+      setTitle('');
+      setText('');
+      setVariableValues({});
+      setErrors({});
+    }
+  };
 
-  const handleTextChange = useCallback(
-    (newText: string) => {
-      store.setValue('text', newText);
-    },
-    [store]
-  );
+  const handleVariableChange = (variable: string, value: string) => {
+    setVariableValues((prev) => ({
+      ...prev,
+      [variable]: value
+    }));
 
-  const handleVariableChange = useCallback(
-    (variable: string, value: string) => {
-      setVariableValues((prev) => ({ ...prev, [variable]: value }));
-    },
-    []
-  );
+    if (errors[variable]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[variable];
+        return newErrors;
+      });
+    }
+  };
 
   return (
     <Box
@@ -94,6 +99,7 @@ export function NotificationContentFields({
       bg="white"
       borderRadius="10px"
       p={6}
+      key={initialTemplateId}
     >
       <Heading
         fontSize="26px"
@@ -105,10 +111,10 @@ export function NotificationContentFields({
         Текст уведомления
       </Heading>
 
-      {/* Select с шаблонами */}
-      <TemplateSelector onSelect={handleTemplateSelect} />
+      <Box data-tour="template-selector">
+        <TemplateSelector onSelect={handleTemplateSelect} />
+      </Box>
 
-      {/* Заголовок уведомления */}
       <Box mt={4}>
         <FormTextField
           name="title"
@@ -116,11 +122,10 @@ export function NotificationContentFields({
           placeholder="Например, Вам назначена задача"
           subTitlte="Отображается первой строкой в ленте уведомлений более крупно и заметно"
           validators={[required()]}
-          initialValue={initialTemplate?.title ?? ''}
+          initialValue={title}
         />
       </Box>
 
-      {/* Текст уведомления */}
       <Box mt={4}>
         {selectedTemplate ? (
           <>
@@ -136,7 +141,7 @@ export function NotificationContentFields({
               text={text}
               variableValues={variableValues}
               onVariableChange={handleVariableChange}
-              onTextChange={handleTextChange}
+              onTextChange={setText}
               placeholder="Введите текст уведомления"
             />
           </>
@@ -148,7 +153,7 @@ export function NotificationContentFields({
             minH="155px"
             maxLength={155}
             validators={[required(), maxLength(155)]}
-            initialValue={initialTemplate?.body ?? ''}
+            initialValue={text}
           />
         )}
 
@@ -193,4 +198,4 @@ export function NotificationContentFields({
   );
 }
 
-export default memo(NotificationContentFields);
+export default NotificationContentFields;

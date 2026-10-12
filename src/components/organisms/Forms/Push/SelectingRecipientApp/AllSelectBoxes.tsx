@@ -8,6 +8,7 @@ import UsersSelectTest from './Selects/UsersSelect';
 
 export default function AllSelectBoxes() {
   const { selectedApp } = useSelectingRecipientApp();
+
   return (
     <Box
       as="fieldset"
@@ -15,22 +16,33 @@ export default function AllSelectBoxes() {
       flexDirection={'column'}
       gap={3}
     >
-      <AppSelect />
-      <IconSelect />
-      <UsersSelectTest />
+      <Box data-tour="app-select">
+        <AppSelect />
+      </Box>
+
+      <Box data-tour="icon-select">
+        <IconSelect />
+      </Box>
+
+      <Box data-tour="recipients-select">
+        <UsersSelectTest />
+      </Box>
+
       {selectedApp && (
-        <Flex
-          direction={'column'}
-          gap={1.5}
-        >
-          <Text
-            fontSize="lg"
-            color="#12233F"
+        <Box data-tour="preview-block">
+          <Flex
+            direction={'column'}
+            gap={1.5}
           >
-            Как получатель увидит уведомление
-          </Text>
-          <NotificationCard selectedApp={selectedApp} />
-        </Flex>
+            <Text
+              fontSize="lg"
+              color="#12233F"
+            >
+              Как получатель увидит уведомление
+            </Text>
+            <NotificationCard selectedApp={selectedApp} />
+          </Flex>
+        </Box>
       )}
     </Box>
   );

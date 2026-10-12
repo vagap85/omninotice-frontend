@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react';
+import { Flex, Box } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/auth/AuthContext';
@@ -32,7 +32,10 @@ function SidebarLayout() {
           isAuthorized={isAuthorized}
           title={pageTitles[pathname] ?? ''}
         />
-        <main>
+        <Box
+          as="main"
+          px="40px"
+        >
           <Suspense
             fallback={
               <Flex
@@ -47,7 +50,7 @@ function SidebarLayout() {
           >
             <Outlet />
           </Suspense>
-        </main>
+        </Box>
       </Flex>
     </Flex>
   );
