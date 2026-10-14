@@ -96,10 +96,7 @@ function PushCreateNotificatonInner({
                 <ActionFields />
               </Box>
             </Flex>
-
-            <Box data-tour="settings-panel">
-              <SelectingRecipientApp isAuthorized={isAuthorized} />
-            </Box>
+            <SelectingRecipientApp isAuthorized={isAuthorized} />
           </Flex>
         </Box>
       </Flex>

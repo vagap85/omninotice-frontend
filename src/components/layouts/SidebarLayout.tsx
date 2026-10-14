@@ -32,10 +32,7 @@ function SidebarLayout() {
           isAuthorized={isAuthorized}
           title={pageTitles[pathname] ?? ''}
         />
-        <Box
-          as="main"
-          px="40px"
-        >
+        <Box as="main">
           <Suspense
             fallback={
               <Flex

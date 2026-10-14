@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Text, Portal } from '@chakra-ui/react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, ReactNode } from 'react';
 
 interface OnboardingStep {
   id: number;
@@ -81,6 +81,45 @@ const TOTAL_STEPS = ONBOARDING_STEPS.length;
 interface OnboardingTourProps {
   isOpen: boolean;
   onComplete: () => void;
+}
+
+function TopLayer({ children }: { children: ReactNode }) {
+  // callback ref: срабатывает, когда элемент реально попал в DOM
+  const setRef = useCallback((el: HTMLDivElement | null) => {
+    if (
+      el &&
+      typeof el.showPopover === 'function' &&
+      !el.matches(':popover-open')
+    ) {
+      el.showPopover();
+    }
+  }, []);
+
+  return (
+    <Portal>
+      <Box
+        ref={setRef}
+        {...{ popover: 'manual' }}
+        // сброс дефолтных стилей [popover]
+        position="fixed"
+        inset={0}
+        w="100vw"
+        h="100vh"
+        maxW="none"
+        maxH="none"
+        m={0}
+        p={0}
+        border="none"
+        bg="transparent"
+        color="inherit"
+        overflow="visible"
+        // запасной вариант для браузеров без Popover API
+        zIndex={2147483647}
+      >
+        {children}
+      </Box>
+    </Portal>
+  );
 }
 
 export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
@@ -170,7 +209,7 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
     : getTooltipPosition(step.position || 'bottom', targetRect);
 
   return (
-    <Portal>
+    <TopLayer>
       {/* Затемнение фона */}
       <Box
         position="fixed"
@@ -295,7 +334,7 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
           </Flex>
         </Flex>
       </Box>
-    </Portal>
+    </TopLayer>
   );
 }
 
