@@ -46,8 +46,6 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
   const recipientsCount =
     recipientsMode === 'all' ? (selectedApp?.count ?? 0) : selectedUsers.length;
 
-  // теперь проверяет только то, что вне зоны ответственности formIds
-  // (валидацию самого контента формы pushNotification уже сделает FormSubmitButton)
   const validateExtraFields = (): boolean => {
     setAppError(null);
     setRecipientsError(null);
@@ -97,6 +95,8 @@ function PanelContent({ isAuthorized }: { isAuthorized: boolean }) {
       });
 
       console.log('Push отправлен:', response.detail.code);
+
+      localStorage.setItem('onboarding_real_send', 'true');
     } catch (error) {
       if (error instanceof DispatchError) {
         console.error('Dispatch error:', error.status, error.detail);

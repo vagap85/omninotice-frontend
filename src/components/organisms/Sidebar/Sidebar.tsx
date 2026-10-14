@@ -14,9 +14,11 @@ function SidebarContent() {
       as="nav"
       alignSelf="flex-start"
       maxW={isCollapsed ? '80px' : '240px'}
+      position={'sticky'}
+      zIndex={99999999}
+      top={0}
       w={'100%'}
       minH="100vh"
-      h={'stretch'}
       flexShrink={0}
       padding={'20px'}
       bg={'white'}
@@ -48,8 +50,9 @@ function SidebarContent() {
 
 function SidebarComponent() {
   const { pathname } = useLocation();
-  const isCollapsed =
-    pathname === '/create/email' || pathname === '/create/push';
+  const pathnames = ['/create/email', '/create/push', '/templates'];
+
+  const isCollapsed = pathnames.includes(pathname);
 
   return (
     <SidebarProvider isCollapsed={isCollapsed}>

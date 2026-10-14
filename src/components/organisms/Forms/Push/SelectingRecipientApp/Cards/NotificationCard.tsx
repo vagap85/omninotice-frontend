@@ -15,7 +15,12 @@ export default function NotificationCard({
   const SelectedIcon = selectedApp.icon.Icon;
 
   const title = values.title || 'Заголовок';
-  const text = values.text || 'Описание';
+
+  const interpolatedText = interpolateVariables(
+    values.text || 'Описание',
+    values.variableValues || {}
+  );
+
   const buttonText = values.buttonText || 'Кнопка';
 
   return (
@@ -68,7 +73,7 @@ export default function NotificationCard({
             lineHeight={5}
             wordBreak={'break-word'}
           >
-            {text}
+            {interpolatedText}
           </Text>
           <Box
             bg={'#487BFE'}
@@ -98,4 +103,19 @@ export default function NotificationCard({
       </Flex>
     </Box>
   );
+}
+
+function interpolateVariables(
+  text: string,
+  variables: Record<string, string>
+): string {
+  if (!text) return '';
+
+  let result = text;
+  Object.entries(variables).forEach(([key, value]) => {
+    const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+    result = result.replace(regex, value || `{{${key}}}`);
+  });
+
+  return result;
 }

@@ -1,18 +1,105 @@
-import { Box, Button, Heading, HStack } from '@chakra-ui/react';
-import { memo } from 'react';
-import { LuSparkles } from 'react-icons/lu';
+import { useState, useMemo, useEffect, useContext } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Box, Button, Heading, HStack, Icon, Text } from '@chakra-ui/react';
+import { LuSparkles, LuCircleAlert } from 'react-icons/lu';
 
 import { FormTextAreaField } from '@/components/molecules/Form/Elements/FormTextAreaField';
 import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
-import { required } from '@/components/molecules/Form/validators/validators';
+import {
+  required,
+  maxLength
+} from '@/components/molecules/Form/validators/validators';
+import { MOCK_TEMPLATES } from '@/mocks/templates';
+import TemplateSelector from '@/components/molecules/TemplateSelector/TemplateSelector';
+import EditableTextWithVariables from '@/components/molecules/EditableTextWithVariables/EditableTextWithVariables';
+import { NotificationTemplate } from '@/types/template';
+import { FormsRegistryContext } from '@/components/molecules/Form/FormContext';
 
-function NotificationContentFields() {
+interface NotificationContentFieldsProps {
+  formId: string;
+}
+
+export function NotificationContentFields({
+  formId
+}: NotificationContentFieldsProps) {
+  const [searchParams] = useSearchParams();
+  const initialTemplateId = searchParams.get('templateId') || '';
+  const initialTemplate = MOCK_TEMPLATES.find(
+    (t) => t.id === initialTemplateId
+  );
+
+  const registryContext = useContext(FormsRegistryContext);
+  const store = registryContext
+    ? registryContext.getOrCreateStore(formId)
+    : null;
+
+  const [title, setTitle] = useState(initialTemplate?.title || '');
+  const [text, setText] = useState(initialTemplate?.body || '');
+  const [variableValues, setVariableValues] = useState<Record<string, string>>(
+    {}
+  );
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<NotificationTemplate | null>(initialTemplate || null);
+
+  const variables = useMemo(() => {
+    const matches = text.match(/\{\{([^}]+)\}\}/g);
+    if (!matches) return [];
+    return [...new Set(matches.map((m) => m.slice(2, -2)))];
+  }, [text]);
+
+  const allVariablesFilled = useMemo(() => {
+    return (
+      variables.length === 0 ||
+      variables.every((v) => variableValues[v]?.trim())
+    );
+  }, [variables, variableValues]);
+
+  useEffect(() => {
+    if (store) {
+      store.setValue('title', title);
+      store.setValue('text', text);
+      store.setValue('variableValues', variableValues);
+    }
+  }, [title, text, variableValues, store]);
+
+  const handleTemplateSelect = (template: NotificationTemplate | null) => {
+    setSelectedTemplate(template);
+    if (template) {
+      setTitle(template.title);
+      setText(template.body);
+      setVariableValues({});
+      setErrors({});
+    } else {
+      setTitle('');
+      setText('');
+      setVariableValues({});
+      setErrors({});
+    }
+  };
+
+  const handleVariableChange = (variable: string, value: string) => {
+    setVariableValues((prev) => ({
+      ...prev,
+      [variable]: value
+    }));
+
+    if (errors[variable]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[variable];
+        return newErrors;
+      });
+    }
+  };
+
   return (
     <Box
       as="fieldset"
       bg="white"
       borderRadius="10px"
       p={6}
+      key={initialTemplateId}
     >
       <Heading
         fontSize="26px"
@@ -24,36 +111,80 @@ function NotificationContentFields() {
         Текст уведомления
       </Heading>
 
-      <FormTextField
-        name="title"
-        label="Заголовок уведомления"
-        placeholder="Например, Вам назначена задача"
-        maxLength={19}
-        subTitlte="Отображается первой строкой в ленте уведомлений более крупно и заметно"
-        validators={[required()]}
-      />
+      <Box data-tour="template-selector">
+        <TemplateSelector onSelect={handleTemplateSelect} />
+      </Box>
 
       <Box mt={4}>
-        <FormTextAreaField
-          name="text"
-          label="Текст уведомления"
-          placeholder="Введите текст уведомления"
-          minH="155px"
-          maxLength={155}
+        <FormTextField
+          name="title"
+          label="Заголовок уведомления"
+          placeholder="Например, Вам назначена задача"
+          subTitlte="Отображается первой строкой в ленте уведомлений более крупно и заметно"
           validators={[required()]}
+          initialValue={title}
         />
+      </Box>
+
+      <Box mt={4}>
+        {selectedTemplate ? (
+          <>
+            <Text
+              fontSize="sm"
+              fontWeight="600"
+              color="#12233F"
+              mb={2}
+            >
+              Текст уведомления
+            </Text>
+            <EditableTextWithVariables
+              text={text}
+              variableValues={variableValues}
+              onVariableChange={handleVariableChange}
+              onTextChange={setText}
+              placeholder="Введите текст уведомления"
+            />
+          </>
+        ) : (
+          <FormTextAreaField
+            name="text"
+            label="Текст уведомления"
+            placeholder="Введите текст уведомления"
+            minH="155px"
+            maxLength={155}
+            validators={[required(), maxLength(155)]}
+            initialValue={text}
+          />
+        )}
+
+        {variables.length > 0 && !allVariablesFilled && (
+          <HStack
+            mt={2}
+            color="#EA580C"
+            fontSize="xs"
+          >
+            <Icon
+              as={LuCircleAlert}
+              boxSize={4}
+            />
+            <Text>
+              В тексте есть переменные вида {`{{  }}`} — замените их на реальные
+              значения перед отправкой.
+            </Text>
+          </HStack>
+        )}
       </Box>
 
       <HStack
         justify="flex-end"
-        mt={4}
+        mt={6}
       >
         <Button
           variant="accent"
-          leftIcon={<LuSparkles size={20}/>}
+          leftIcon={<LuSparkles size={20} />}
           color="white"
           borderRadius="12px"
-          h={"auto"}
+          h={'auto'}
           px={5}
           py={3}
           loadingText="Обработка..."
@@ -67,4 +198,4 @@ function NotificationContentFields() {
   );
 }
 
-export default memo(NotificationContentFields);
+export default NotificationContentFields;

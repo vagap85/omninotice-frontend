@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react';
+import { Flex, Box } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/auth/AuthContext';
@@ -9,7 +9,8 @@ import PageHeader from '@/components/molecules/PageHeader/PageHeader';
 const pageTitles: Record<string, string> = {
   '/create/email': 'Создание e-mail рассылки',
   '/create/push': 'Создание рассылки push-уведомлений',
-  '/overview': 'Обзор'
+  '/overview': 'Обзор',
+  '/templates': 'Шаблоны рассылок'
 };
 
 function SidebarLayout() {
@@ -31,7 +32,7 @@ function SidebarLayout() {
           isAuthorized={isAuthorized}
           title={pageTitles[pathname] ?? ''}
         />
-        <main>
+        <Box as="main">
           <Suspense
             fallback={
               <Flex
@@ -46,7 +47,7 @@ function SidebarLayout() {
           >
             <Outlet />
           </Suspense>
-        </main>
+        </Box>
       </Flex>
     </Flex>
   );

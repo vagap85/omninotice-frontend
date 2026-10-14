@@ -23,7 +23,7 @@ export default function HomePage() {
         <Header />
       </Container>
       <Box
-        as='main'
+        as="main"
         mt={{ base: 10, lg: 6 }}
         pb={{ base: 16, lg: 20 }}
         position="relative"

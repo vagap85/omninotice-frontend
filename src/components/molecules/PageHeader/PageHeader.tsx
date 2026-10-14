@@ -20,7 +20,7 @@ function PageHeader({ isAuthorized, title }: PageHeaderProps) {
       bg="white"
       borderBottom="1px solid"
       borderColor="gray.200"
-      padding={"16px clamp(24px, 2vw, 40px) 12px"}
+      padding={'16px clamp(24px, 2vw, 40px) 12px'}
     >
       <Flex
         justify="space-between"
@@ -64,7 +64,12 @@ function PageHeader({ isAuthorized, title }: PageHeaderProps) {
             </BreadcrumbItem>
           </Breadcrumb>
 
-          <Heading size="md" lineHeight={"38px"}>{title}</Heading>
+          <Heading
+            size="md"
+            lineHeight={'38px'}
+          >
+            {title}
+          </Heading>
         </Box>
 
         {isAuthorized ? <AccountWidget /> : null}
