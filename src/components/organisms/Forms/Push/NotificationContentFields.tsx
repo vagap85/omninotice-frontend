@@ -38,7 +38,6 @@ export function NotificationContentFields({
   const [variableValues, setVariableValues] = useState<Record<string, string>>(
     {}
   );
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedTemplate, setSelectedTemplate] =
     useState<NotificationTemplate | null>(initialTemplate || null);
 
@@ -55,13 +54,17 @@ export function NotificationContentFields({
     );
   }, [variables, variableValues]);
 
+  const isContentValid =
+    title.trim().length > 0 && text.trim().length > 0 && allVariablesFilled;
+
   useEffect(() => {
     if (store) {
       store.setValue('title', title);
       store.setValue('text', text);
       store.setValue('variableValues', variableValues);
+      store.setValue('_isContentValid', isContentValid);
     }
-  }, [title, text, variableValues, store]);
+  }, [title, text, variableValues, isContentValid, store]);
 
   const handleTemplateSelect = (template: NotificationTemplate | null) => {
     setSelectedTemplate(template);
@@ -69,28 +72,15 @@ export function NotificationContentFields({
       setTitle(template.title);
       setText(template.body);
       setVariableValues({});
-      setErrors({});
     } else {
       setTitle('');
       setText('');
       setVariableValues({});
-      setErrors({});
     }
   };
 
   const handleVariableChange = (variable: string, value: string) => {
-    setVariableValues((prev) => ({
-      ...prev,
-      [variable]: value
-    }));
-
-    if (errors[variable]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[variable];
-        return newErrors;
-      });
-    }
+    setVariableValues((prev) => ({ ...prev, [variable]: value }));
   };
 
   return (
@@ -168,7 +158,7 @@ export function NotificationContentFields({
               boxSize={4}
             />
             <Text>
-              В тексте есть переменные вида {`{{  }}`} — замените их на реальные
+              В тексте есть переменные вида {'{{ }}'} — замените их на реальные
               значения перед отправкой.
             </Text>
           </HStack>

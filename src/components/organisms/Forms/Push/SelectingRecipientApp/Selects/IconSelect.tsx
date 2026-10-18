@@ -108,6 +108,7 @@ export default function IconSelect() {
         Иконка уведомления
       </Text>
       <Box
+        data-tour="icon-select"
         display={'flex'}
         flexDirection={'column'}
         alignItems={'flex-start'}

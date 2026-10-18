@@ -15,7 +15,7 @@ function SidebarContent() {
       alignSelf="flex-start"
       maxW={isCollapsed ? '80px' : '240px'}
       position={'sticky'}
-      zIndex={99999999}
+      zIndex={999}
       top={0}
       w={'100%'}
       minH="100vh"

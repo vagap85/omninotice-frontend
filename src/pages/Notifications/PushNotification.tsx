@@ -1,6 +1,11 @@
 import { Box, Button, Flex, Portal } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import {
+  NotificationWidget,
+  type NotificationWidgetHandle
+} from 'omni-notice-sigma-notification-widget';
+import 'omni-notice-sigma-notification-widget/style.css';
 
 import { useAuth } from '@/auth/AuthContext';
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
@@ -30,6 +35,7 @@ function PushCreateNotificatonInner({
 }: {
   isAuthorized: boolean;
 }) {
+  const widgetRef = useRef<NotificationWidgetHandle>(null);
   const [searchParams] = useSearchParams();
   const templateId = searchParams.get('templateId') || '';
 
@@ -96,7 +102,11 @@ function PushCreateNotificatonInner({
                 <ActionFields />
               </Box>
             </Flex>
-            <SelectingRecipientApp isAuthorized={isAuthorized} />
+
+            <SelectingRecipientApp
+              isAuthorized={isAuthorized}
+              widgetRef={widgetRef}
+            />
           </Flex>
         </Box>
       </Flex>
@@ -127,6 +137,11 @@ function PushCreateNotificatonInner({
       <OnboardingTour
         isOpen={isTourOpen}
         onComplete={handleCompleteTour}
+      />
+
+      <NotificationWidget
+        ref={widgetRef}
+        settings={{ maxVisible: 1, autoCloseMs: 5000 }}
       />
     </FormProvider>
   );

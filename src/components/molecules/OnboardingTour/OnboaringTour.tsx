@@ -84,7 +84,6 @@ interface OnboardingTourProps {
 }
 
 function TopLayer({ children }: { children: ReactNode }) {
-  // callback ref: срабатывает, когда элемент реально попал в DOM
   const setRef = useCallback((el: HTMLDivElement | null) => {
     if (
       el &&
@@ -100,7 +99,6 @@ function TopLayer({ children }: { children: ReactNode }) {
       <Box
         ref={setRef}
         {...{ popover: 'manual' }}
-        // сброс дефолтных стилей [popover]
         position="fixed"
         inset={0}
         w="100vw"
@@ -113,7 +111,6 @@ function TopLayer({ children }: { children: ReactNode }) {
         bg="transparent"
         color="inherit"
         overflow="visible"
-        // запасной вариант для браузеров без Popover API
         zIndex={2147483647}
       >
         {children}
@@ -196,12 +193,6 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
     onComplete();
   }, [onComplete]);
 
-  const handleBack = useCallback(() => {
-    if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
-    }
-  }, [currentStep]);
-
   if (!isOpen || !step) return null;
 
   const tooltipPosition = step.centered
@@ -228,7 +219,7 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
           left={targetRect.left - 8}
           width={targetRect.width + 16}
           height={targetRect.height + 16}
-          border="2px solid #3B6EA0"
+          border="4px solid #3B6EA0"
           borderRadius="12px"
           boxShadow="0 0 0 9999px rgba(0, 0, 0, 0.6)"
           zIndex={9999}
@@ -281,37 +272,18 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
         </Text>
 
         <Flex
-          gap={2}
-          mb={4}
+          justify="space-between"
+          align="center"
         >
           {ONBOARDING_STEPS.map((_, index) => (
             <Box
               key={index}
-              w={2}
-              h={2}
+              w="10px"
+              h="10px"
               borderRadius="full"
               bg={index === currentStep ? '#3B6EA0' : '#E2E8F0'}
             />
           ))}
-        </Flex>
-
-        <Flex
-          justify="space-between"
-          align="center"
-        >
-          {currentStep > 0 ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              color="#64748B"
-              onClick={handleBack}
-            >
-              Назад
-            </Button>
-          ) : (
-            <Box />
-          )}
-
           <Flex gap={2}>
             <Button
               variant="ghost"
@@ -333,6 +305,8 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
             </Button>
           </Flex>
         </Flex>
+
+        <Flex></Flex>
       </Box>
     </TopLayer>
   );

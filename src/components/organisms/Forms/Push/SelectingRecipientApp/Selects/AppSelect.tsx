@@ -10,47 +10,17 @@ import type { AppSelectProps, SelectingApp } from '../types/types';
 
 const DEFAULT_APPS: SelectingApp[] = [
   {
-    id: 'sigma',
-    name: 'Сигма',
-    count: 235,
+    id: 'test',
+    name: 'Omni Notice (Test)',
+    count: 1,
     isActive: true,
-    platform: 'Sigma',
+    platform: 'OmniNoticeTest',
     iconColor: '#487BFE',
     bgIconColor: '#D1DEFF',
     standartIcon: {
-      id: 'sigma',
+      id: 'Omni Notice',
       Icon: BellRingIcon,
-      title: 'Стандартная иконка Сигма',
-      description: 'Если не выбрать другую, получатель увидит эту'
-    }
-  },
-  {
-    id: 'raida',
-    name: 'Raida',
-    count: 0,
-    isActive: false,
-    platform: 'Raida',
-    iconColor: '#131313',
-    bgIconColor: '#621e1e',
-    standartIcon: {
-      id: 'raida',
-      Icon: BellRingIcon,
-      title: 'Стандартная иконка Raida',
-      description: 'Если не выбрать другую, получатель увидит эту'
-    }
-  },
-  {
-    id: 'classhub',
-    name: 'Class Hub',
-    count: 0,
-    isActive: false,
-    platform: 'ClassHub',
-    iconColor: '',
-    bgIconColor: '',
-    standartIcon: {
-      id: 'classhub',
-      Icon: BellRingIcon,
-      title: 'Стандартная иконка Class Hub',
+      title: 'Стандартная иконка Omni Notice',
       description: 'Если не выбрать другую, получатель увидит эту'
     }
   }
@@ -132,6 +102,7 @@ export default function AppSelect({
         w="100%"
       >
         <Flex
+          data-tour="app-select"
           ref={triggerRef}
           as="button"
           type="button"
