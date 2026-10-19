@@ -130,6 +130,7 @@ const TemplatesPage: React.FC = () => {
       bg="#ECF2F8"
       minH="100vh"
       py="40px"
+      px={"clamp(24px, 2vw, 40px)"}
     >
       {/* Липкая шапка */}
       <Box
@@ -156,6 +157,7 @@ const TemplatesPage: React.FC = () => {
           align={{ base: 'stretch', md: 'center' }}
           gap={{ base: 4, md: 6 }}
           w="100%"
+          flexWrap={"wrap"}
         >
           <InputGroup
             flex="1"
@@ -197,12 +199,13 @@ const TemplatesPage: React.FC = () => {
                 fontWeight: 'normal',
                 lineHeight: '24px'
               }}
+              minW={"200px"}
             />
           </InputGroup>
 
           <Flex
             overflowX="auto"
-            flexWrap="nowrap"
+            flexWrap="wrap"
             gap={2}
             flexShrink={0}
             css={{

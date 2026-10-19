@@ -21,8 +21,6 @@ export default function NotificationCard({
     values.variableValues || {}
   );
 
-  const buttonText = values.buttonText || 'Кнопка';
-
   return (
     <Box
       boxShadow="0px 0px 1px 0px #0C0C0D4D"
@@ -75,19 +73,21 @@ export default function NotificationCard({
           >
             {interpolatedText}
           </Text>
-          <Box
-            bg={'#487BFE'}
-            py={2}
-            px={4}
-            lineHeight={'20px'}
-            fontSize={'14px'}
-            color={'white'}
-            borderRadius={8}
-            maxW={'fit-content'}
-            mt={3}
-          >
-            {buttonText}
-          </Box>
+          {values.buttonText && (
+            <Box
+              bg={'#487BFE'}
+              py={2}
+              px={4}
+              lineHeight={'20px'}
+              fontSize={'14px'}
+              color={'white'}
+              borderRadius={8}
+              maxW={'fit-content'}
+              mt={3}
+            >
+              {values.buttonText}
+            </Box>
+          )}
         </Box>
       </Flex>
       <Flex
