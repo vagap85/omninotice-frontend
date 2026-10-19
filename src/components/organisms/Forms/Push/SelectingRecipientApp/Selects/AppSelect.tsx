@@ -1,8 +1,7 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Box, Flex, Text, Icon, useOutsideClick } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { useState, useRef } from 'react';
-
+import { useState, useRef, useEffect } from 'react';
 import BellRingIcon from '@/components/atoms/Icons/collections/Sigma/BellRingIcon';
 
 import { useSelectingRecipientApp } from '../hooks/useSelectingRecipientApp';
@@ -67,6 +66,38 @@ export default function AppSelect({
     triggerRef.current?.focus();
     onChange?.(app);
   };
+
+  const handleSelectRef = useRef(handleSelect);
+
+  useEffect(() => {
+    handleSelectRef.current = handleSelect;
+  });
+
+  useEffect(() => {
+    const onTourStepChange = (event: Event) => {
+      const detail = (
+        event as CustomEvent<{
+          stepId?: number;
+          targetSelector?: string;
+        }>
+      ).detail;
+
+      if (detail?.targetSelector !== '[data-tour="app-select"]') return;
+
+      const testApp = apps.find((app) => app.platform === 'OmniNoticeTest');
+      if (testApp && testApp.isActive) {
+        handleSelectRef.current(testApp);
+      }
+    };
+
+    window.addEventListener('onboarding:tour-step-change', onTourStepChange);
+    return () => {
+      window.removeEventListener(
+        'onboarding:tour-step-change',
+        onTourStepChange
+      );
+    };
+  }, [apps]);
 
   const handleTriggerKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {

@@ -127,6 +127,18 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
   const isLastStep = currentStep === TOTAL_STEPS - 1;
 
   useEffect(() => {
+    if (!isOpen || !step) return;
+    window.dispatchEvent(
+      new CustomEvent('onboarding:tour-step-change', {
+        detail: {
+          stepId: step.id,
+          targetSelector: step.targetSelector
+        }
+      })
+    );
+  }, [isOpen, currentStep, step]);
+
+  useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
     } else {

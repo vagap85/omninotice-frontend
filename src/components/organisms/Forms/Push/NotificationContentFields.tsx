@@ -113,6 +113,7 @@ export function NotificationContentFields({
           subTitlte="Отображается первой строкой в ленте уведомлений более крупно и заметно"
           validators={[required()]}
           initialValue={title}
+          maxLength={50}
         />
       </Box>
 
@@ -132,6 +133,7 @@ export function NotificationContentFields({
               variableValues={variableValues}
               onVariableChange={handleVariableChange}
               onTextChange={setText}
+
               placeholder="Введите текст уведомления"
             />
           </>
@@ -141,8 +143,8 @@ export function NotificationContentFields({
             label="Текст уведомления"
             placeholder="Введите текст уведомления"
             minH="155px"
-            maxLength={155}
-            validators={[required(), maxLength(155)]}
+            maxLength={200}
+            validators={[required(), maxLength(200)]}
             initialValue={text}
           />
         )}

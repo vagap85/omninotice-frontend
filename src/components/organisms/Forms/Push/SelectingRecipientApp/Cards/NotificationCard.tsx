@@ -14,10 +14,10 @@ export default function NotificationCard({
   const values = useFormValues<PushNotificationFormValues>('pushNotification');
   const SelectedIcon = selectedApp.icon.Icon;
 
-  const title = values.title || 'Заголовок';
+  const title = values.title || 'Заголовок уведомления';
 
   const interpolatedText = interpolateVariables(
-    values.text || 'Описание',
+    values.text || 'Текст уведомления',
     values.variableValues || {}
   );
 

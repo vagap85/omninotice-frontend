@@ -10,14 +10,14 @@ import 'omni-notice-sigma-notification-widget/style.css';
 import { useAuth } from '@/auth/AuthContext';
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
 import { FormsRegistryProvider } from '@/components/molecules/Form/Providers/FormsRegistryProvider';
+import { OnboardingTour } from '@/components/molecules/OnboardingTour/OnboaringTour';
+import { IncludeServices } from '@/components/molecules/IncludeServices/IncludeServices';
 import ActionFields from '@/components/organisms/Forms/Push/ActionFields';
 import NotificationContentFields from '@/components/organisms/Forms/Push/NotificationContentFields';
 import PushDraftUrlSync from '@/components/organisms/Forms/Push/PushDraftUrlSync';
 import SelectingRecipientApp from '@/components/organisms/Forms/Push/SelectingRecipientApp/SelectingRecipientApp';
-import { OnboardingTour } from '@/components/molecules/OnboardingTour/OnboaringTour';
 
 const STORAGE_KEY_TOUR_COMPLETED = 'onboarding_tour_completed';
-const STORAGE_KEY_REAL_SEND = 'onboarding_real_send';
 const STORAGE_KEY_FIRST_VISIT = 'onboarding_first_visit';
 
 export default function PushNotification() {
@@ -35,6 +35,7 @@ function PushCreateNotificatonInner({
 }: {
   isAuthorized: boolean;
 }) {
+  const [tourSession, setTourSession] = useState(0);
   const widgetRef = useRef<NotificationWidgetHandle>(null);
   const [searchParams] = useSearchParams();
   const templateId = searchParams.get('templateId') || '';
@@ -43,12 +44,6 @@ function PushCreateNotificatonInner({
     const firstVisit = localStorage.getItem(STORAGE_KEY_FIRST_VISIT);
     const tourCompleted = localStorage.getItem(STORAGE_KEY_TOUR_COMPLETED);
     return firstVisit === null && tourCompleted !== 'true';
-  });
-
-  const [isHintButtonVisible, setIsHintButtonVisible] = useState(() => {
-    const tourCompleted = localStorage.getItem(STORAGE_KEY_TOUR_COMPLETED);
-    const realSend = localStorage.getItem(STORAGE_KEY_REAL_SEND);
-    return tourCompleted !== 'true' || realSend !== 'true';
   });
 
   useEffect(() => {
@@ -63,10 +58,10 @@ function PushCreateNotificatonInner({
   const handleCompleteTour = () => {
     localStorage.setItem(STORAGE_KEY_TOUR_COMPLETED, 'true');
     setIsTourOpen(false);
-    setIsHintButtonVisible(false);
   };
 
   const handleShowTour = () => {
+    setTourSession((s) => s + 1);
     setIsTourOpen(true);
   };
 
@@ -91,6 +86,7 @@ function PushCreateNotificatonInner({
               maxW={'900px'}
               mx={'auto'}
             >
+              <IncludeServices />
               <Box data-tour="notification-text">
                 <NotificationContentFields
                   key={templateId}
@@ -111,7 +107,7 @@ function PushCreateNotificatonInner({
         </Box>
       </Flex>
 
-      {isHintButtonVisible && !isTourOpen && (
+      {!isTourOpen && (
         <Portal>
           <Button
             position="fixed"
@@ -135,6 +131,7 @@ function PushCreateNotificatonInner({
       )}
 
       <OnboardingTour
+        key={tourSession}
         isOpen={isTourOpen}
         onComplete={handleCompleteTour}
       />
