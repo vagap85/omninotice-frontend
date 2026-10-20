@@ -1,9 +1,8 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons/ArrowForward';
 import { Box, Flex, Heading, useDisclosure } from '@chakra-ui/react';
 import { memo } from 'react';
-import type { ComponentType, RefObject } from 'react';
+import type { ComponentType } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { NotificationWidgetHandle } from 'omni-notice-sigma-notification-widget';
 import {
   createDispatch,
   DispatchError,
@@ -25,10 +24,10 @@ import { useSelectingRecipientApp } from './hooks/useSelectingRecipientApp';
 import { SelectedUsersProvider } from './Providers/SelectedUsers.provider';
 import SelectingRecipientAppProviderTest from './Providers/SelectingRecipientApp.provider';
 import BellRingIcon from '@/components/atoms/Icons/collections/Sigma/BellRingIcon';
+import { useNotification } from 'omni-notice-sigma-notification-widget';
 
 interface PanelContentProps {
   isAuthorized: boolean;
-  widgetRef?: RefObject<NotificationWidgetHandle | null>;
 }
 
 // Функция для замены {{var}} на значения
@@ -42,26 +41,26 @@ const interpolateText = (text: string, vars: Record<string, string>) => {
   return result;
 };
 
-function SelectingRecipientApp({ isAuthorized, widgetRef }: PanelContentProps) {
+function SelectingRecipientApp({ isAuthorized }: PanelContentProps) {
   return (
     <SelectingRecipientAppProviderTest>
       <SelectedUsersProvider>
         <PanelContentInner
           isAuthorized={isAuthorized}
-          widgetRef={widgetRef}
         />
       </SelectedUsersProvider>
     </SelectingRecipientAppProviderTest>
   );
 }
 
-function PanelContentInner({ isAuthorized, widgetRef }: PanelContentProps) {
+function PanelContentInner({ isAuthorized }: PanelContentProps) {
   const navigate = useNavigate();
   const registry = useFormsRegistry();
   const { selectedApp, recipientsMode, setAppError, setRecipientsError } =
     useSelectingRecipientApp();
   const { selectedUsers } = useSelectedUsers();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {add} = useNotification()
 
   const onAuthClick = () => navigate('/login');
 
@@ -134,14 +133,17 @@ function PanelContentInner({ isAuthorized, widgetRef }: PanelContentProps) {
       if (app?.platform === 'OmniNoticeTest') {
         const IconComponent = app.icon?.Icon;
 
-        widgetRef?.current?.add({
+        add({
           status: 'info',
           title: payload.title,
           description: payload.text,
           picture: {
-            icon: IconComponent ? IconComponent : BellRingIcon
+            icon: IconComponent ? IconComponent : <BellRingIcon />
           },
-          buttonText: payload.buttonText
+          action: {
+            title: payload.buttonText,
+            url: payload.buttonLink
+          }
         });
 
         localStorage.setItem('onboarding_real_send', 'true');

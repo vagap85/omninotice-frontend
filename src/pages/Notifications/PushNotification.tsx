@@ -1,10 +1,7 @@
 import { Box, Button, Flex, Portal } from '@chakra-ui/react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import {
-  NotificationWidget,
-  type NotificationWidgetHandle
-} from 'omni-notice-sigma-notification-widget';
+import { NotificationProvider } from 'omni-notice-sigma-notification-widget';
 import 'omni-notice-sigma-notification-widget/style.css';
 
 import { useAuth } from '@/auth/AuthContext';
@@ -16,7 +13,7 @@ import ActionFields from '@/components/organisms/Forms/Push/ActionFields';
 import NotificationContentFields from '@/components/organisms/Forms/Push/NotificationContentFields';
 import PushDraftUrlSync from '@/components/organisms/Forms/Push/PushDraftUrlSync';
 import SelectingRecipientApp from '@/components/organisms/Forms/Push/SelectingRecipientApp/SelectingRecipientApp';
-
+import "@/lib/notification-widget/notification-widget.css"
 const STORAGE_KEY_TOUR_COMPLETED = 'onboarding_tour_completed';
 const STORAGE_KEY_FIRST_VISIT = 'onboarding_first_visit';
 
@@ -36,7 +33,6 @@ function PushCreateNotificatonInner({
   isAuthorized: boolean;
 }) {
   const [tourSession, setTourSession] = useState(0);
-  const widgetRef = useRef<NotificationWidgetHandle>(null);
   const [searchParams] = useSearchParams();
   const templateId = searchParams.get('templateId') || '';
 
@@ -66,80 +62,81 @@ function PushCreateNotificatonInner({
   };
 
   return (
-    <FormProvider formId="pushNotification">
-      <PushDraftUrlSync />
-      <Flex>
-        <Box
-          flex="1"
-          bg="#ECF2F8"
-        >
-          <Flex
-            flexDirection={{ md: 'row', base: 'column' }}
-            justifyContent={'space-between'}
+    <NotificationProvider
+      settings={{
+        autoCloseMs: 0,
+        borderBottom: true
+      }}
+    >
+      <FormProvider formId="pushNotification">
+        <PushDraftUrlSync />
+        <Flex>
+          <Box
+            flex="1"
+            bg="#ECF2F8"
           >
             <Flex
-              as="form"
-              direction="column"
-              gap={5}
-              flex="1"
-              p={'clamp(12px, 1.7vw + 0.125rem, 24px)'}
-              maxW={'900px'}
-              mx={'auto'}
+              flexDirection={{ md: 'row', base: 'column' }}
+              justifyContent={'space-between'}
             >
-              <IncludeServices />
-              <Box data-tour="notification-text">
-                <NotificationContentFields
-                  key={templateId}
-                  formId="pushNotification"
-                />
-              </Box>
+              <Flex
+                as="form"
+                direction="column"
+                gap={5}
+                flex="1"
+                p={'clamp(12px, 1.7vw + 0.125rem, 24px)'}
+                maxW={'900px'}
+                mx={'auto'}
+              >
+                <IncludeServices />
+                <Box data-tour="notification-text">
+                  <NotificationContentFields
+                    key={templateId}
+                    formId="pushNotification"
+                  />
+                </Box>
 
-              <Box data-tour="action-block">
-                <ActionFields />
-              </Box>
+                <Box data-tour="action-block">
+                  <ActionFields />
+                </Box>
+              </Flex>
+
+              <SelectingRecipientApp
+                isAuthorized={isAuthorized}
+              />
             </Flex>
+          </Box>
+        </Flex>
 
-            <SelectingRecipientApp
-              isAuthorized={isAuthorized}
-              widgetRef={widgetRef}
-            />
-          </Flex>
-        </Box>
-      </Flex>
+        {!isTourOpen && (
+          <Portal>
+            <Button
+              position="fixed"
+              bottom="71px"
+              left="96px"
+              bg="#3B6EA0"
+              color="white"
+              borderRadius="xl"
+              px="10px"
+              py="8px"
+              fontSize="sm"
+              fontWeight="500"
+              _hover={{ bg: '#2f5a85' }}
+              onClick={handleShowTour}
+              zIndex={100}
+              boxShadow="0 4px 12px rgba(0, 0, 0, 0.15)"
+            >
+              Показать подсказки по сервису
+            </Button>
+          </Portal>
+        )}
 
-      {!isTourOpen && (
-        <Portal>
-          <Button
-            position="fixed"
-            bottom="71px"
-            left="96px"
-            bg="#3B6EA0"
-            color="white"
-            borderRadius="xl"
-            px="10px"
-            py="8px"
-            fontSize="sm"
-            fontWeight="500"
-            _hover={{ bg: '#2f5a85' }}
-            onClick={handleShowTour}
-            zIndex={100}
-            boxShadow="0 4px 12px rgba(0, 0, 0, 0.15)"
-          >
-            Показать подсказки по сервису
-          </Button>
-        </Portal>
-      )}
-
-      <OnboardingTour
-        key={tourSession}
-        isOpen={isTourOpen}
-        onComplete={handleCompleteTour}
-      />
-
-      <NotificationWidget
-        ref={widgetRef}
-        settings={{ maxVisible: 1, autoCloseMs: 5000 }}
-      />
-    </FormProvider>
+        <OnboardingTour
+          key={tourSession}
+          isOpen={isTourOpen}
+          onComplete={handleCompleteTour}
+        />
+      </FormProvider>
+    </NotificationProvider>
   );
 }
