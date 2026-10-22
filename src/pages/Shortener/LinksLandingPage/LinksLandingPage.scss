@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.links-landing {
+  /* Дизайн-токены лендинга — скоупнуты контейнером, чтобы не влиять
+     на остальное приложение */
+  --primary: #3b6ea0;
+  --primary-bg: #f8fafc;
+  --primary-bg-hover: #e2ebf3;
+  --primary-50: #e6f3f8;
+  --secondary: #00c496;
+  --secondary-bg: #ebfffa;
+  --secondary-hover: #008f6d;
+  --secondary-100: #aee5d1;
+  --text: #12233f;
+  --text-secondary: #52525b;
+  --text-placeholder: #a1a1aa;
+  --text-disabled: #8a8a99;
+  --text-link: #2d547b;
+  --btn-solid: #3b6ea0;
+  --btn-hover: #34608c;
+  --btn-outline: #a6c2de;
+  --btn-outline-hover: #ebf5ff;
+  --disabled: #3b6ea0;
+  --bg: #ecf2f8;
+  --bg-secondary: #f8fafc;
+  --white: #ffffff;
+  --snow: #fafafa;
+  --gray-100: #eeeef9;
+  --error: #ef4444;
+  --warning: #f59e0b;
+  --success: #00c497;
+  --icon-btn-hover: #f0fdf4;
+
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-size-2xs: 10px;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 22px;
+  --font-size-3xl: 28px;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-image: url('../../../assets/landing/background.jpg');
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  font-family: var(--font-family);
+
+  &__main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 94px;
+    padding-top: 35px;
+  }
+
+  &__container {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    width: 100%;
+    padding: 0 40px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+
+    @media (max-width: 768px) {
+      padding: 32px 24px;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    @media (max-width: 480px) {
+      padding: 24px 16px;
+      background: rgba(255, 255, 255, 0.95);
+    }
+  }
+
+  &__content {
+    flex: 1;
+    width: 100%;
+
+    @media (max-width: 768px) {
+      flex: none;
+    }
+  }
+
+  &__marketing {
+    @media (max-width: 768px) {
+      margin-bottom: 48px;
+    }
+
+    @media (max-width: 480px) {
+      margin-bottom: 32px;
+    }
+  }
+}

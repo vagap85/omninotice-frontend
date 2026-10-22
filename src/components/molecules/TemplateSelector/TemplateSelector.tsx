@@ -1,5 +1,3 @@
-import { useState, useRef, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import {
   Box,
   Input,
@@ -10,6 +8,7 @@ import {
   VStack,
   Button
 } from '@chakra-ui/react';
+import { useState, useRef, useEffect } from 'react';
 import {
   LuX,
   LuFileText,
@@ -17,6 +16,7 @@ import {
   LuSearch,
   LuCircleAlert
 } from 'react-icons/lu';
+import { useSearchParams } from 'react-router-dom';
 
 import { MOCK_TEMPLATES } from '@/mocks/templates';
 import { NotificationTemplate } from '@/types/template';

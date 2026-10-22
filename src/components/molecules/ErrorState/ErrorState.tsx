@@ -1,6 +1,6 @@
 import { Box, Button, Center, Text, Icon } from '@chakra-ui/react';
-import { LuFileText } from 'react-icons/lu';
 import React from 'react';
+import { LuFileText } from 'react-icons/lu';
 
 interface ErrorStateProps {
   message?: string;

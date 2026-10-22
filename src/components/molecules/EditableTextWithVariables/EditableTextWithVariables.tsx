@@ -1,5 +1,5 @@
-import { useRef } from 'react';
 import { Box, Input } from '@chakra-ui/react';
+import { useRef } from 'react';
 
 interface EditableTextWithVariablesProps {
   text: string;

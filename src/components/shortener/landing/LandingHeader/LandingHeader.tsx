@@ -1,0 +1,60 @@
+import { Link } from 'react-router-dom';
+
+import arrowIcon from '@/assets/landing/arrow-right.svg';
+import moveLeftIcon from '@/assets/landing/move-left.svg';
+import logoImage from '@/assets/logo.svg';
+
+import './LandingHeader.scss';
+
+export default function LandingHeader() {
+  return (
+    <header className="landing-header">
+      <div className="landing-header__container">
+        <nav className="landing-header__nav landing-header__nav--left">
+          <Link
+            to="/"
+            className="landing-header__link"
+          >
+            <img
+              src={moveLeftIcon}
+              alt=""
+              className="landing-header__icon"
+            />
+            На главную
+          </Link>
+        </nav>
+
+        <Link
+          to="/"
+          className="landing-header__logo"
+        >
+          <img
+            src={logoImage}
+            alt="Cherry"
+            className="landing-header__logo-img"
+          />
+        </Link>
+
+        <div className="landing-header__nav landing-header__nav--right">
+          <Link
+            to="/login"
+            className="landing-header__link landing-header__link--outline"
+          >
+            Войти
+          </Link>
+          <Link
+            to="/registration"
+            className="landing-header__link landing-header__link--primary"
+          >
+            Попробовать бесплатно
+            <img
+              src={arrowIcon}
+              alt=""
+              className="landing-header__arrow"
+            />
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}

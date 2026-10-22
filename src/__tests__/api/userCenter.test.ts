@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { type Mock, describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { loginUserCenter, createUserCenter } from '@/api/userCenter';
 
@@ -17,7 +17,7 @@ describe('userCenter API', () => {
   // ===== loginUserCenter =====
 
   test('возвращает данные при успешном логине', async () => {
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         data: [
@@ -40,7 +40,7 @@ describe('userCenter API', () => {
   });
 
   test('бросает "Неверный логин или пароль" при 401', async () => {
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: false,
       status: 401,
       json: async () => ({})
@@ -52,7 +52,7 @@ describe('userCenter API', () => {
   });
 
   test('бросает ошибку при отсутствии access_token', async () => {
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ data: [{}] })
     });
@@ -63,7 +63,7 @@ describe('userCenter API', () => {
   });
 
   test('отправляет Project-ID в заголовках', async () => {
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         data: [{ auth_data: { access_token: 'token123' } }]
@@ -86,7 +86,7 @@ describe('userCenter API', () => {
   // ===== createUserCenter =====
 
   test('createUserCenter возвращает login/password при успехе', async () => {
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       text: async () => '{}'
     });
@@ -98,7 +98,7 @@ describe('userCenter API', () => {
   });
 
   test('createUserCenter бросает ошибку при сети', async () => {
-    (fetch as any).mockRejectedValueOnce(new Error('Network error'));
+    (fetch as Mock).mockRejectedValueOnce(new Error('Network error'));
 
     await expect(createUserCenter('user@mail.com', 'pass')).rejects.toThrow(
       'Сетевая ошибка при создании аккаунта'

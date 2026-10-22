@@ -2,9 +2,9 @@ import { Box, Flex, Text } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 
+import { SidebarFlyoutMenuProps } from '../../types/sidebar';
 import { SidebarSubmenuEntry } from '../SidebarSubmenuEntry/SidebarSubmenuEntry';
 import { SidebarSubmenuItem } from '../SidebarSubmenuItem/SidebarSubmenuItem';
-import { SidebarFlyoutMenuProps } from '../../types/sidebar';
 
 const MotionBox = motion.create(Box);
 

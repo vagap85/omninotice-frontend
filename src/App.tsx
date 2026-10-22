@@ -3,12 +3,12 @@ import { useEffect, lazy, Suspense, ComponentType } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import SpinnerLoader from './components/atoms/Loaders/SpinnerLoader/SpinnerLoader';
-import { registerClearMailingDraftBeforeUnload } from './mailingDraftStorage';
-import ProtectedRoute from './routing/ProtectedRoute';
 import SidebarLayout from './components/layouts/SidebarLayout';
-import { OverviewPage } from './pages/OverviewPage/OverviewPage';
+import { registerClearMailingDraftBeforeUnload } from './mailingDraftStorage';
 import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage';
+import { OverviewPage } from './pages/OverviewPage/OverviewPage';
 import TemplatesPage from './pages/TemplatesPage/TemplatesPage';
+import ProtectedRoute from './routing/ProtectedRoute';
 
 function lazyWithMinDelay<P extends object>(
   factory: () => Promise<{ default: ComponentType<P> }>,
@@ -35,6 +35,18 @@ const AuthLoginPage = lazyWithMinDelay(
 const AuthRegisterPage = lazyWithMinDelay(
   () => import('@/pages/Auth/AuthRegisterPage')
 );
+const LinksRegistryPage = lazyWithMinDelay(
+  () => import('@/pages/Shortener/LinksRegistryPage/LinksRegistryPage')
+);
+const LinkDetailPage = lazyWithMinDelay(
+  () => import('@/pages/Shortener/LinkDetailPage/LinkDetailPage')
+);
+const CampaignsPage = lazyWithMinDelay(
+  () => import('@/pages/Shortener/CampaignsPage/CampaignsPage')
+);
+const LinksLandingPage = lazyWithMinDelay(
+  () => import('@/pages/Shortener/LinksLandingPage/LinksLandingPage')
+);
 
 function App() {
   useEffect(() => registerClearMailingDraftBeforeUnload(), []);
@@ -58,6 +70,10 @@ function App() {
           path="/"
           element={<HomePage />}
         />
+        <Route
+          path="/links-landing"
+          element={<LinksLandingPage />}
+        />
         <Route element={<SidebarLayout />}>
           <Route
             path="/create/email"
@@ -76,6 +92,18 @@ function App() {
           <Route
             path="/templates"
             element={<TemplatesPage />}
+          />
+          <Route
+            path="/links"
+            element={<LinksRegistryPage />}
+          />
+          <Route
+            path="/links/:id"
+            element={<LinkDetailPage />}
+          />
+          <Route
+            path="/campaigns"
+            element={<CampaignsPage />}
           />
         </Route>
         <Route

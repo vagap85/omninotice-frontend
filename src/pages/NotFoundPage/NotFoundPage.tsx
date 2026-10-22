@@ -1,7 +1,8 @@
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
+
 import authBg from '@/assets/background.jpg';
-import { DashedCircularArrow } from '@/components/atoms/Icons/DashedCircularArrow';
 import CustomButton from '@/components/atoms/Button/CustomButton';
+import { DashedCircularArrow } from '@/components/atoms/Icons/DashedCircularArrow';
 
 export function NotFoundPage() {
   return (

@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { memo, useId, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { SidebarSubmenuEntry } from '../SidebarSubmenuEntry/SidebarSubmenuEntry';
 import { SidebarSubmenuItemProps } from '../../types/sidebar';
+import { SidebarSubmenuEntry } from '../SidebarSubmenuEntry/SidebarSubmenuEntry';
 
 const MotionBox = motion.create(Box);
 

@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { type Mock, describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import {
   createDispatch,
@@ -18,7 +18,7 @@ describe('createDispatch (Vishenka API)', () => {
   });
 
   test('успешная отправка → 201 OK', async () => {
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 201,
       json: async () => ({
@@ -58,7 +58,7 @@ describe('createDispatch (Vishenka API)', () => {
   });
 
   test('повтор → ALREADY_APPLIED + replayed', async () => {
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 201,
       json: async () => ({
@@ -91,7 +91,7 @@ describe('createDispatch (Vishenka API)', () => {
   });
 
   test('422 → DispatchError с валидацией', async () => {
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: false,
       status: 422,
       json: async () => ({
@@ -113,7 +113,7 @@ describe('createDispatch (Vishenka API)', () => {
   });
 
   test('503 → DispatchError "Synora should retry"', async () => {
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: false,
       status: 503,
       json: async () => ({
@@ -137,7 +137,7 @@ describe('createDispatch (Vishenka API)', () => {
   });
 
   test('отправляет правильный payload', async () => {
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 201,
       json: async () => ({

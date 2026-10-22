@@ -6,13 +6,13 @@ import {
   useDisclosure,
   VStack
 } from '@chakra-ui/react';
+import { memo } from 'react';
 import { LuLogOut } from 'react-icons/lu';
 
 import { useAuth } from '@/auth/AuthContext';
 import CustomButton from '@/components/atoms/Button/CustomButton';
 import UserIcon from '@/components/atoms/Icons/collections/Sigma/UserIcon';
 import LogoutModal from '@/components/organisms/Modals/LogoutModal';
-import { memo } from 'react';
 
 const getInitials = (
   firstName?: string,
