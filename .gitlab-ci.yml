@@ -75,22 +75,50 @@ unit-tests:
   stage: test
   tags: [docker]
   allow_failure: false
+  retry:
+    max: 2
+    when: script_failure
+  # resource_group: npm-ci   # раскомментируйте, чтобы такие джобы не шли одновременно
   rules:
     - if: $CI_COMMIT_BRANCH != "master"
   script:
+    - echo "=== ресурсы раннера ==="
+    - free -h || true
+    - nproc || true
+    - df -h / "$CI_PROJECT_DIR" || true
+    - df -i "$CI_PROJECT_DIR" || true
+    - docker info --format 'mem={{.MemTotal}} cpus={{.NCPU}}
+      running={{.ContainersRunning}}' || true
+    - docker ps || true
     - cp .env.example .env
     - mkdir -p .npm-cache
-    - >
-      docker run --rm --user "$(id -u):$(id -g)" -v "$CI_PROJECT_DIR:/app" -w
-      /app -e HOME=/tmp -e npm_config_cache=/app/.npm-cache -e CI=true
-      ${DOCKER_HUB_MIRROR}node:22-alpine sh -c "npm ci && npm run test:run"
+    - rm -rf .npm-cache/_logs
+    - |
+      docker run --rm --user "$(id -u):$(id -g)" -v "$CI_PROJECT_DIR:/app" -w /app \
+        -e HOME=/tmp -e npm_config_cache=/app/.npm-cache -e CI=true \
+        ${DOCKER_HUB_MIRROR}node:22-alpine sh -c '
+          node -v && npm -v
+          npm ci --no-audit --no-fund --maxsockets=3 --fetch-retries=5 || {
+            echo "=== npm ci FAILED, tail of debug log ==="
+            tail -n 150 "$(ls -t /app/.npm-cache/_logs/*.log | head -1)"
+            exit 1
+          }
+          npm run test:run
+        '
   after_script:
+    - free -h || true
+    - dmesg -T 2>/dev/null | grep -i -E "oom|killed process" | tail || true
     - if [ $(df / --output='pcent' | grep -o "[0-9]*" | head -1 || echo 0) -gt
       80 ]; then docker system prune -f; fi
   cache:
     key: 'npm-$CI_COMMIT_REF_SLUG'
     paths:
       - .npm-cache/
+  artifacts:
+    when: on_failure
+    paths:
+      - .npm-cache/_logs/
+    expire_in: 1 week
 
 test-build:
   stage: test
