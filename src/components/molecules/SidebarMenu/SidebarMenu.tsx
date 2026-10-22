@@ -2,13 +2,13 @@ import { Flex } from '@chakra-ui/react';
 import { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { useSidebar } from '@/components/organisms/Sidebar/SidebarContext';
-
-import { SidebarMenuItem } from '../SidebarElements/SidebarMenuItem/SidebarMenuItem';
 import {
   sidebarCreateAction,
   sidebarMenuItems
 } from '@/components/organisms/Sidebar/SidebarConfig.config';
+import { useSidebar } from '@/components/organisms/Sidebar/SidebarContext';
+
+import { SidebarMenuItem } from '../SidebarElements/SidebarMenuItem/SidebarMenuItem';
 
 export function SidebarMenu() {
   const { isCollapsed } = useSidebar();

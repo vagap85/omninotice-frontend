@@ -176,8 +176,8 @@ export const sidebarMenuItems: SidebarMenuItemProps[] = [
       />
     ),
     submenuItems: [
-      { label: 'Короткие ссылки', href: '/links/create' },
-      { label: 'Кампании', href: '/links' }
+      { label: 'Все ссылки', href: '/links' },
+      { label: 'Кампании', href: '/campaigns' }
     ],
     submenuType: 'inside'
   }

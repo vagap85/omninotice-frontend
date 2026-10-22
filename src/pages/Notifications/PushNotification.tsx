@@ -5,11 +5,11 @@ import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/auth/AuthContext';
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
 import { FormsRegistryProvider } from '@/components/molecules/Form/Providers/FormsRegistryProvider';
+import { OnboardingTour } from '@/components/molecules/OnboardingTour/OnboaringTour';
 import ActionFields from '@/components/organisms/Forms/Push/ActionFields';
 import NotificationContentFields from '@/components/organisms/Forms/Push/NotificationContentFields';
 import PushDraftUrlSync from '@/components/organisms/Forms/Push/PushDraftUrlSync';
 import SelectingRecipientApp from '@/components/organisms/Forms/Push/SelectingRecipientApp/SelectingRecipientApp';
-import { OnboardingTour } from '@/components/molecules/OnboardingTour/OnboaringTour';
 
 const STORAGE_KEY_TOUR_COMPLETED = 'onboarding_tour_completed';
 const STORAGE_KEY_REAL_SEND = 'onboarding_real_send';

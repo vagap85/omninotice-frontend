@@ -1,19 +1,19 @@
-import { useState, useMemo, useEffect, useContext } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { Box, Button, Heading, HStack, Icon, Text } from '@chakra-ui/react';
+import { useState, useMemo, useEffect, useContext } from 'react';
 import { LuSparkles, LuCircleAlert } from 'react-icons/lu';
+import { useSearchParams } from 'react-router-dom';
 
+import EditableTextWithVariables from '@/components/molecules/EditableTextWithVariables/EditableTextWithVariables';
 import { FormTextAreaField } from '@/components/molecules/Form/Elements/FormTextAreaField';
 import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
+import { FormsRegistryContext } from '@/components/molecules/Form/FormContext';
 import {
   required,
   maxLength
 } from '@/components/molecules/Form/validators/validators';
-import { MOCK_TEMPLATES } from '@/mocks/templates';
 import TemplateSelector from '@/components/molecules/TemplateSelector/TemplateSelector';
-import EditableTextWithVariables from '@/components/molecules/EditableTextWithVariables/EditableTextWithVariables';
+import { MOCK_TEMPLATES } from '@/mocks/templates';
 import { NotificationTemplate } from '@/types/template';
-import { FormsRegistryContext } from '@/components/molecules/Form/FormContext';
 
 interface NotificationContentFieldsProps {
   formId: string;
