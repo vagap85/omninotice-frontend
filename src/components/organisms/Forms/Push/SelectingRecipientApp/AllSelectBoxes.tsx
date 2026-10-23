@@ -20,12 +20,12 @@ export default function AllSelectBoxes() {
 
       <IconSelect />
 
-      <Box data-tour="recipients-select">
+      <Box>
         <UsersSelectTest />
       </Box>
 
       {selectedApp && (
-        <Box data-tour="preview-block">
+        <Box>
           <Flex
             direction={'column'}
             gap={1.5}

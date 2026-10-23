@@ -125,6 +125,7 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
 
   const step = ONBOARDING_STEPS[currentStep];
   const isLastStep = currentStep === TOTAL_STEPS - 1;
+  const isFirstStep = currentStep === 0;
 
   useEffect(() => {
     if (!isOpen || !step) return;
@@ -201,6 +202,12 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
     }
   }, [isLastStep, onComplete]);
 
+  const handleBack = useCallback(() => {
+    if (!isFirstStep) {
+      setCurrentStep((prev) => prev - 1);
+    }
+  }, [isFirstStep]);
+
   const handleSkip = useCallback(() => {
     onComplete();
   }, [onComplete]);
@@ -224,6 +231,7 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
         zIndex={9998}
       />
 
+      {/* Подсветка целевого элемента */}
       {targetRect && !step.centered && (
         <Box
           position="fixed"
@@ -283,42 +291,90 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
           {step.description}
         </Text>
 
-        <Flex
-          justify="space-between"
-          align="center"
-        >
-          {ONBOARDING_STEPS.map((_, index) => (
-            <Box
-              key={index}
-              w="10px"
-              h="10px"
-              borderRadius="full"
-              bg={index === currentStep ? '#3B6EA0' : '#E2E8F0'}
-            />
-          ))}
-          <Flex gap={2}>
-            <Button
-              variant="ghost"
-              size="sm"
-              color="#64748B"
-              onClick={handleSkip}
-            >
-              Пропустить
-            </Button>
-            <Button
-              variant="solid"
-              size="sm"
-              bg="#3B6EA0"
-              color="white"
-              _hover={{ bg: '#2f5a85' }}
-              onClick={handleNext}
-            >
-              {isLastStep ? 'Все понятно' : 'Далее'}
-            </Button>
+        {/* Нижняя панель: точки сверху, кнопки снизу */}
+        <Box mt={4}>
+          {/* Точки-индикаторы, равномерно распределенные по ширине */}
+          <Flex
+            mb={4}
+            justify="space-between"
+            align="center"
+          >
+            {ONBOARDING_STEPS.map((_, index) => (
+              <Box
+                key={index}
+                w={index === currentStep ? '12px' : '8px'}
+                h={index === currentStep ? '12px' : '8px'}
+                borderRadius="full"
+                bg={index === currentStep ? '#3B6EA0' : '#E2E8F0'}
+                transition="all 0.2s ease"
+              />
+            ))}
           </Flex>
-        </Flex>
 
-        <Flex></Flex>
+          {/* Кнопки: Назад слева, Пропустить + Далее справа */}
+          <Flex
+            justify="space-between"
+            align="center"
+          >
+            {/* Кнопка «Назад» */}
+            <Box>
+              {!isFirstStep && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  color="#64748B"
+                  fontSize="sm"
+                  fontWeight="500"
+                  px={3}
+                  py={2}
+                  h="auto"
+                  onClick={handleBack}
+                  _hover={{ bg: '#F1F5F9', color: '#12233F' }}
+                >
+                  Назад
+                </Button>
+              )}
+            </Box>
+
+            {/* Кнопки «Пропустить» и «Далее» */}
+            <Flex
+              gap={2}
+              align="center"
+            >
+              <Button
+                variant="ghost"
+                size="sm"
+                color="#64748B"
+                fontSize="sm"
+                fontWeight="500"
+                px={3}
+                py={2}
+                h="auto"
+                onClick={handleSkip}
+                _hover={{ bg: '#F1F5F9', color: '#12233F' }}
+              >
+                Пропустить
+              </Button>
+              <Button
+                variant="solid"
+                size="sm"
+                bg="#3B6EA0"
+                color="white"
+                fontSize="sm"
+                fontWeight="500"
+                px={4}
+                py={2}
+                h="auto"
+                borderRadius="8px"
+                onClick={handleNext}
+                _hover={{ bg: '#2f5a85' }}
+                _active={{ bg: '#1e3a5f' }}
+              >
+                {isLastStep ? 'Все понятно' : 'Далее'}
+              </Button>
+            </Flex>
+          </Flex>
+        </Box>
       </Box>
     </TopLayer>
   );

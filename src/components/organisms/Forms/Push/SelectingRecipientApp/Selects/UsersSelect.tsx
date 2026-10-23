@@ -83,6 +83,7 @@ export default function UsersSelect({ value, onChange }: UsersSelectProps) {
         value={selectedValue}
         onChange={handleChange}
         isDisabled={selectedApp == null}
+        data-tour="recipients-select"
       >
         <Stack spacing={2}>
           <Box

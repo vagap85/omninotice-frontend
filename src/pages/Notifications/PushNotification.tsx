@@ -1,8 +1,9 @@
-import { Box, Button, Flex, Portal } from '@chakra-ui/react';
+import { Box, Flex, Portal, Icon, Text } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { NotificationProvider } from 'omni-notice-sigma-notification-widget';
 import 'omni-notice-sigma-notification-widget/style.css';
+import { LuLightbulb } from 'react-icons/lu'; // Иконка лампочки
 
 import { useAuth } from '@/auth/AuthContext';
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
@@ -13,7 +14,8 @@ import ActionFields from '@/components/organisms/Forms/Push/ActionFields';
 import NotificationContentFields from '@/components/organisms/Forms/Push/NotificationContentFields';
 import PushDraftUrlSync from '@/components/organisms/Forms/Push/PushDraftUrlSync';
 import SelectingRecipientApp from '@/components/organisms/Forms/Push/SelectingRecipientApp/SelectingRecipientApp';
-import "@/lib/notification-widget/notification-widget.css"
+import '@/lib/notification-widget/notification-widget.css';
+
 const STORAGE_KEY_TOUR_COMPLETED = 'onboarding_tour_completed';
 const STORAGE_KEY_FIRST_VISIT = 'onboarding_first_visit';
 
@@ -101,33 +103,62 @@ function PushCreateNotificatonInner({
                 </Box>
               </Flex>
 
-              <SelectingRecipientApp
-                isAuthorized={isAuthorized}
-              />
+              <SelectingRecipientApp isAuthorized={isAuthorized} />
             </Flex>
           </Box>
         </Flex>
 
         {!isTourOpen && (
           <Portal>
-            <Button
+            <Box
+              as="button"
+              role="group"
               position="fixed"
               bottom="71px"
               left="96px"
+              onClick={handleShowTour}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              h="48px"
+              w="48px"
+              maxW="48px" // Начальная ширина ограничена 48px
+              px={0}
+              borderRadius="full"
               bg="#3B6EA0"
               color="white"
-              borderRadius="xl"
-              px="10px"
-              py="8px"
-              fontSize="sm"
-              fontWeight="500"
-              _hover={{ bg: '#2f5a85' }}
-              onClick={handleShowTour}
+              cursor="pointer"
+              transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+              overflow="hidden"
+              whiteSpace="nowrap"
+              _hover={{
+                maxW: '400px', // При наведении позволяем кнопке расшириться
+                w: 'max-content', // Кнопка подстроится под длину текста
+                px: 4, // Добавляем отступы по бокам
+                bg: '#2f5a85' // Чуть темнее при наведении
+              }}
               zIndex={100}
               boxShadow="0 4px 12px rgba(0, 0, 0, 0.15)"
+              aria-label="Показать подсказки по сервису"
             >
-              Показать подсказки по сервису
-            </Button>
+              {/* Иконка: видна по умолчанию, скрывается при наведении */}
+              <Icon
+                as={LuLightbulb}
+                boxSize="24px"
+                transition="opacity 0.2s ease-in-out"
+                _groupHover={{ display: 'none' }}
+              />
+
+              {/* Текст: скрыт по умолчанию, появляется при наведении */}
+              <Text
+                display="none"
+                _groupHover={{ display: 'block' }}
+                fontSize="sm"
+                fontWeight="500"
+              >
+                Показать подсказки по сервису
+              </Text>
+            </Box>
           </Portal>
         )}
 
