@@ -84,7 +84,6 @@ interface OnboardingTourProps {
 }
 
 function TopLayer({ children }: { children: ReactNode }) {
-  // callback ref: срабатывает, когда элемент реально попал в DOM
   const setRef = useCallback((el: HTMLDivElement | null) => {
     if (
       el &&
@@ -100,7 +99,6 @@ function TopLayer({ children }: { children: ReactNode }) {
       <Box
         ref={setRef}
         {...{ popover: 'manual' }}
-        // сброс дефолтных стилей [popover]
         position="fixed"
         inset={0}
         w="100vw"
@@ -113,7 +111,6 @@ function TopLayer({ children }: { children: ReactNode }) {
         bg="transparent"
         color="inherit"
         overflow="visible"
-        // запасной вариант для браузеров без Popover API
         zIndex={2147483647}
       >
         {children}
@@ -128,6 +125,19 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
 
   const step = ONBOARDING_STEPS[currentStep];
   const isLastStep = currentStep === TOTAL_STEPS - 1;
+  const isFirstStep = currentStep === 0;
+
+  useEffect(() => {
+    if (!isOpen || !step) return;
+    window.dispatchEvent(
+      new CustomEvent('onboarding:tour-step-change', {
+        detail: {
+          stepId: step.id,
+          targetSelector: step.targetSelector
+        }
+      })
+    );
+  }, [isOpen, currentStep, step]);
 
   useEffect(() => {
     if (isOpen) {
@@ -196,15 +206,15 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
     }
   }, [isLastStep, onComplete]);
 
+  const handleBack = useCallback(() => {
+    if (!isFirstStep) {
+      setCurrentStep((prev) => prev - 1);
+    }
+  }, [isFirstStep]);
+
   const handleSkip = useCallback(() => {
     onComplete();
   }, [onComplete]);
-
-  const handleBack = useCallback(() => {
-    if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
-    }
-  }, [currentStep]);
 
   if (!isOpen || !step) return null;
 
@@ -225,6 +235,7 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
         zIndex={9998}
       />
 
+      {/* Подсветка целевого элемента */}
       {targetRect && !step.centered && (
         <Box
           position="fixed"
@@ -232,7 +243,7 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
           left={targetRect.left - 8}
           width={targetRect.width + 16}
           height={targetRect.height + 16}
-          border="2px solid #3B6EA0"
+          border="4px solid #3B6EA0"
           borderRadius="12px"
           boxShadow="0 0 0 9999px rgba(0, 0, 0, 0.6)"
           zIndex={9999}
@@ -284,59 +295,90 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
           {step.description}
         </Text>
 
-        <Flex
-          gap={2}
-          mb={4}
-        >
-          {ONBOARDING_STEPS.map((_, index) => (
-            <Box
-              key={index}
-              w={2}
-              h={2}
-              borderRadius="full"
-              bg={index === currentStep ? '#3B6EA0' : '#E2E8F0'}
-            />
-          ))}
-        </Flex>
-
-        <Flex
-          justify="space-between"
-          align="center"
-        >
-          {currentStep > 0 ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              color="#64748B"
-              onClick={handleBack}
-            >
-              Назад
-            </Button>
-          ) : (
-            <Box />
-          )}
-
-          <Flex gap={2}>
-            <Button
-              variant="ghost"
-              size="sm"
-              color="#64748B"
-              onClick={handleSkip}
-            >
-              Пропустить
-            </Button>
-            <Button
-              variant="solid"
-              size="sm"
-              bg="#3B6EA0"
-              color="white"
-              _hover={{ bg: '#2f5a85' }}
-              onClick={handleNext}
-            >
-              {isLastStep ? 'Все понятно' : 'Далее'}
-            </Button>
+        {/* Нижняя панель: точки сверху, кнопки снизу */}
+        <Box mt={4}>
+          {/* Точки-индикаторы, равномерно распределенные по ширине */}
+          <Flex
+            mb={4}
+            justify="space-between"
+            align="center"
+          >
+            {ONBOARDING_STEPS.map((_, index) => (
+              <Box
+                key={index}
+                w={index === currentStep ? '12px' : '8px'}
+                h={index === currentStep ? '12px' : '8px'}
+                borderRadius="full"
+                bg={index === currentStep ? '#3B6EA0' : '#E2E8F0'}
+                transition="all 0.2s ease"
+              />
+            ))}
           </Flex>
-        </Flex>
+
+          {/* Кнопки: Назад слева, Пропустить + Далее справа */}
+          <Flex
+            justify="space-between"
+            align="center"
+          >
+            {/* Кнопка «Назад» */}
+            <Box>
+              {!isFirstStep && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  color="#64748B"
+                  fontSize="sm"
+                  fontWeight="500"
+                  px={3}
+                  py={2}
+                  h="auto"
+                  onClick={handleBack}
+                  _hover={{ bg: '#F1F5F9', color: '#12233F' }}
+                >
+                  Назад
+                </Button>
+              )}
+            </Box>
+
+            {/* Кнопки «Пропустить» и «Далее» */}
+            <Flex
+              gap={2}
+              align="center"
+            >
+              <Button
+                variant="ghost"
+                size="sm"
+                color="#64748B"
+                fontSize="sm"
+                fontWeight="500"
+                px={3}
+                py={2}
+                h="auto"
+                onClick={handleSkip}
+                _hover={{ bg: '#F1F5F9', color: '#12233F' }}
+              >
+                Пропустить
+              </Button>
+              <Button
+                variant="solid"
+                size="sm"
+                bg="#3B6EA0"
+                color="white"
+                fontSize="sm"
+                fontWeight="500"
+                px={4}
+                py={2}
+                h="auto"
+                borderRadius="8px"
+                onClick={handleNext}
+                _hover={{ bg: '#2f5a85' }}
+                _active={{ bg: '#1e3a5f' }}
+              >
+                {isLastStep ? 'Все понятно' : 'Далее'}
+              </Button>
+            </Flex>
+          </Flex>
+        </Box>
       </Box>
     </TopLayer>
   );

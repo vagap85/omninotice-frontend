@@ -1,8 +1,7 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Box, Flex, Text, Icon, useOutsideClick } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { useState, useRef } from 'react';
-
+import { useState, useRef, useEffect } from 'react';
 import BellRingIcon from '@/components/atoms/Icons/collections/Sigma/BellRingIcon';
 
 import { useSelectingRecipientApp } from '../hooks/useSelectingRecipientApp';
@@ -10,47 +9,17 @@ import type { AppSelectProps, SelectingApp } from '../types/types';
 
 const DEFAULT_APPS: SelectingApp[] = [
   {
-    id: 'sigma',
-    name: 'Сигма',
-    count: 235,
+    id: 'test',
+    name: 'Omni Notice (Test)',
+    count: 1,
     isActive: true,
-    platform: 'Sigma',
+    platform: 'OmniNoticeTest',
     iconColor: '#487BFE',
     bgIconColor: '#D1DEFF',
     standartIcon: {
-      id: 'sigma',
+      id: 'Omni Notice',
       Icon: BellRingIcon,
-      title: 'Стандартная иконка Сигма',
-      description: 'Если не выбрать другую, получатель увидит эту'
-    }
-  },
-  {
-    id: 'raida',
-    name: 'Raida',
-    count: 0,
-    isActive: false,
-    platform: 'Raida',
-    iconColor: '#131313',
-    bgIconColor: '#621e1e',
-    standartIcon: {
-      id: 'raida',
-      Icon: BellRingIcon,
-      title: 'Стандартная иконка Raida',
-      description: 'Если не выбрать другую, получатель увидит эту'
-    }
-  },
-  {
-    id: 'classhub',
-    name: 'Class Hub',
-    count: 0,
-    isActive: false,
-    platform: 'ClassHub',
-    iconColor: '',
-    bgIconColor: '',
-    standartIcon: {
-      id: 'classhub',
-      Icon: BellRingIcon,
-      title: 'Стандартная иконка Class Hub',
+      title: 'Стандартная иконка Omni Notice',
       description: 'Если не выбрать другую, получатель увидит эту'
     }
   }
@@ -98,6 +67,38 @@ export default function AppSelect({
     onChange?.(app);
   };
 
+  const handleSelectRef = useRef(handleSelect);
+
+  useEffect(() => {
+    handleSelectRef.current = handleSelect;
+  });
+
+  useEffect(() => {
+    const onTourStepChange = (event: Event) => {
+      const detail = (
+        event as CustomEvent<{
+          stepId?: number;
+          targetSelector?: string;
+        }>
+      ).detail;
+
+      if (detail?.targetSelector !== '[data-tour="app-select"]') return;
+
+      const testApp = apps.find((app) => app.platform === 'OmniNoticeTest');
+      if (testApp && testApp.isActive) {
+        handleSelectRef.current(testApp);
+      }
+    };
+
+    window.addEventListener('onboarding:tour-step-change', onTourStepChange);
+    return () => {
+      window.removeEventListener(
+        'onboarding:tour-step-change',
+        onTourStepChange
+      );
+    };
+  }, [apps]);
+
   const handleTriggerKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -132,6 +133,7 @@ export default function AppSelect({
         w="100%"
       >
         <Flex
+          data-tour="app-select"
           ref={triggerRef}
           as="button"
           type="button"

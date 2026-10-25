@@ -8,6 +8,7 @@ interface EditableTextWithVariablesProps {
   onTextChange: (text: string) => void;
   placeholder?: string;
   minH?: string;
+  maxLength?: number;
 }
 
 function EditableTextWithVariables({
@@ -15,9 +16,21 @@ function EditableTextWithVariables({
   variableValues,
   onVariableChange,
   onTextChange,
-  placeholder
+  placeholder,
+  maxLength = 200
 }: EditableTextWithVariablesProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Подсчет длины текста С УЧЕТОМ значений переменных
+  const currentLength = text.replace(
+    /\{\{([^}]+)\}\}/g,
+    (match, variableName) => {
+      const value = variableValues[variableName] || '';
+      return value;
+    }
+  ).length;
+
+  const isOverLimit = currentLength > maxLength;
 
   // Парсим текст на части: обычный текст и переменные
   const parseText = (text: string) => {
@@ -31,7 +44,6 @@ function EditableTextWithVariables({
     let match;
 
     while ((match = regex.exec(text)) !== null) {
-      // Добавляем обычный текст до переменной
       if (match.index > lastIndex) {
         parts.push({
           type: 'text',
@@ -39,16 +51,14 @@ function EditableTextWithVariables({
           key: `text-${lastIndex}`
         });
       }
-      // Добавляем переменную
       parts.push({
         type: 'variable',
-        content: match[1], // имя переменной без {{ }}
+        content: match[1],
         key: `var-${match.index}`
       });
       lastIndex = match.index + match[0].length;
     }
 
-    // Добавляем оставшийся текст
     if (lastIndex < text.length) {
       parts.push({
         type: 'text',
@@ -67,14 +77,21 @@ function EditableTextWithVariables({
     variable: string,
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    onVariableChange(variable, e.target.value);
+    const newValue = e.target.value;
+    const currentValue = variableValues[variable] || '';
+
+    const newLength = currentLength - currentValue.length + newValue.length;
+
+    if (newLength <= maxLength) {
+      onVariableChange(variable, newValue);
+    }
   };
 
-  // Обработчик изменения обычного текста (через contenteditable)
+  // Обработчик изменения обычного текста
   const handleTextBlur = (e: React.FocusEvent<HTMLSpanElement>) => {
     const newText = e.target.innerText;
-    // Собираем полный текст с переменными
     let fullText = '';
+
     parts.forEach((part) => {
       if (part.type === 'text') {
         if (part.key === `text-${e.target.dataset.index}`) {
@@ -86,13 +103,60 @@ function EditableTextWithVariables({
         fullText += `{{${part.content}}}`;
       }
     });
-    onTextChange(fullText);
+
+    const finalLength = fullText.replace(
+      /\{\{([^}]+)\}\}/g,
+      (match, variableName) => {
+        const value = variableValues[variableName] || '';
+        return value;
+      }
+    ).length;
+
+    if (finalLength <= maxLength) {
+      onTextChange(fullText);
+    } else {
+      e.target.innerText = text;
+    }
+  };
+
+  // Предотвращаем ввод, если превышен лимит
+  const handleTextInput = (e: React.FormEvent<HTMLSpanElement>) => {
+    const target = e.target as HTMLSpanElement;
+    const newText = target.innerText;
+
+    let fullText = '';
+    parts.forEach((part) => {
+      if (part.type === 'text') {
+        if (part.key === `text-${target.dataset.index}`) {
+          fullText += newText;
+        } else {
+          fullText += part.content;
+        }
+      } else {
+        fullText += `{{${part.content}}}`;
+      }
+    });
+
+    const newLength = fullText.replace(
+      /\{\{([^}]+)\}\}/g,
+      (match, variableName) => {
+        const value = variableValues[variableName] || '';
+        return value;
+      }
+    ).length;
+
+    if (newLength > maxLength) {
+      e.preventDefault();
+      return false;
+    }
   };
 
   return (
     <Box
       ref={containerRef}
-      p={4}
+      position="relative"
+      p="10px"
+      pr="57px"
       bg="#F8FAFC"
       borderRadius="8px"
       fontSize="md"
@@ -103,7 +167,23 @@ function EditableTextWithVariables({
       cursor="text"
       _hover={{ borderColor: '#CBD5E1' }}
       transition="border-color 0.2s"
+      border="1px solid"
+      borderColor={isOverLimit ? 'red.300' : '#E2E8F0'}
+      minH="155px"
     >
+      <Box
+        position="absolute"
+        top="10px"
+        right="11px"
+        fontSize="md"
+        color="#A1A1AA"
+        fontWeight="normal"
+        userSelect="none"
+        pointerEvents="none"
+      >
+        {currentLength}/{maxLength}
+      </Box>
+
       {parts.length === 0 && placeholder && (
         <Box color="#A1A1AA">{placeholder}</Box>
       )}
@@ -117,6 +197,7 @@ function EditableTextWithVariables({
               suppressContentEditableWarning
               data-index={part.key.replace('text-', '')}
               onBlur={handleTextBlur}
+              onInput={handleTextInput}
               style={{
                 outline: 'none',
                 whiteSpace: 'pre-wrap'
@@ -126,7 +207,6 @@ function EditableTextWithVariables({
             </span>
           );
         } else {
-          // Переменная — inline input
           return (
             <Input
               key={part.key}
@@ -143,13 +223,15 @@ function EditableTextWithVariables({
               mx="8px"
               h="24px"
               border="1px dashed"
-              borderColor="#3B6EA0"
+              borderColor={isOverLimit ? '#EF4444' : '#3B6EA0'}
               borderRadius="6px"
               color="#3B6EA0"
               fontWeight="normal"
               _focus={{
-                borderColor: '#3B6EA0',
-                boxShadow: '0 0 0 1px #3B6EA0',
+                borderColor: isOverLimit ? '#EF4444' : '#3B6EA0',
+                boxShadow: isOverLimit
+                  ? '0 0 0 1px #EF4444'
+                  : '0 0 0 1px #3B6EA0',
                 bg: 'white'
               }}
               _placeholder={{

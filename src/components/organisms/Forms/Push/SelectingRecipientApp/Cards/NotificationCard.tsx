@@ -14,14 +14,14 @@ export default function NotificationCard({
   const values = useFormValues<PushNotificationFormValues>('pushNotification');
   const SelectedIcon = selectedApp.icon.Icon;
 
-  const title = values.title || 'Заголовок';
+  const title = values.title || 'Заголовок уведомления';
 
   const interpolatedText = interpolateVariables(
-    values.text || 'Описание',
+    values.text || 'Текст уведомления',
     values.variableValues || {}
   );
 
-  const buttonText = values.buttonText || 'Кнопка';
+  const buttonText = values.buttonText || 'Текст кнопки';
 
   return (
     <Box
@@ -30,6 +30,7 @@ export default function NotificationCard({
       py={4}
       borderRadius={12}
       position={'relative'}
+      data-tour="preview-block"
     >
       <Flex
         alignItems={'start'}
@@ -75,6 +76,7 @@ export default function NotificationCard({
           >
             {interpolatedText}
           </Text>
+
           <Box
             bg={'#487BFE'}
             py={2}

@@ -1,18 +1,22 @@
-import { Box, Button, Flex, Portal } from '@chakra-ui/react';
+import { Box, Flex, Portal, Icon, Text } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { NotificationProvider } from 'omni-notice-sigma-notification-widget';
+import 'omni-notice-sigma-notification-widget/style.css';
+import { LuLightbulb } from 'react-icons/lu'; // Иконка лампочки
 
 import { useAuth } from '@/auth/AuthContext';
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
 import { FormsRegistryProvider } from '@/components/molecules/Form/Providers/FormsRegistryProvider';
 import { OnboardingTour } from '@/components/molecules/OnboardingTour/OnboaringTour';
+import { IncludeServices } from '@/components/molecules/IncludeServices/IncludeServices';
 import ActionFields from '@/components/organisms/Forms/Push/ActionFields';
 import NotificationContentFields from '@/components/organisms/Forms/Push/NotificationContentFields';
 import PushDraftUrlSync from '@/components/organisms/Forms/Push/PushDraftUrlSync';
 import SelectingRecipientApp from '@/components/organisms/Forms/Push/SelectingRecipientApp/SelectingRecipientApp';
+import '@/lib/notification-widget/notification-widget.css';
 
 const STORAGE_KEY_TOUR_COMPLETED = 'onboarding_tour_completed';
-const STORAGE_KEY_REAL_SEND = 'onboarding_real_send';
 const STORAGE_KEY_FIRST_VISIT = 'onboarding_first_visit';
 
 export default function PushNotification() {
@@ -30,6 +34,7 @@ function PushCreateNotificatonInner({
 }: {
   isAuthorized: boolean;
 }) {
+  const [tourSession, setTourSession] = useState(0);
   const [searchParams] = useSearchParams();
   const templateId = searchParams.get('templateId') || '';
 
@@ -37,12 +42,6 @@ function PushCreateNotificatonInner({
     const firstVisit = localStorage.getItem(STORAGE_KEY_FIRST_VISIT);
     const tourCompleted = localStorage.getItem(STORAGE_KEY_TOUR_COMPLETED);
     return firstVisit === null && tourCompleted !== 'true';
-  });
-
-  const [isHintButtonVisible, setIsHintButtonVisible] = useState(() => {
-    const tourCompleted = localStorage.getItem(STORAGE_KEY_TOUR_COMPLETED);
-    const realSend = localStorage.getItem(STORAGE_KEY_REAL_SEND);
-    return tourCompleted !== 'true' || realSend !== 'true';
   });
 
   useEffect(() => {
@@ -57,77 +56,118 @@ function PushCreateNotificatonInner({
   const handleCompleteTour = () => {
     localStorage.setItem(STORAGE_KEY_TOUR_COMPLETED, 'true');
     setIsTourOpen(false);
-    setIsHintButtonVisible(false);
   };
 
   const handleShowTour = () => {
+    setTourSession((s) => s + 1);
     setIsTourOpen(true);
   };
 
   return (
-    <FormProvider formId="pushNotification">
-      <PushDraftUrlSync />
-      <Flex>
-        <Box
-          flex="1"
-          bg="#ECF2F8"
-        >
-          <Flex
-            flexDirection={{ md: 'row', base: 'column' }}
-            justifyContent={'space-between'}
+    <NotificationProvider
+      settings={{
+        autoCloseMs: 0,
+        borderBottom: true
+      }}
+    >
+      <FormProvider formId="pushNotification">
+        <PushDraftUrlSync />
+        <Flex>
+          <Box
+            flex="1"
+            bg="#ECF2F8"
           >
             <Flex
-              as="form"
-              direction="column"
-              gap={5}
-              flex="1"
-              p={'clamp(12px, 1.7vw + 0.125rem, 24px)'}
-              maxW={'900px'}
-              mx={'auto'}
+              flexDirection={{ md: 'row', base: 'column' }}
+              justifyContent={'space-between'}
             >
-              <Box data-tour="notification-text">
-                <NotificationContentFields
-                  key={templateId}
-                  formId="pushNotification"
-                />
-              </Box>
+              <Flex
+                as="form"
+                direction="column"
+                gap={5}
+                flex="1"
+                p={'clamp(12px, 1.7vw + 0.125rem, 24px)'}
+                maxW={'900px'}
+                mx={'auto'}
+              >
+                <IncludeServices />
+                <Box data-tour="notification-text">
+                  <NotificationContentFields
+                    key={templateId}
+                    formId="pushNotification"
+                  />
+                </Box>
 
-              <Box data-tour="action-block">
-                <ActionFields />
-              </Box>
+                <Box data-tour="action-block">
+                  <ActionFields />
+                </Box>
+              </Flex>
+
+              <SelectingRecipientApp isAuthorized={isAuthorized} />
             </Flex>
-            <SelectingRecipientApp isAuthorized={isAuthorized} />
-          </Flex>
-        </Box>
-      </Flex>
+          </Box>
+        </Flex>
 
-      {isHintButtonVisible && !isTourOpen && (
-        <Portal>
-          <Button
-            position="fixed"
-            bottom="71px"
-            left="96px"
-            bg="#3B6EA0"
-            color="white"
-            borderRadius="xl"
-            px="10px"
-            py="8px"
-            fontSize="sm"
-            fontWeight="500"
-            _hover={{ bg: '#2f5a85' }}
-            onClick={handleShowTour}
-            zIndex={100}
-            boxShadow="0 4px 12px rgba(0, 0, 0, 0.15)"
-          >
-            Показать подсказки по сервису
-          </Button>
-        </Portal>
-      )}
+        {!isTourOpen && (
+          <Portal>
+            <Box
+              as="button"
+              role="group"
+              position="fixed"
+              bottom="71px"
+              left="96px"
+              onClick={handleShowTour}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              h="48px"
+              w="48px"
+              maxW="48px" // Начальная ширина ограничена 48px
+              px={0}
+              borderRadius="full"
+              bg="#3B6EA0"
+              color="white"
+              cursor="pointer"
+              transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+              overflow="hidden"
+              whiteSpace="nowrap"
+              _hover={{
+                maxW: '400px', // При наведении позволяем кнопке расшириться
+                w: 'max-content', // Кнопка подстроится под длину текста
+                px: 4, // Добавляем отступы по бокам
+                bg: '#2f5a85' // Чуть темнее при наведении
+              }}
+              zIndex={100}
+              boxShadow="0 4px 12px rgba(0, 0, 0, 0.15)"
+              aria-label="Показать подсказки по сервису"
+            >
+              {/* Иконка: видна по умолчанию, скрывается при наведении */}
+              <Icon
+                as={LuLightbulb}
+                boxSize="24px"
+                transition="opacity 0.2s ease-in-out"
+                _groupHover={{ display: 'none' }}
+              />
 
-      <OnboardingTour
-        isOpen={isTourOpen}
-        onComplete={handleCompleteTour}
-      />
-    </FormProvider>
+              {/* Текст: скрыт по умолчанию, появляется при наведении */}
+              <Text
+                display="none"
+                _groupHover={{ display: 'block' }}
+                fontSize="sm"
+                fontWeight="500"
+              >
+                Показать подсказки по сервису
+              </Text>
+            </Box>
+          </Portal>
+        )}
+
+        <OnboardingTour
+          key={tourSession}
+          isOpen={isTourOpen}
+          onComplete={handleCompleteTour}
+        />
+      </FormProvider>
+    </NotificationProvider>
   );
 }
