@@ -151,18 +151,22 @@ export function OnboardingTour({ isOpen, onComplete }: OnboardingTourProps) {
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen || !step) {
+    const clearTargetRect = () => {
       setTargetRect(null);
+    };
+
+    if (!isOpen || !step) {
+      clearTargetRect();
       return;
     }
 
     if (step.centered) {
-      setTargetRect(null);
+      clearTargetRect();
       return;
     }
 
     if (!step.targetSelector) {
-      setTargetRect(null);
+      clearTargetRect();
       return;
     }
 

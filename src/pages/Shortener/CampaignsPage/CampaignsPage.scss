@@ -1,0 +1,140 @@
+.campaigns-page {
+  &__container {
+    padding: 28px 32px;
+  }
+
+  &__title {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    color: #12233f !important;
+    margin-bottom: 8px !important;
+    font-family: var(--font-family);
+  }
+
+  &__subtitle {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: #12233f !important;
+    margin-bottom: 24px !important;
+    font-family: var(--font-family);
+  }
+
+  &__table-card {
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0px 1px 4px rgba(29, 79, 145, 0.05);
+  }
+
+  &__empty-state {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 60px 40px;
+    text-align: center;
+    box-shadow: 0px 1px 4px rgba(29, 79, 145, 0.05);
+
+    &-icon {
+      font-size: 40px !important;
+      margin-bottom: 16px !important;
+    }
+
+    &-title {
+      font-size: 18px !important;
+      font-weight: 700 !important;
+      color: #12233f !important;
+      margin-bottom: 8px !important;
+    }
+
+    &-desc {
+      font-size: 14px !important;
+      color: #52525b !important;
+      margin-bottom: 20px !important;
+    }
+  }
+}
+
+/* Status Badges */
+.campaigns-status-badge {
+  padding: 4px 12px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  border: 1px solid transparent !important;
+  text-transform: none !important;
+
+  &--active {
+    color: #16a34a !important;
+    background: #f0fdf4 !important;
+    border-color: #bbf7d0 !important;
+  }
+
+  &--completed {
+    color: #71717a !important;
+    background: #f4f4f5 !important;
+    border-color: #d4d4d8 !important;
+  }
+
+  &--paused {
+    color: #d97706 !important;
+    background: #fffbeb !important;
+    border-color: #fde68a !important;
+  }
+}
+
+/* Tag Badges */
+.campaigns-tag-badge {
+  padding: 2px 8px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: #3b6ea0 !important;
+  background: #e6f0fa !important;
+  text-transform: none !important;
+
+  &--more {
+    color: #71717a !important;
+    background: #f4f4f5 !important;
+  }
+}
+
+/* Edit Modal */
+.campaigns-modal {
+  &__overlay {
+    background: rgba(18, 35, 63, 0.35) !important;
+    backdrop-filter: blur(4px) !important;
+  }
+
+  &__content {
+    border-radius: 16px !important;
+    font-family: var(--font-family);
+    box-shadow: 0 20px 60px rgba(18, 35, 63, 0.18) !important;
+  }
+
+  &__header {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #12233f !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding-bottom: 16px !important;
+  }
+
+  &__close-btn {
+    top: 16px !important;
+    right: 16px !important;
+    color: #52525b !important;
+  }
+
+  &__body {
+    padding-top: 24px !important;
+    padding-bottom: 24px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__footer {
+    border-top: 1px solid #e2e8f0 !important;
+    padding-top: 16px !important;
+    gap: 10px;
+  }
+}

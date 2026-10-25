@@ -2,6 +2,7 @@ import { Box, HStack, Text, VStack } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 
 import CustomButton from '@/components/atoms/Button/CustomButton';
+
 import { SidebarSubmenuEntryProps } from '../../types/sidebar';
 
 export function SidebarSubmenuEntry({

@@ -6,9 +6,9 @@ import { Link, useLocation } from 'react-router-dom';
 import CustomButton from '@/components/atoms/Button/CustomButton';
 import { useSidebar } from '@/components/organisms/Sidebar/SidebarContext';
 
+import { SidebarMenuItemProps } from '../../types/sidebar';
 import { SidebarFlyoutMenu } from '../SidebarFlyoutMenu/SidebarFlyoutMenu';
 import { SidebarSubmenuItem } from '../SidebarSubmenuItem/SidebarSubmenuItem';
-import { SidebarMenuItemProps } from '../../types/sidebar';
 
 const MotionBox = motion.create(Box);
 

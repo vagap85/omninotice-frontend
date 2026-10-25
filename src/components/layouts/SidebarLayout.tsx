@@ -1,10 +1,11 @@
 import { Flex, Box } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+
 import { useAuth } from '@/auth/AuthContext';
-import { Sidebar } from '@/components/organisms/Sidebar/Sidebar';
 import SpinnerLoader from '@/components/atoms/Loaders/SpinnerLoader/SpinnerLoader';
 import PageHeader from '@/components/molecules/PageHeader/PageHeader';
+import { Sidebar } from '@/components/organisms/Sidebar/Sidebar';
 
 const pageTitles: Record<string, string> = {
   '/create/email': 'Создание e-mail рассылки',

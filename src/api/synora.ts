@@ -61,10 +61,12 @@ export async function sendEventEmail(
   const json: unknown = await res.json().catch(() => ({}));
 
   // Synora может возвращать event_id в разных местах — нормализуем для удобства логирования.
-  // !временное решение, обязательно убрать any
-  const asAny = json as any;
+  const asRecord = json as {
+    event_id?: string;
+    data?: Array<{ event_id?: string }>;
+  };
   const event_id: string | undefined =
-    asAny?.event_id ?? asAny?.data?.[0]?.event_id ?? undefined;
+    asRecord?.event_id ?? asRecord?.data?.[0]?.event_id ?? undefined;
 
   return { event_id, raw: json };
 }

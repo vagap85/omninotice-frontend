@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { type Mock, describe, test, expect, vi, beforeEach } from 'vitest';
 
 import { loginUserCenter } from '@/api/userCenter';
 import AuthRegisterPage from '@/pages/Auth/AuthRegisterPage';
@@ -88,7 +88,7 @@ describe('AuthRegisterPage', () => {
 
   test('успешная регистрация вызывает setAuth и редирект', async () => {
     const user = userEvent.setup();
-    (loginUserCenter as any).mockResolvedValueOnce({
+    (loginUserCenter as Mock).mockResolvedValueOnce({
       accessToken: 'token123',
       tokenType: 'bearer',
       login: 'new@mail.com',
@@ -120,7 +120,7 @@ describe('AuthRegisterPage', () => {
 
   test('ошибка регистрации показывается пользователю', async () => {
     const user = userEvent.setup();
-    (loginUserCenter as any).mockRejectedValueOnce(
+    (loginUserCenter as Mock).mockRejectedValueOnce(
       new Error('Логин уже занят')
     );
 

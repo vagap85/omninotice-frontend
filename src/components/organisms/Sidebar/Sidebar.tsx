@@ -1,10 +1,12 @@
-import LogoFigmaIcon from '@/components/atoms/Icons/home/LogoFigmaIcon';
-import { LogoMini } from '@/components/atoms/Icons/LogoMini';
-import { SidebarMenu } from '@/components/molecules/SidebarMenu/SidebarMenu';
-import { SidebarProvider, useSidebar } from './SidebarContext';
 import { Flex } from '@chakra-ui/react';
 import { memo } from 'react';
 import { useLocation } from 'react-router-dom';
+
+import LogoFigmaIcon from '@/components/atoms/Icons/home/LogoFigmaIcon';
+import { LogoMini } from '@/components/atoms/Icons/LogoMini';
+import { SidebarMenu } from '@/components/molecules/SidebarMenu/SidebarMenu';
+
+import { SidebarProvider, useSidebar } from './SidebarContext';
 
 function SidebarContent() {
   const { isCollapsed } = useSidebar();
