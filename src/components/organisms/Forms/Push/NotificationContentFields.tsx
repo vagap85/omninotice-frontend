@@ -1,9 +1,10 @@
-import { Box, Button, Heading, HStack, Icon, Text } from '@chakra-ui/react';
+import { Box, Heading, HStack, Icon, Text } from '@chakra-ui/react';
 import { useState, useMemo, useEffect, useContext } from 'react';
-import { LuSparkles, LuCircleAlert } from 'react-icons/lu';
+import { LuCircleAlert } from 'react-icons/lu';
 import { useSearchParams } from 'react-router-dom';
 
 import EditableTextWithVariables from '@/components/molecules/EditableTextWithVariables/EditableTextWithVariables';
+import ImproveTextButton from '@/components/molecules/ImproveTextButton/ImproveTextButton';
 import { FormTextAreaField } from '@/components/molecules/Form/Elements/FormTextAreaField';
 import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
 import { FormsRegistryContext } from '@/components/molecules/Form/FormContext';
@@ -171,20 +172,7 @@ export function NotificationContentFields({
         justify="flex-end"
         mt={6}
       >
-        <Button
-          variant="accent"
-          leftIcon={<LuSparkles size={20} />}
-          color="white"
-          borderRadius="12px"
-          h={'auto'}
-          px={5}
-          py={3}
-          loadingText="Обработка..."
-          lineHeight={'1.5em'}
-          disabled
-        >
-          Улучшить текст
-        </Button>
+        <ImproveTextButton isDisabled />
       </HStack>
     </Box>
   );

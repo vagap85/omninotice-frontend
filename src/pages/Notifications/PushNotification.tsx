@@ -6,6 +6,7 @@ import 'omni-notice-sigma-notification-widget/style.css';
 import { LuLightbulb } from 'react-icons/lu'; // Иконка лампочки
 
 import { useAuth } from '@/auth/AuthContext';
+import NotificationLayout from '@/components/layouts/NotificationLayout';
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
 import { FormsRegistryProvider } from '@/components/molecules/Form/Providers/FormsRegistryProvider';
 import { OnboardingTour } from '@/components/molecules/OnboardingTour/OnboaringTour';
@@ -72,41 +73,31 @@ function PushCreateNotificatonInner({
     >
       <FormProvider formId="pushNotification">
         <PushDraftUrlSync />
-        <Flex>
-          <Box
+        <NotificationLayout
+          sidebar={<SelectingRecipientApp isAuthorized={isAuthorized} />}
+        >
+          <Flex
+            as="form"
+            direction="column"
+            gap={5}
             flex="1"
-            bg="#ECF2F8"
+            p="clamp(12px, 1.7vw + 0.125rem, 24px)"
+            maxW="900px"
+            mx="auto"
           >
-            <Flex
-              flexDirection={{ md: 'row', base: 'column' }}
-              justifyContent={'space-between'}
-            >
-              <Flex
-                as="form"
-                direction="column"
-                gap={5}
-                flex="1"
-                p={'clamp(12px, 1.7vw + 0.125rem, 24px)'}
-                maxW={'900px'}
-                mx={'auto'}
-              >
-                <IncludeServices />
-                <Box data-tour="notification-text">
-                  <NotificationContentFields
-                    key={templateId}
-                    formId="pushNotification"
-                  />
-                </Box>
+            <IncludeServices />
+            <Box data-tour="notification-text">
+              <NotificationContentFields
+                key={templateId}
+                formId="pushNotification"
+              />
+            </Box>
 
-                <Box data-tour="action-block">
-                  <ActionFields />
-                </Box>
-              </Flex>
-
-              <SelectingRecipientApp isAuthorized={isAuthorized} />
-            </Flex>
-          </Box>
-        </Flex>
+            <Box data-tour="action-block">
+              <ActionFields />
+            </Box>
+          </Flex>
+        </NotificationLayout>
 
         {!isTourOpen && (
           <Portal>

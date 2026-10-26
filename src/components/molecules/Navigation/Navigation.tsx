@@ -54,8 +54,7 @@ const submenuItems = [
   },
   {
     label: 'В телеграм',
-    href: '',
-    hint: 'СКОРО',
+    href: '/create/telegram',
     icon: (
       <LogoTelegramIcon
         width={24}

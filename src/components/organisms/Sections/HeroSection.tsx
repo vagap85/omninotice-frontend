@@ -20,7 +20,7 @@ import StatsCursorIcon from '@/components/atoms/Icons/home/StatsCursorIcon';
 const channelBadges = [
   { label: 'e-mail', href: '/create/email', icon: <LogoMailIcon /> },
   { label: 'SMS', href: '', icon: <LogoSmsIcon /> },
-  { label: 'Telegram', href: '', icon: <LogoTelegramIcon /> },
+  { label: 'Telegram', href: '/create/telegram', icon: <LogoTelegramIcon /> },
   { label: 'MAX', href: '', icon: <LogoMaxIcon /> },
   { label: 'Push-уведомления', href: '/create/push', icon: <LogoCherryIcon /> }
 ];

@@ -10,6 +10,7 @@ import { Sidebar } from '@/components/organisms/Sidebar/Sidebar';
 const pageTitles: Record<string, string> = {
   '/create/email': 'Создание e-mail рассылки',
   '/create/push': 'Создание рассылки push-уведомлений',
+  '/create/telegram': 'Создание Telegram-рассылки',
   '/overview': 'Обзор',
   '/templates': 'Шаблоны рассылок'
 };
@@ -33,7 +34,7 @@ function SidebarLayout() {
           isAuthorized={isAuthorized}
           title={pageTitles[pathname] ?? ''}
         />
-        <Box as="main">
+        <Box as="main" h={"full"}>
           <Suspense
             fallback={
               <Flex

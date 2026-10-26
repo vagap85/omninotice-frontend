@@ -56,7 +56,7 @@ export const createMenuEntries: SidebarMenuEntry[] = [
         height={SUB_MENU_ICON_SIZE}
       />
     ),
-    disabled: true
+    href: "/create/telegram"
   },
   {
     label: 'Max',

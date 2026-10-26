@@ -29,6 +29,10 @@ const EmailNotification = lazyWithMinDelay(
 const PushNotification = lazyWithMinDelay(
   () => import('@/pages/Notifications/PushNotification')
 );
+
+const TelegramNotification = lazyWithMinDelay(
+  () => import('@/pages/Notifications/TelegramNotification')
+);
 const AuthLoginPage = lazyWithMinDelay(
   () => import('@/pages/Auth/AuthLoginPage')
 );
@@ -83,6 +87,12 @@ function App() {
             <Route
               path="/create/push"
               element={<PushNotification />}
+            />
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route
+              path="/create/telegram"
+              element={<TelegramNotification />}
             />
           </Route>
           <Route

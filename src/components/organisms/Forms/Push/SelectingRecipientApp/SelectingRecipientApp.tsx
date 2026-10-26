@@ -1,5 +1,5 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons/ArrowForward';
-import { Box, Flex, Heading, useDisclosure } from '@chakra-ui/react';
+import { Flex, useDisclosure } from '@chakra-ui/react';
 import { memo } from 'react';
 import type { ComponentType } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,7 @@ import {
 import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
 import { useFormValues } from '@/components/molecules/Form/hooks/useFormValues';
+import RightSidebar from '@/components/molecules/RightSidebar/RightSidebar';
 import SendController from '@/components/organisms/Modals/SendController/SendController';
 import type {
   PushPayload,
@@ -172,50 +173,26 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
   };
 
   return (
-    <Box
-      as="form"
-      maxW={{ base: 'unset', md: '360px', xxl: '29.17vw' }}
-      p={{ base: 'clamp(12px, 1.7vw + 0.125rem, 24px)', md: 'unset' }}
-      borderLeft="1px solid"
-      borderColor="gray.200"
-      minH={{ base: 'unset', md: 'calc(100vh - 73px)' }}
-      w={'full'}
-    >
+    <RightSidebar title="Настройка рассылки">
       <Flex
-        w="100%"
-        h={'100%'}
-        px={6}
-        py={5}
-        bg="white"
-        flexDirection={'column'}
-        borderRadius={{ base: '10px', md: 'none' }}
+        direction="column"
+        gap={3}
       >
-        <Heading
-          size="md"
-          mb={6}
-        >
-          Настройка рассылки
-        </Heading>
-        <Flex
-          direction="column"
-          gap={3}
-        >
-          <AllSelectBoxes />
+        <AllSelectBoxes />
 
-          <FormSubmitButton
-            rightIcon={<ArrowForwardIcon />}
-            maxW="fit-content"
-            ml="auto"
-            isAuthorized={isAuthorized}
-            onUnauthorized={onAuthClick}
-            formIds={['pushNotification']}
-            beforeSubmitValidate={validateExtraFields}
-            onSubmit={() => onOpen()}
-            isDisabled={!isContentValid}
-          >
-            {isAuthorized ? 'Отправить' : 'Авторизоваться для отправки'}
-          </FormSubmitButton>
-        </Flex>
+        <FormSubmitButton
+          rightIcon={<ArrowForwardIcon />}
+          maxW="fit-content"
+          ml="auto"
+          isAuthorized={isAuthorized}
+          onUnauthorized={onAuthClick}
+          formIds={['pushNotification']}
+          beforeSubmitValidate={validateExtraFields}
+          onSubmit={() => onOpen()}
+          isDisabled={!isContentValid}
+        >
+          {isAuthorized ? 'Отправить' : 'Авторизоваться для отправки'}
+        </FormSubmitButton>
       </Flex>
 
       <SendController
@@ -226,7 +203,7 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
         getPayload={buildPayload}
         onSend={sendPushNotification}
       />
-    </Box>
+    </RightSidebar>
   );
 }
 
