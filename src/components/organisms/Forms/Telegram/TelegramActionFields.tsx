@@ -1,6 +1,22 @@
 import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
 import { httpUrl } from '@/components/molecules/Form/validators/validators';
+import type { Validator } from '@/components/molecules/types/form';
 import { Box, Heading } from '@chakra-ui/react';
+
+const actionPairValidator: Validator<string> = (_value, allValues) => {
+  const buttonText =
+    typeof allValues.buttonText === 'string'
+      ? allValues.buttonText.trim()
+      : '';
+  const buttonLink =
+    typeof allValues.buttonLink === 'string'
+      ? allValues.buttonLink.trim()
+      : '';
+
+  return Boolean(buttonText) === Boolean(buttonLink)
+    ? undefined
+    : 'Текст кнопки и ссылка заполняются вместе — добавьте оба поля или очистите оба';
+};
 
 export default function TelegramActionFields() {
   return (
@@ -24,7 +40,8 @@ export default function TelegramActionFields() {
         name="buttonText"
         label="Текст кнопки"
         placeholder="Например, перейти на сайт"
-        subTitlte='Кнопка с призывом к действию'
+        subTitlte="Кнопка с призывом к действию"
+        validators={[actionPairValidator]}
       />
 
       <Box mt={4}>
@@ -33,6 +50,7 @@ export default function TelegramActionFields() {
           label="Ссылка для перехода"
           placeholder="Вставьте ссылку"
           validators={[
+            actionPairValidator,
             httpUrl(
               'Проверьте ссылку и укажите валидный URL в формате http(s)://...'
             )
