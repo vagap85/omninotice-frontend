@@ -1,6 +1,7 @@
-import TelegramMessageEditor from '@/components/molecules/TelegramMessageEditor/TelegramMessageEditor';
-import ImproveTextButton from '@/components/molecules/ImproveTextButton/ImproveTextButton';
 import { Box, Flex, Heading } from '@chakra-ui/react';
+
+import ImproveTextButton from '@/components/molecules/ImproveTextButton/ImproveTextButton';
+import TelegramMessageEditor from '@/components/molecules/TelegramMessageEditor/TelegramMessageEditor';
 
 export const TelegramContentFields = () => {
   return (

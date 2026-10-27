@@ -6,6 +6,7 @@ import TelegramMainFields from '@/components/organisms/Forms/Telegram/TelegramMa
 import NotificationLayout from '@/components/layouts/NotificationLayout';
 import { FormsRegistryProvider } from '@/components/molecules/Form/Providers/FormsRegistryProvider';
 import { TelegramContentFields } from '@/components/organisms/Forms/Telegram/TelegramContentFields';
+import TelegramActionFields from '@/components/organisms/Forms/Telegram/TelegramActionFields';
 
 export default function TelegramNotification() {
   return (
@@ -24,6 +25,7 @@ export default function TelegramNotification() {
           >
             <TelegramMainFields />
             <TelegramContentFields />
+            <TelegramActionFields />
           </Box>
         </NotificationLayout>
       </FormProvider>
