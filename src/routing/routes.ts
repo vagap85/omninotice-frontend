@@ -74,7 +74,10 @@ export const MAILING_CHANNELS: MailingChannel[] = [
     hint: 'СКОРО',
     Icon: LogoMaxIcon
   }
-];
+].sort(
+  (first, second) =>
+    Number(!first.href) - Number(!second.href)
+);
 
 export const PAGE_TITLES: Partial<Record<string, string>> = {
   [ROUTES.createEmail]: 'Создание e-mail рассылки',
