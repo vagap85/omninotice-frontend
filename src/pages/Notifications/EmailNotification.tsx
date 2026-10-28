@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import type { EventForEMail } from '@/api/types';
 import { useAuth } from '@/auth/AuthContext';
 import NotificationLayout from '@/components/layouts/NotificationLayout';
+import { ROUTES } from '@/routing/routes';
 import DraftAutosave from '@/components/molecules/Form/DraftAutoSave';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
@@ -151,7 +152,7 @@ function EmailNotificationInner() {
           <RecipientsPanel
             initialEmails={draft.emails}
             canSend={isAuthorized}
-            onAuthClick={() => navigate('/login')}
+            onAuthClick={() => navigate(ROUTES.login)}
             onValidateEmailForm={validateEmailForm}
             onSend={sendMailing}
           />

@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { loginUserCenter } from '@/api/userCenter';
+import { ROUTES } from '@/routing/routes';
 import authBg from '@/assets/background.jpg';
 import logo from '@/assets/logo.svg';
 import { useAuth } from '@/auth/AuthContext';
@@ -91,7 +92,7 @@ function AuthRegisterPageInner() {
           </Box>
         )
       });
-      navigate('/create/email');
+      navigate(ROUTES.createEmail);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Ошибка авторизации';
       store.setFieldError('passwordConfirm', message);
@@ -129,7 +130,7 @@ function AuthRegisterPageInner() {
         color="#2D547B"
         fontWeight="500"
         fontSize="16px"
-        onClick={() => navigate('/')}
+        onClick={() => navigate(ROUTES.home)}
         position="absolute"
         zIndex={2}
         top={{ base: '24px', md: '80px' }}
@@ -200,7 +201,7 @@ function AuthRegisterPageInner() {
                 color="#3B6EA0"
                 fontSize="16px"
                 fontWeight="500"
-                onClick={() => navigate('/login')}
+                onClick={() => navigate(ROUTES.login)}
                 _hover={{ textDecoration: 'none', color: '#2D547B' }}
               >
                 У меня уже есть аккаунт

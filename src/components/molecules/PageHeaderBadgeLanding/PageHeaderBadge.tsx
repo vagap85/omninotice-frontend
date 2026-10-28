@@ -1,5 +1,7 @@
 import { Flex, Link, Text } from '@chakra-ui/react';
 
+import { ROUTES } from '@/routing/routes';
+
 export default function PageHeaderBadge() {
   return (
     <Flex
@@ -25,7 +27,7 @@ export default function PageHeaderBadge() {
         color="#2D547B"
         textDecor="underline"
         fontWeight="400"
-        href="/create/email"
+        href={ROUTES.createEmail}
         _hover={{ color: '#244869' }}
       >
         Попробовать сейчас

@@ -1,5 +1,6 @@
 import { Box, Button, Flex, Text, useToast } from '@chakra-ui/react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import ArrowRightIcon from '@/components/atoms/Icons/home/ArrowRightIcon';
 import DropdownSelect from '@/components/molecules/DropdownSelect/DropdownSelect';
@@ -7,6 +8,8 @@ import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmi
 import RightSidebar from '@/components/molecules/RightSidebar/RightSidebar';
 import RecipientsModeSelect from '../../Push/SelectingRecipientApp/Selects/RecipientsModeSelect';
 import type { RecipientsMode } from '../../Push/SelectingRecipientApp/types/types';
+import { ArrowForwardIcon } from '@chakra-ui/icons';
+import { ROUTES } from '@/routing/routes';
 
 const BOTS = [
   {
@@ -17,6 +20,7 @@ const BOTS = [
 ];
 
 export default function SelectingBot() {
+  const navigate = useNavigate();
   const toast = useToast();
   const [selectedBot, setSelectedBot] = useState<string | null>(null);
   const [recipientsMode, setRecipientsMode] = useState<RecipientsMode>('all');
@@ -72,6 +76,8 @@ export default function SelectingBot() {
             <Button
               w={'full'}
               maxW={'unset'}
+              type="button"
+              onClick={() => navigate(ROUTES.connectTelegramBot)}
             >
               <Text flex={1}>Подключить нового бота</Text>
               <Box ml={'auto'}>
@@ -93,6 +99,7 @@ export default function SelectingBot() {
           beforeSubmitValidate={validateTelegramSettings}
           onSubmit={handleSubmit}
           ml={'auto'}
+          rightIcon={<ArrowForwardIcon />}
         >
           Отправить
         </FormSubmitButton>

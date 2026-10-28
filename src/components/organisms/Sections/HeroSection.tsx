@@ -10,23 +10,21 @@ import {
 
 import { useAuth } from '@/auth/AuthContext';
 import CustomButton from '@/components/atoms/Button/CustomButton';
-import LogoCherryIcon from '@/components/atoms/Icons/home/LogoCherryIcon';
-import LogoMailIcon from '@/components/atoms/Icons/home/LogoMailIcon';
-import LogoMaxIcon from '@/components/atoms/Icons/home/LogoMaxIcon';
-import LogoSmsIcon from '@/components/atoms/Icons/home/LogoSmsIcon';
-import LogoTelegramIcon from '@/components/atoms/Icons/home/LogoTelegramIcon';
 import StatsCursorIcon from '@/components/atoms/Icons/home/StatsCursorIcon';
-
-const channelBadges = [
-  { label: 'e-mail', href: '/create/email', icon: <LogoMailIcon /> },
-  { label: 'SMS', href: '', icon: <LogoSmsIcon /> },
-  { label: 'Telegram', href: '/create/telegram', icon: <LogoTelegramIcon /> },
-  { label: 'MAX', href: '', icon: <LogoMaxIcon /> },
-  { label: 'Push-уведомления', href: '/create/push', icon: <LogoCherryIcon /> }
-];
+import { MAILING_CHANNELS, ROUTES } from '@/routing/routes';
 
 export default function HeroSection() {
   const { isAuthorized } = useAuth();
+  const channelBadges = MAILING_CHANNELS.map((channel) => {
+    const Icon = channel.Icon;
+    return {
+      id: channel.id,
+      label: channel.heroLabel,
+      href: channel.href ?? '',
+      icon: <Icon />
+    };
+  });
+
   return (
     <Box as="section">
       <VStack
@@ -124,7 +122,7 @@ export default function HeroSection() {
             {channelBadges.map((item) => (
               <Badge
                 as={'a'}
-                key={item.label}
+                key={item.id}
                 px="11px"
                 py="5px"
                 borderRadius="99px"
@@ -159,7 +157,7 @@ export default function HeroSection() {
               lineHeight={'1.5em'}
               maxW={'400px'}
               px={5}
-              href="/login"
+              href={ROUTES.login}
             >
               Войти
             </CustomButton>
@@ -168,7 +166,7 @@ export default function HeroSection() {
             as={'a'}
             lineHeight={'1.5em'}
             maxW={'400px'}
-            href="/create/email"
+            href={ROUTES.createEmail}
             px={5}
           >
             Создать рассылку

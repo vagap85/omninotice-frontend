@@ -17,6 +17,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { getTemplates } from '@/api/templatesApi';
+import { ROUTES } from '@/routing/routes';
 import cherryIcon from '@/assets/icons/cherry.svg';
 import mailIcon from '@/assets/icons/mail.svg';
 import maxIcon from '@/assets/icons/max.svg';
@@ -92,7 +93,7 @@ const TemplatesPage: React.FC = () => {
   };
 
   const handleUseTemplate = (template: NotificationTemplate) => {
-    navigate(`/create/push?templateId=${template.id}`);
+    navigate(`${ROUTES.createPush}?templateId=${template.id}`);
   };
 
   const filteredTemplates = useMemo(() => {

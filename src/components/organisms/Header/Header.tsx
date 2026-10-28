@@ -13,6 +13,7 @@ import { useAuth } from '@/auth/AuthContext';
 import CustomButton from '@/components/atoms/Button/CustomButton';
 import ArrowRightIcon from '@/components/atoms/Icons/home/ArrowRightIcon';
 import LogoFigmaIcon from '@/components/atoms/Icons/home/LogoFigmaIcon';
+import { ROUTES } from '@/routing/routes';
 
 import Navigation from '../../molecules/Navigation/Navigation';
 import LogoutModal from '../Modals/LogoutModal';
@@ -94,7 +95,7 @@ export default function Header() {
               <Button
                 as="a"
                 variant="outline"
-                href="/login"
+                href={ROUTES.login}
                 fontSize={{
                   base: '12px',
                   md: 'sm'
@@ -115,7 +116,7 @@ export default function Header() {
 
             <Button
               as="a"
-              href="/create/email"
+              href={ROUTES.createEmail}
               rightIcon={
                 <ArrowRightIcon
                   width={iconSize}

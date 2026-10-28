@@ -6,17 +6,12 @@ import { useAuth } from '@/auth/AuthContext';
 import SpinnerLoader from '@/components/atoms/Loaders/SpinnerLoader/SpinnerLoader';
 import PageHeader from '@/components/molecules/PageHeader/PageHeader';
 import { Sidebar } from '@/components/organisms/Sidebar/Sidebar';
-
-const pageTitles: Record<string, string> = {
-  '/create/email': 'Создание e-mail рассылки',
-  '/create/push': 'Создание рассылки push-уведомлений',
-  '/create/telegram': 'Создание Telegram-рассылки',
-  '/overview': 'Обзор',
-  '/templates': 'Шаблоны рассылок'
-};
+import { PAGE_TITLES, ROUTES } from '@/routing/routes';
 
 function SidebarLayout() {
   const { pathname } = useLocation();
+  const normalizedPathname =
+    pathname.replace(/\/+$/, '') || ROUTES.home;
   const { isAuthorized } = useAuth();
 
   return (
@@ -32,7 +27,7 @@ function SidebarLayout() {
       >
         <PageHeader
           isAuthorized={isAuthorized}
-          title={pageTitles[pathname] ?? ''}
+          title={PAGE_TITLES[normalizedPathname] ?? ''}
         />
         <Box as="main" h={"full"}>
           <Suspense

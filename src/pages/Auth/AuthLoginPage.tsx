@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { loginUserCenter } from '@/api/userCenter';
+import { ROUTES } from '@/routing/routes';
 import authBg from '@/assets/background.jpg';
 import logo from '@/assets/logo.svg';
 import { useAuth } from '@/auth/AuthContext';
@@ -53,7 +54,9 @@ function AuthLoginPageInner() {
 
   const state = location.state as LocationState | null;
   const from = state?.from;
-  const redirectTo = from ? `${from.pathname}${from.search ?? ''}` : '/';
+  const redirectTo = from
+    ? `${from.pathname}${from.search ?? ''}`
+    : ROUTES.home;
 
   const handleSubmit = async () => {
     const store = registry.getOrCreateStore('login');
@@ -140,7 +143,7 @@ function AuthLoginPageInner() {
         color="#2D547B"
         fontWeight="500"
         fontSize="16px"
-        onClick={() => navigate('/')}
+        onClick={() => navigate(ROUTES.home)}
         position="absolute"
         zIndex={2}
         top={{ base: '24px', md: '80px' }}
@@ -202,7 +205,7 @@ function AuthLoginPageInner() {
                 color="#3B6EA0"
                 fontSize="16px"
                 fontWeight="500"
-                onClick={() => navigate('/registration')}
+                onClick={() => navigate(ROUTES.registration)}
                 _hover={{ textDecoration: 'none', color: '#2D547B' }}
               >
                 Нет аккаунта? Зарегистрируйтесь

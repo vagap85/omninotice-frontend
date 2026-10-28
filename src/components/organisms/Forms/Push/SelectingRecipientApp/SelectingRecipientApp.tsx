@@ -26,6 +26,7 @@ import { SelectedUsersProvider } from './Providers/SelectedUsers.provider';
 import SelectingRecipientAppProviderTest from './Providers/SelectingRecipientApp.provider';
 import BellRingIcon from '@/components/atoms/Icons/collections/Sigma/BellRingIcon';
 import { useNotification } from 'omni-notice-sigma-notification-widget';
+import { ROUTES } from '@/routing/routes';
 
 interface PanelContentProps {
   isAuthorized: boolean;
@@ -63,7 +64,7 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {add} = useNotification()
 
-  const onAuthClick = () => navigate('/login');
+  const onAuthClick = () => navigate(ROUTES.login);
 
   const recipientsCount =
     recipientsMode === 'all' ? (selectedApp?.count ?? 0) : selectedUsers.length;

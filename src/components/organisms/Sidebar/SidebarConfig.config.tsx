@@ -4,92 +4,47 @@ import { FiFileText, FiLink, FiMail } from 'react-icons/fi';
 import { GoHistory } from 'react-icons/go';
 import { LuSquareUser } from 'react-icons/lu';
 
-import LogoCherryIcon from '@/components/atoms/Icons/home/LogoCherryIcon';
-import LogoMailIcon from '@/components/atoms/Icons/home/LogoMailIcon';
-import LogoMaxIcon from '@/components/atoms/Icons/home/LogoMaxIcon';
-import LogoSmsIcon from '@/components/atoms/Icons/home/LogoSmsIcon';
-import LogoTelegramIcon from '@/components/atoms/Icons/home/LogoTelegramIcon';
 import {
   SidebarMenuEntry,
   SidebarMenuItemProps
 } from '@/components/molecules/types/sidebar';
+import { MAILING_CHANNELS, ROUTES } from '@/routing/routes';
 
 const SUB_MENU_ICON_SIZE = 20;
 const MENU_ICON_SIZE = 24;
 
-export const createMenuEntries: SidebarMenuEntry[] = [
-  {
-    label: 'Email',
-    icon: (
-      <LogoMailIcon
-        width={SUB_MENU_ICON_SIZE}
-        height={SUB_MENU_ICON_SIZE}
-      />
-    ),
-    href: '/create/email'
-  },
-  {
-    label: 'Push',
-    icon: (
-      <LogoCherryIcon
-        width={SUB_MENU_ICON_SIZE}
-        height={SUB_MENU_ICON_SIZE}
-      />
-    ),
-    href: '/create/push'
-  },
-  {
-    label: 'SMS',
-    icon: (
-      <LogoSmsIcon
-        width={SUB_MENU_ICON_SIZE}
-        height={SUB_MENU_ICON_SIZE}
-      />
-    ),
-    disabled: true
-  },
-  {
-    label: 'Telegram',
-    icon: (
-      <LogoTelegramIcon
-        width={SUB_MENU_ICON_SIZE}
-        height={SUB_MENU_ICON_SIZE}
-      />
-    ),
-    href: "/create/telegram"
-  },
-  {
-    label: 'Max',
-    icon: (
-      <LogoMaxIcon
-        width={SUB_MENU_ICON_SIZE}
-        height={SUB_MENU_ICON_SIZE}
-      />
-    ),
-    disabled: true
-  }
-];
+export const createMenuEntries: SidebarMenuEntry[] = MAILING_CHANNELS.map(
+  (channel) => {
+    const Icon = channel.Icon;
+    const entry: SidebarMenuEntry = {
+      label: channel.sidebarLabel,
+      icon: (
+        <Icon
+          width={SUB_MENU_ICON_SIZE}
+          height={SUB_MENU_ICON_SIZE}
+        />
+      ),
+      ...(channel.href ? { href: channel.href } : { disabled: true })
+    };
 
-export const mailingMenuEntries: SidebarMenuEntry[] = createMenuEntries.map(
-  (entry) =>
-    entry.label === 'Push'
+    return channel.id === 'push'
       ? {
           ...entry,
           submenuItems: [
             {
               label: 'Создать',
               icon: (
-                <LogoCherryIcon
+                <Icon
                   width={SUB_MENU_ICON_SIZE}
                   height={SUB_MENU_ICON_SIZE}
                 />
               ),
-              href: '/create/push'
+              href: channel.href
             },
             {
               label: 'История',
               icon: (
-                <LogoCherryIcon
+                <Icon
                   width={SUB_MENU_ICON_SIZE}
                   height={SUB_MENU_ICON_SIZE}
                 />
@@ -98,8 +53,11 @@ export const mailingMenuEntries: SidebarMenuEntry[] = createMenuEntries.map(
             }
           ]
         }
-      : entry
+      : entry;
+  }
 );
+
+export const mailingMenuEntries = createMenuEntries;
 
 export const sidebarMenuItems: SidebarMenuItemProps[] = [
   {
@@ -111,7 +69,7 @@ export const sidebarMenuItems: SidebarMenuItemProps[] = [
     ),
     text: 'Обзор',
     as: 'a',
-    href: '/overview'
+    href: ROUTES.overview
   },
   {
     leftIcon: (
@@ -159,7 +117,7 @@ export const sidebarMenuItems: SidebarMenuItemProps[] = [
     ),
     text: 'Шаблоны',
     as: 'a',
-    href: '/templates'
+    href: ROUTES.templates
   },
   {
     leftIcon: (
@@ -176,8 +134,8 @@ export const sidebarMenuItems: SidebarMenuItemProps[] = [
       />
     ),
     submenuItems: [
-      { label: 'Все ссылки', href: '/links' },
-      { label: 'Кампании', href: '/campaigns' }
+      { label: 'Все ссылки', href: ROUTES.links },
+      { label: 'Кампании', href: ROUTES.campaigns }
     ],
     submenuType: 'inside'
   }
