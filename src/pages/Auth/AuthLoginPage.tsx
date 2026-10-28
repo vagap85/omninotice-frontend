@@ -71,15 +71,7 @@ function AuthLoginPageInner() {
     try {
       const auth = await loginUserCenter(login.trim(), password);
 
-      // Глобальное состояние всего приложения обновляется здесь —
-      // любой компонент, подписанный на useAuth(), тут же увидит isAuthorized === true
-      setAuth({
-        accessToken: auth.accessToken,
-        tokenType: auth.tokenType,
-        login: auth.login,
-        firstName: auth.firstName,
-        lastName: auth.lastName
-      });
+      setAuth(auth);
 
       toast({
         position: 'bottom',

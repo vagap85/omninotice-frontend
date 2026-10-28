@@ -60,13 +60,7 @@ function AuthRegisterPageInner() {
       // аккаунт логинится напрямую через loginUserCenter — поведение не меняю по вашей просьбе.
       const auth = await loginUserCenter(login.trim(), password);
 
-      setAuth({
-        accessToken: auth.accessToken,
-        tokenType: auth.tokenType,
-        login: auth.login,
-        firstName: auth.firstName,
-        lastName: auth.lastName
-      });
+      setAuth(auth);
 
       toast({
         position: 'bottom',

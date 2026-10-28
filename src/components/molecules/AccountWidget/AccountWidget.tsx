@@ -14,44 +14,11 @@ import CustomButton from '@/components/atoms/Button/CustomButton';
 import UserIcon from '@/components/atoms/Icons/collections/Sigma/UserIcon';
 import LogoutModal from '@/components/organisms/Modals/LogoutModal';
 
-const getInitials = (
-  firstName?: string,
-  lastName?: string,
-  login?: string
-): string => {
-  const first = firstName?.trim();
-  const last = lastName?.trim();
-
-  if (first && last) {
-    return `${first[0]}${last[0]}`.toUpperCase();
-  }
-
-  if (first || last) {
-    const name = (first ?? last)!;
-    return name.slice(0, 2).toUpperCase();
-  }
-
-  if (login?.trim()) {
-    return login.trim().slice(0, 2).toUpperCase();
-  }
-
-  return '';
-};
-
 function AccountWidgetComponent() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { logout, authState } = useAuth();
-  const firstName = authState?.firstName ?? '';
-  const lastName = authState?.lastName ?? '';
-  const userName =
-    firstName || lastName
-      ? `${firstName} ${lastName}`.trim()
-      : authState?.login;
-  const initials = getInitials(
-    authState?.firstName,
-    authState?.lastName,
-    authState?.login
-  );
+  const userName = authState?.login;
+  const initials = userName?.trim().slice(0, 2).toUpperCase() ?? '';
   return (
     <>
       <HStack

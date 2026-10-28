@@ -23,8 +23,8 @@ describe('userCenter API', () => {
         data: [
           {
             auth_data: { access_token: 'token123', token_type: 'bearer' },
-            user_data: { login: 'user@mail.com' },
-            profile_data: { first_name: 'Иван', last_name: 'Иванов' }
+            user_data: { user_id: 'user-123', login: 'user@mail.com' },
+            organization_data: { account_id: 'account-123' }
           }
         ]
       })
@@ -33,10 +33,9 @@ describe('userCenter API', () => {
     const result = await loginUserCenter('user@mail.com', 'pass');
 
     expect(result.accessToken).toBe('token123');
-    expect(result.tokenType).toBe('bearer');
+    expect(result.userId).toBe('user-123');
     expect(result.login).toBe('user@mail.com');
-    expect(result.firstName).toBe('Иван');
-    expect(result.lastName).toBe('Иванов');
+    expect(result.accountId).toBe('account-123');
   });
 
   test('бросает "Неверный логин или пароль" при 401', async () => {
@@ -57,6 +56,25 @@ describe('userCenter API', () => {
       json: async () => ({ data: [{}] })
     });
 
+    test('бросает ошибку если в ответе нет user_id или account_id', async () => {
+      (fetch as Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          data: [
+            {
+              auth_data: { access_token: 'token123' },
+              user_data: { login: 'user@mail.com' },
+              organization_data: {}
+            }
+          ]
+        })
+      });
+
+      await expect(loginUserCenter('user@mail.com', 'pass')).rejects.toThrow(
+        'UserCenter не вернул user_id'
+      );
+    });
+
     await expect(loginUserCenter('user@mail.com', 'pass')).rejects.toThrow(
       'UserCenter не вернул access_token'
     );
@@ -66,7 +84,13 @@ describe('userCenter API', () => {
     (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        data: [{ auth_data: { access_token: 'token123' } }]
+        data: [
+          {
+            auth_data: { access_token: 'token123' },
+            user_data: { user_id: 'user-123', login: 'user@mail.com' },
+            organization_data: { account_id: 'account-123' }
+          }
+        ]
       })
     });
 

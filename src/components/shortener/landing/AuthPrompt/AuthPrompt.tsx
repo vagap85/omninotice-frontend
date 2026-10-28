@@ -21,8 +21,8 @@ function AuthPrompt() {
     const projectId =
       (import.meta.env.VITE_SHORTENER_PROJECT_ID as string) || '';
 
-    if (authState?.accessToken && projectId) {
-      void claimAllGuestShortcuts(authState.accessToken, projectId);
+    if (authState && projectId) {
+      void claimAllGuestShortcuts(projectId);
     }
 
     navigate(target);

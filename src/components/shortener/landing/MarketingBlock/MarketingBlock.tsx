@@ -47,9 +47,9 @@ export function MarketingBlock() {
     const projectId =
       (import.meta.env.VITE_SHORTENER_PROJECT_ID as string) || '';
 
-    if (!authState?.accessToken || !projectId) return;
+    if (!authState || !projectId) return;
 
-    void claimAllGuestShortcuts(authState.accessToken, projectId);
+    void claimAllGuestShortcuts(projectId);
   };
 
   return (

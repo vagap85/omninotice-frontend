@@ -84,10 +84,9 @@ describe('AuthLoginPage', () => {
     const user = userEvent.setup();
     (loginUserCenter as Mock).mockResolvedValueOnce({
       accessToken: 'token123',
-      tokenType: 'bearer',
+      userId: 'user-123',
       login: 'user@mail.com',
-      firstName: 'Иван',
-      lastName: 'Иванов'
+      accountId: 'account-123'
     });
 
     renderWithProviders(<AuthLoginPage />);

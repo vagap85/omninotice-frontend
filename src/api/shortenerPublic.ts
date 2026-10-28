@@ -1,4 +1,5 @@
 import type { LinkData, UrlSafetyData, QrCodeData } from '@/types/shortener';
+import { getAccessTokenCookie } from '@/auth/authCookies';
 
 const API_BASE_URL = import.meta.env.VITE_SHORTENER_API_URL || 'http://localhost:8000';
 
@@ -106,9 +107,13 @@ export const getQrCode = async (shortcutCode: string): Promise<QrCodeData> => {
 // POST /shortcut/{code}/claim — закрепить гостевую ссылку после авторизации
 export const claimShortcut = async (
   shortcutCode: string,
-  projectId: string,
-  accessToken: string,
+  projectId: string
 ): Promise<void> => {
+  const accessToken = getAccessTokenCookie();
+  if (!accessToken) {
+    throw new Error('Токен авторизации отсутствует');
+  }
+
   const response = await fetch(
     `${API_BASE_URL}/shortcut/${shortcutCode}/claim`,
     {
