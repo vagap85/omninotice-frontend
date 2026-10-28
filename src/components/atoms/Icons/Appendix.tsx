@@ -1,0 +1,20 @@
+import { IconProps } from "../types/types";
+
+export default function Appendix({width = 7, height = 17, color = "white"}: IconProps) {
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 7 17"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1.0002 17H7.0002V0C6.8072 2.84 6.1242 5.767 4.9502 8.782C4.0462 11.107 2.5042 13.267 0.3252 15.262C0.176414 15.398 0.0722226 15.5759 0.0262945 15.7722C-0.0196335 15.9685 -0.00515358 16.1741 0.0678347 16.362C0.140823 16.55 0.268911 16.7114 0.435296 16.8253C0.601681 16.9391 0.798593 17 1.0002 17Z"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        fill={color}
+      />
+    </svg>
+  );
+}

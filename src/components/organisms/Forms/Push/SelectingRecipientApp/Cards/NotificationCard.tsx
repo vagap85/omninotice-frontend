@@ -1,9 +1,8 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
 
 import CloseIcon from '@/components/atoms/Icons/CloseIcon';
-import { useFormValues } from '@/components/molecules/Form/hooks/useFormValues';
+import { usePushNotification } from '@/components/organisms/Forms/Push/Contexts/PushNotificationContext';
 
-import type { PushNotificationFormValues } from '../../types/types';
 import type { SelectedApp } from '../types/types';
 
 export default function NotificationCard({
@@ -11,7 +10,7 @@ export default function NotificationCard({
 }: {
   selectedApp: SelectedApp;
 }) {
-  const values = useFormValues<PushNotificationFormValues>('pushNotification');
+  const values = usePushNotification();
   const SelectedIcon = selectedApp.icon.Icon;
 
   const title = values.title || 'Заголовок уведомления';
@@ -21,7 +20,7 @@ export default function NotificationCard({
     values.variableValues || {}
   );
 
-  const buttonText = values.buttonText || 'Текст кнопки';
+  const buttonText = values.buttonText;
 
   return (
     <Box
@@ -76,20 +75,21 @@ export default function NotificationCard({
           >
             {interpolatedText}
           </Text>
-
-          <Box
-            bg={'#487BFE'}
-            py={2}
-            px={4}
-            lineHeight={'20px'}
-            fontSize={'14px'}
-            color={'white'}
-            borderRadius={8}
-            maxW={'fit-content'}
-            mt={3}
-          >
-            {buttonText}
-          </Box>
+          {buttonText && (
+            <Box
+              bg={'#487BFE'}
+              py={2}
+              px={4}
+              lineHeight={'20px'}
+              fontSize={'14px'}
+              color={'white'}
+              borderRadius={8}
+              maxW={'fit-content'}
+              mt={3}
+            >
+              {buttonText}
+            </Box>
+          )}
         </Box>
       </Flex>
       <Flex

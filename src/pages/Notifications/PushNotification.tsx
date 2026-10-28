@@ -13,7 +13,7 @@ import { OnboardingTour } from '@/components/molecules/OnboardingTour/OnboaringT
 import { IncludeServices } from '@/components/molecules/IncludeServices/IncludeServices';
 import ActionFields from '@/components/organisms/Forms/Push/ActionFields';
 import NotificationContentFields from '@/components/organisms/Forms/Push/NotificationContentFields';
-import PushDraftUrlSync from '@/components/organisms/Forms/Push/PushDraftUrlSync';
+import { PushNotificationProvider } from '@/components/organisms/Forms/Push/Providers/PushNotificationProvider';
 import SelectingRecipientApp from '@/components/organisms/Forms/Push/SelectingRecipientApp/SelectingRecipientApp';
 import '@/lib/notification-widget/notification-widget.css';
 
@@ -72,32 +72,33 @@ function PushCreateNotificatonInner({
       }}
     >
       <FormProvider formId="pushNotification">
-        <PushDraftUrlSync />
-        <NotificationLayout
-          sidebar={<SelectingRecipientApp isAuthorized={isAuthorized} />}
-        >
-          <Flex
-            as="form"
-            direction="column"
-            gap={5}
-            flex="1"
-            p="clamp(12px, 1.7vw + 0.125rem, 24px)"
-            maxW="900px"
-            mx="auto"
+        <PushNotificationProvider>
+          <NotificationLayout
+            sidebar={<SelectingRecipientApp isAuthorized={isAuthorized} />}
           >
-            <IncludeServices />
-            <Box data-tour="notification-text">
-              <NotificationContentFields
-                key={templateId}
-                formId="pushNotification"
-              />
-            </Box>
+            <Flex
+              as="form"
+              direction="column"
+              gap={5}
+              flex="1"
+              p="clamp(12px, 1.7vw + 0.125rem, 24px)"
+              maxW="900px"
+              mx="auto"
+            >
+              <IncludeServices />
+              <Box data-tour="notification-text">
+                <NotificationContentFields
+                  key={templateId}
+                  formId="pushNotification"
+                />
+              </Box>
 
-            <Box data-tour="action-block">
-              <ActionFields />
-            </Box>
-          </Flex>
-        </NotificationLayout>
+              <Box data-tour="action-block">
+                <ActionFields />
+              </Box>
+            </Flex>
+          </NotificationLayout>
+        </PushNotificationProvider>
 
         {!isTourOpen && (
           <Portal>

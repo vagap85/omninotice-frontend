@@ -10,6 +10,7 @@ import RecipientsModeSelect from '../../Push/SelectingRecipientApp/Selects/Recip
 import type { RecipientsMode } from '../../Push/SelectingRecipientApp/types/types';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
 import { ROUTES } from '@/routing/routes';
+import TelegramNotificationCard from '../Cards/NotificationCard';
 
 const BOTS = [
   {
@@ -94,6 +95,15 @@ export default function SelectingBot() {
           }}
           isDisabled={selectedBot == null}
         />
+        <Flex flexDirection={'column'} gap={1.5}>
+          <Text
+            fontSize="lg"
+            color="#12233F"
+          >
+            Как получатель увидит сообщение
+          </Text>
+          <TelegramNotificationCard />
+        </Flex>
         <FormSubmitButton
           formIds={['telegramNotification']}
           beforeSubmitValidate={validateTelegramSettings}

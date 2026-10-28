@@ -117,3 +117,8 @@ export interface PushNotificationFormValues {
   buttonText: string;
   buttonLink: string;
 }
+
+export interface TelegramNotificationCardProps {
+  message?: string;
+  buttonText?: string;
+}
