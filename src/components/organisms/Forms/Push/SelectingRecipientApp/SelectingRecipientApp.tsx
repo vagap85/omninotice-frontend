@@ -69,9 +69,18 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
     recipientsMode === 'all' ? (selectedApp?.count ?? 0) : selectedUsers.length;
 
   const formValues = useFormValues<
-    PushNotificationFormValues & { _isContentValid: boolean }
+    PushNotificationFormValues & {
+      variableValues?: Record<string, string>;
+    }
   >('pushNotification');
-  const isContentValid = formValues._isContentValid === true;
+  const contentText = formValues.text || '';
+  const variables = contentText.match(/\{\{([^}]+)\}\}/g) || [];
+  const allVariablesFilled = variables.every((variable) =>
+    formValues.variableValues?.[variable.slice(2, -2)]?.trim()
+  );
+  const isContentValid = Boolean(
+    formValues.title?.trim() && contentText.trim() && allVariablesFilled
+  );
 
   const validateExtraFields = (): boolean => {
     setAppError(null);

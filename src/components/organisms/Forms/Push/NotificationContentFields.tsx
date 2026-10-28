@@ -55,17 +55,13 @@ export function NotificationContentFields({
     );
   }, [variables, variableValues]);
 
-  const isContentValid =
-    title.trim().length > 0 && text.trim().length > 0 && allVariablesFilled;
-
   useEffect(() => {
     if (store) {
       store.setValue('title', title);
       store.setValue('text', text);
       store.setValue('variableValues', variableValues);
-      store.setValue('_isContentValid', isContentValid);
     }
-  }, [title, text, variableValues, isContentValid, store]);
+  }, [title, text, variableValues, store]);
 
   const handleTemplateSelect = (template: NotificationTemplate | null) => {
     setSelectedTemplate(template);
