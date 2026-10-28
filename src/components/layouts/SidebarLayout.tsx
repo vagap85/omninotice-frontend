@@ -11,7 +11,9 @@ const pageTitles: Record<string, string> = {
   '/create/email': 'Создание e-mail рассылки',
   '/create/push': 'Создание рассылки push-уведомлений',
   '/overview': 'Обзор',
-  '/templates': 'Шаблоны рассылок'
+  '/templates': 'Шаблоны рассылок',
+  '/profile': 'Настройка профиля',
+  '/dashboard/profile': 'Настройка профиля'
 };
 
 function SidebarLayout() {

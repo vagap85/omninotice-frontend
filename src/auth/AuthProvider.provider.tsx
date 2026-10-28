@@ -39,6 +39,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthState(null);
   }, []);
 
+  const updateUser = useCallback((partial: Partial<AuthState>) => {
+    setAuthState((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, ...partial };
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   // Синхронизация между вкладками: срабатывает только в ДРУГИХ вкладках,
   // не в той, где произошло изменение (таково поведение window 'storage' по спецификации) —
   // поэтому login/logout выше обновляют текущую вкладку напрямую через setAuthState,
@@ -58,9 +67,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authState,
       isAuthorized: Boolean(authState?.accessToken),
       login,
-      logout
+      logout,
+      updateUser
     }),
-    [authState, login, logout]
+    [authState, login, logout, updateUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

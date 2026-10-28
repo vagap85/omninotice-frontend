@@ -11,4 +11,5 @@ export interface AuthContextValue {
   isAuthorized: boolean;
   login: (auth: AuthState) => void;
   logout: () => void;
+  updateUser: (partial: Partial<AuthState>) => void;
 }

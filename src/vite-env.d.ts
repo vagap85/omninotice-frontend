@@ -7,6 +7,7 @@ interface ImportMetaEnv {
   readonly VITE_SYNORA_PROJECT_ID?: string;
   readonly VITE_USERCENTER_BASE_URL?: string;
   readonly VITE_USERCENTER_PROJECT_ID?: string;
+  readonly VITE_BASIS_CFG_BASE_URL?: string;
 }
 
 interface ImportMeta {
