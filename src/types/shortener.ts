@@ -207,3 +207,5 @@ export interface ValidationResult {
   type: 'empty' | 'invalid' | 'blocked' | 'suspicious' | '';
   url?: string;
 }
+
+export * from './profile';

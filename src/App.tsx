@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react';
 import { useEffect, lazy, Suspense, ComponentType } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 
 import SpinnerLoader from './components/atoms/Loaders/SpinnerLoader/SpinnerLoader';
 import SidebarLayout from './components/layouts/SidebarLayout';
@@ -47,6 +47,9 @@ const CampaignsPage = lazyWithMinDelay(
 const LinksLandingPage = lazyWithMinDelay(
   () => import('@/pages/Shortener/LinksLandingPage/LinksLandingPage')
 );
+const ProfilePage = lazyWithMinDelay(
+  () => import('@/pages/ProfilePage/ProfilePage')
+);
 
 function App() {
   useEffect(() => registerClearMailingDraftBeforeUnload(), []);
@@ -84,6 +87,10 @@ function App() {
               path="/create/push"
               element={<PushNotification />}
             />
+            <Route
+              path="/profile"
+              element={<ProfilePage />}
+            />
           </Route>
           <Route
             path="/overview"
@@ -104,6 +111,10 @@ function App() {
           <Route
             path="/campaigns"
             element={<CampaignsPage />}
+          />
+          <Route
+            path="/dashboard/profile"
+            element={<Navigate to="/profile" replace />}
           />
         </Route>
         <Route

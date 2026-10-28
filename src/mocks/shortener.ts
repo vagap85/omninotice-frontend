@@ -1,4 +1,4 @@
-import type { LinkRow, CampaignRow } from '@/types/shortener';
+import type { LinkRow, CampaignRow, UserProfile } from '@/types/shortener';
 
 // --- LinksRegistryPage ---
 
@@ -248,3 +248,16 @@ export const mockCampaigns: CampaignRow[] = [
     tags: [],
   },
 ];
+
+// ─── ProfilePage ─────────────────────────────────────────────────────────────
+
+// Демо-данные профиля, соответствующие макетам «Панель управления/Настройка профиля».
+// firstName подставляется из сессии, остальные поля приходят с мок-бэкенда.
+export const mockProfileData: Pick<
+  UserProfile,
+  'lastName' | 'phone' | 'position'
+> = {
+  lastName: 'Иванов',
+  phone: '+7 999 777-33-11',
+  position: 'Маркетолог',
+};
