@@ -143,7 +143,7 @@ export default function ProfilePage() {
     'loading'
   );
 
-  const initialEmail = authState?.login || 'mail@mail.ru';
+  const accountEmail = authState?.login || 'mail@mail.ru';
   const initialFirstName =
     authState?.firstName ||
     (authState?.login?.includes('@')
@@ -155,11 +155,11 @@ export default function ProfilePage() {
     () => ({
       firstName: initialFirstName,
       lastName: initialLastName,
-      email: initialEmail,
+      email: accountEmail,
       phone: '+7 999 777-33-11',
       position: 'Маркетолог'
     }),
-    [initialEmail, initialFirstName, initialLastName]
+    [accountEmail, initialFirstName, initialLastName]
   );
 
   const [form, setForm] = useState<UserProfile>(() => preLoadProfile);
@@ -316,8 +316,7 @@ export default function ProfilePage() {
       setForm(payload);
       updateUser?.({
         firstName: payload.firstName,
-        lastName: payload.lastName,
-        login: payload.email
+        lastName: payload.lastName
       });
       setBanner({ text: 'Изменения успешно сохранены' });
     } catch (e) {
@@ -600,7 +599,7 @@ export default function ProfilePage() {
             <p className="profile-page__section-desc">
               Смена пароля учетной записи{' '}
               <strong className="profile-page__security-email">
-                {form.email || loaded?.email || 'mail@mail.ru'}
+                {accountEmail}
               </strong>
             </p>
             <div className="profile-page__grid">

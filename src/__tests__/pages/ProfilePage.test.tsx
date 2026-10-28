@@ -80,4 +80,24 @@ describe('ProfilePage', () => {
       await screen.findByText('Пароль должен содержать минимум 8 символов')
     ).toBeInTheDocument();
   });
+
+  test('изменение рабочего e-mail не меняет e-mail учетной записи в секции безопасности', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<ProfilePage />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Рабочий e-?mail/i)).not.toBeDisabled();
+    });
+
+    const securityEmail = screen.getByText('ivan@example.com');
+    expect(securityEmail).toHaveClass('profile-page__security-email');
+
+    const emailInput = screen.getByLabelText(/Рабочий e-?mail/i);
+    await user.clear(emailInput);
+    await user.type(emailInput, 'newwork@corporate.ru');
+
+    expect(screen.getByText('ivan@example.com')).toHaveClass(
+      'profile-page__security-email'
+    );
+  });
 });
