@@ -49,6 +49,10 @@ export function getAccessTokenCookie(): string | null {
   return readCookie(COOKIE_NAMES.accessToken);
 }
 
+export function getAccountIdCookie(): string | null {
+  return readCookie(COOKIE_NAMES.accountId);
+}
+
 export function clearAuthCookies(): void {
   Object.values(COOKIE_NAMES).forEach(clearCookie);
 }

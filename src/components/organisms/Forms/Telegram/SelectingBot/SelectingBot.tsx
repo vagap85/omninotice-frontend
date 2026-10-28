@@ -1,16 +1,31 @@
 import { Box, Button, Flex, Text, useToast } from '@chakra-ui/react';
+import type { JSONContent } from '@tiptap/core';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import {
+  DispatchError,
+  dispatchNotification
+} from '@/api/vishenka';
+import { useAuth } from '@/auth/AuthContext';
 import ArrowRightIcon from '@/components/atoms/Icons/home/ArrowRightIcon';
 import DropdownSelect from '@/components/molecules/DropdownSelect/DropdownSelect';
 import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
 import RightSidebar from '@/components/molecules/RightSidebar/RightSidebar';
+import { telegramMessageJsonToHtml } from '@/components/molecules/helpers/telegramMessageFormat';
 import RecipientsModeSelect from '../../Push/SelectingRecipientApp/Selects/RecipientsModeSelect';
 import type { RecipientsMode } from '../../Push/SelectingRecipientApp/types/types';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
 import { ROUTES } from '@/routing/routes';
 import TelegramNotificationCard from '../Cards/NotificationCard';
+
+const isTelegramMessage = (value: unknown): value is JSONContent =>
+  Boolean(
+    value &&
+    typeof value === 'object' &&
+    'type' in value &&
+    value.type === 'doc'
+  );
 
 const BOTS = [
   {
@@ -23,17 +38,55 @@ const BOTS = [
 export default function SelectingBot() {
   const navigate = useNavigate();
   const toast = useToast();
+  const { isAuthorized } = useAuth();
   const [selectedBot, setSelectedBot] = useState<string | null>(null);
   const [recipientsMode, setRecipientsMode] = useState<RecipientsMode>('all');
   const [selectionError, setSelectionError] = useState<string | null>(null);
 
-  const handleSubmit = () => {
-    toast({
-      status: 'warning',
-      title: 'Отправка Telegram пока недоступна',
-      description:
-        'Для отправки необходимо подключить API и сохранить delegated token при авторизации.'
-    });
+  const handleSubmit = async (values: Record<string, unknown>) => {
+    const buttonText =
+      typeof values.buttonText === 'string' ? values.buttonText.trim() : '';
+    const buttonLink =
+      typeof values.buttonLink === 'string' ? values.buttonLink.trim() : '';
+
+    try {
+      if (!selectedBot || !isTelegramMessage(values.message)) {
+        throw new Error('Не удалось подготовить Telegram-рассылку к отправке.');
+      }
+
+      await dispatchNotification({
+        application_id: selectedBot,
+        channels: ['tg'],
+        title: typeof values.title === 'string' ? values.title : '',
+        body: telegramMessageJsonToHtml(values.message),
+        recipients: ['6627213813'], //! ЭТО ЧАТ В ТГ С ТЕСТОВЫМ БОТОМ ОТ @davohakk
+        ...(buttonText && buttonLink
+          ? {
+              action: {
+                name: buttonText,
+                url: buttonLink
+              }
+            }
+          : {})
+      });
+
+      toast({
+        status: 'success',
+        title: 'Telegram-рассылка отправлена'
+      });
+    } catch (error) {
+      const description =
+        error instanceof DispatchError
+          ? (JSON.stringify(error.detail) ?? error.message)
+          : error instanceof Error
+            ? error.message
+            : 'Неизвестная ошибка отправки.';
+      toast({
+        status: 'error',
+        title: 'Не удалось отправить Telegram-рассылку',
+        description
+      });
+    }
   };
 
   const validateTelegramSettings = () => {
@@ -95,7 +148,10 @@ export default function SelectingBot() {
           }}
           isDisabled={selectedBot == null}
         />
-        <Flex flexDirection={'column'} gap={1.5}>
+        <Flex
+          flexDirection={'column'}
+          gap={1.5}
+        >
           <Text
             fontSize="lg"
             color="#12233F"
@@ -108,6 +164,8 @@ export default function SelectingBot() {
           formIds={['telegramNotification']}
           beforeSubmitValidate={validateTelegramSettings}
           onSubmit={handleSubmit}
+          isAuthorized={isAuthorized}
+          onUnauthorized={() => navigate(ROUTES.login)}
           ml={'auto'}
           rightIcon={<ArrowForwardIcon />}
         >

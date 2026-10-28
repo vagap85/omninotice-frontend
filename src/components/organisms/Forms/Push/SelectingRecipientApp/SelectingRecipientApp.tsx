@@ -4,9 +4,9 @@ import { memo } from 'react';
 import type { ComponentType } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  createDispatch,
+  dispatchNotification,
   DispatchError,
-  generateRequestId
+  ALL_RECIPIENTS_FALLBACK_ID
 } from '@/api/vishenka';
 import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
@@ -47,9 +47,7 @@ function SelectingRecipientApp({ isAuthorized }: PanelContentProps) {
   return (
     <SelectingRecipientAppProviderTest>
       <SelectedUsersProvider>
-        <PanelContentInner
-          isAuthorized={isAuthorized}
-        />
+        <PanelContentInner isAuthorized={isAuthorized} />
       </SelectedUsersProvider>
     </SelectingRecipientAppProviderTest>
   );
@@ -62,7 +60,7 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
     useSelectingRecipientApp();
   const { selectedUsers } = useSelectedUsers();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const {add} = useNotification()
+  const { add } = useNotification();
 
   const onAuthClick = () => navigate(ROUTES.login);
 
@@ -159,17 +157,24 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
 
         localStorage.setItem('onboarding_real_send', 'true');
       } else {
-        const response = await createDispatch({
-          request_id: generateRequestId(),
+        const response = await dispatchNotification({
           application_id: app?.id ?? 'sigma',
-          channel: 'popup',
+          channels: ['in_app'],
           title: payload.title,
           body: payload.text,
-          audience_type: payload.recipientsMode === 'all' ? 'all' : 'selected',
-          recipient_ids:
+          recipients:
             payload.recipientsMode === 'individual'
               ? (payload.selectedUsers?.map((u) => u.id) ?? [])
-              : []
+              : [ALL_RECIPIENTS_FALLBACK_ID],
+          ...(payload.buttonText.trim() && payload.buttonLink.trim()
+            ? {
+                action: {
+                  title: payload.buttonText,
+                  url: payload.buttonLink,
+                  type: 'button' as const
+                }
+              }
+            : {})
         });
         console.log('Push отправлен:', response.detail.code);
         localStorage.setItem('onboarding_real_send', 'true');

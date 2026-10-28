@@ -1,10 +1,20 @@
-import { type Mock, describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  type Mock,
+  describe,
+  test,
+  expect,
+  vi,
+  beforeEach,
+  afterEach
+} from 'vitest';
 
 import {
   createDispatch,
+  dispatchNotification,
   DispatchError,
   generateRequestId
 } from '@/api/vishenka';
+import { clearAuthCookies, saveAuthCookies } from '@/auth/authCookies';
 
 describe('createDispatch (Vishenka API)', () => {
   beforeEach(() => {
@@ -13,6 +23,7 @@ describe('createDispatch (Vishenka API)', () => {
   });
 
   afterEach(() => {
+    clearAuthCookies();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
@@ -44,12 +55,14 @@ describe('createDispatch (Vishenka API)', () => {
 
     const result = await createDispatch({
       request_id: 'uuid-1',
+      delegated_token: 'test-token',
+      account_id: 'account-1',
       application_id: 'sigma',
-      channel: 'popup',
+      channels: ['in_app'],
       title: 'Тест',
       body: 'Текст',
-      audience_type: 'selected',
-      recipient_ids: ['uuid-3']
+      recipients: ['uuid-3'],
+      created_at: '2026-09-19T10:00:00Z'
     });
 
     expect(result.detail.code).toBe('OK');
@@ -78,12 +91,14 @@ describe('createDispatch (Vishenka API)', () => {
 
     const result = await createDispatch({
       request_id: 'uuid-1',
+      delegated_token: 'test-token',
+      account_id: 'account-1',
       application_id: 'sigma',
-      channel: 'popup',
+      channels: ['in_app'],
       title: 'Тест',
       body: 'Текст',
-      audience_type: 'all',
-      recipient_ids: []
+      recipients: [],
+      created_at: '2026-09-19T10:00:00Z'
     });
 
     expect(result.detail.code).toBe('ALREADY_APPLIED');
@@ -95,19 +110,21 @@ describe('createDispatch (Vishenka API)', () => {
       ok: false,
       status: 422,
       json: async () => ({
-        detail: [{ loc: ['body', 'recipient_ids'], msg: 'Обязательно' }]
+        detail: [{ loc: ['body', 'recipients'], msg: 'Обязательно' }]
       })
     });
 
     await expect(
       createDispatch({
         request_id: 'uuid-1',
+        delegated_token: 'test-token',
+        account_id: 'account-1',
         application_id: 'sigma',
-        channel: 'popup',
+        channels: ['in_app'],
         title: 'Тест',
         body: 'Текст',
-        audience_type: 'selected',
-        recipient_ids: []
+        recipients: [],
+        created_at: '2026-09-19T10:00:00Z'
       })
     ).rejects.toThrow(DispatchError);
   });
@@ -123,12 +140,14 @@ describe('createDispatch (Vishenka API)', () => {
 
     const error = await createDispatch({
       request_id: 'uuid-1',
+      delegated_token: 'test-token',
+      account_id: 'account-1',
       application_id: 'sigma',
-      channel: 'popup',
+      channels: ['in_app'],
       title: 'Тест',
       body: 'Текст',
-      audience_type: 'all',
-      recipient_ids: []
+      recipients: [],
+      created_at: '2026-09-19T10:00:00Z'
     }).catch((e) => e);
 
     expect(error).toBeInstanceOf(DispatchError);
@@ -149,12 +168,14 @@ describe('createDispatch (Vishenka API)', () => {
 
     const payload = {
       request_id: 'uuid-1',
+      delegated_token: 'test-token',
+      account_id: 'account-1',
       application_id: 'sigma',
-      channel: 'popup' as const,
+      channels: ['in_app'],
       title: 'Тест',
       body: 'Текст',
-      audience_type: 'selected' as const,
-      recipient_ids: ['uuid-3']
+      recipients: ['uuid-3'],
+      created_at: '2026-09-19T10:00:00Z'
     };
 
     await createDispatch(payload);
@@ -166,6 +187,49 @@ describe('createDispatch (Vishenka API)', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
+    );
+  });
+
+  test('dispatchNotification adds auth and generated metadata to the payload', async () => {
+    saveAuthCookies({
+      userId: 'user-1',
+      login: 'user@example.com',
+      accountId: 'account-1',
+      accessToken: 'delegated-token'
+    });
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: async () => ({
+        detail: { code: 'OK' },
+        data: [],
+        info: { api_version: '2.8.0' }
+      })
+    });
+
+    await dispatchNotification({
+      application_id: 'cloveri-start',
+      channels: ['tg'],
+      title: 'Telegram',
+      body: '<b>Message</b>',
+      recipients: ['recipient-1']
+    });
+
+    const requestBody = JSON.parse((fetch as Mock).mock.calls[0][1].body);
+    expect(requestBody).toMatchObject({
+      delegated_token: 'delegated-token',
+      account_id: 'account-1',
+      application_id: 'cloveri-start',
+      channels: ['tg'],
+      title: 'Telegram',
+      body: '<b>Message</b>',
+      recipients: ['recipient-1']
+    });
+    expect(requestBody.request_id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    );
+    expect(new Date(requestBody.created_at).toISOString()).toBe(
+      requestBody.created_at
     );
   });
 });

@@ -21,7 +21,22 @@ const DEFAULT_APPS: SelectingApp[] = [
       title: 'Стандартная иконка Omni Notice',
       description: 'Если не выбрать другую, получатель увидит эту'
     }
-  }
+  },
+  {
+    id: 'focus',
+    name: 'Фокус',
+    count: 1,
+    isActive: true,
+    platform: 'Focus',
+    iconColor: '#487BFE',
+    bgIconColor: '#D1DEFF',
+    standartIcon: {
+      id: 'focus',
+      Icon: BellRingIcon,
+      title: 'Стандартная иконка Omni Notice',
+      description: 'Если не выбрать другую, получатель увидит эту'
+    }
+  },
 ];
 
 export default function AppSelect({
