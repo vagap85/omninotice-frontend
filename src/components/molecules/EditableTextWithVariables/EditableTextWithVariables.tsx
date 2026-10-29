@@ -24,7 +24,7 @@ function EditableTextWithVariables({
   // Подсчет длины текста С УЧЕТОМ значений переменных
   const currentLength = text.replace(
     /\{\{([^}]+)\}\}/g,
-    (match, variableName) => {
+    (_, variableName) => {
       const value = variableValues[variableName] || '';
       return value;
     }
@@ -139,7 +139,7 @@ function EditableTextWithVariables({
 
     const newLength = fullText.replace(
       /\{\{([^}]+)\}\}/g,
-      (match, variableName) => {
+      (_, variableName) => {
         const value = variableValues[variableName] || '';
         return value;
       }

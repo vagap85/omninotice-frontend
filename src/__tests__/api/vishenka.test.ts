@@ -12,7 +12,8 @@ import {
   createDispatch,
   dispatchNotification,
   DispatchError,
-  generateRequestId
+  generateRequestId,
+  type DispatchRequest
 } from '@/api/vishenka';
 import { clearAuthCookies, saveAuthCookies } from '@/auth/authCookies';
 
@@ -166,7 +167,7 @@ describe('createDispatch (Vishenka API)', () => {
       })
     });
 
-    const payload = {
+    const payload: DispatchRequest = {
       request_id: 'uuid-1',
       delegated_token: 'test-token',
       account_id: 'account-1',
