@@ -20,11 +20,11 @@ export default function NotificationLayout({
       <Flex
         flex="1"
         minW={0}
-        flexDirection={{ base: 'column', notification: 'row' }}
-        justifyContent="space-between"
+        flexDirection={{ base: 'column', laptop: 'row' }}
+        justifyContent={{base: "unset", laptop: "space-between"}}
       >
         <Box
-          flex="1"
+          flex={{base: "unset", laptop: "1"}}
           minW={0}
         >
           {children}
@@ -32,17 +32,17 @@ export default function NotificationLayout({
         <Box
           w={{
             base: 'auto',
-            notification: '360px',
+            laptop: '360px',
             xxl: '29.17vw'
           }}
           flexShrink={0}
           mx={{
             base: 'clamp(12px, 1.7vw + 0.125rem, 24px)',
-            notification: 0
+            laptop: 0
           }}
           mb={{
             base: 'clamp(12px, 1.7vw + 0.125rem, 24px)',
-            notification: 0
+            laptop: 0
           }}
         >
           {sidebar}

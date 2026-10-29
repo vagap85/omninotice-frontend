@@ -18,5 +18,13 @@ export const sendMessages: Record<SendVariant, SendMessages> = {
       title: 'Рассылка успешно отправлена',
       description: `Уведомление отправлено ${count} получателям`
     })
+  },
+  telegram: {
+    confirmMessage: (count) =>
+      `Отправить ${count} ${pluralize(count, ['сообщение', 'сообщения', 'сообщений'])}?`,
+    successMessage: (count) => ({
+      title: 'Рассылка успешно отправлена',
+      description: `Мы отправили ${count} ${pluralize(count, ['сообщение', 'сообщения', 'сообщений'])}`
+    })
   }
 };

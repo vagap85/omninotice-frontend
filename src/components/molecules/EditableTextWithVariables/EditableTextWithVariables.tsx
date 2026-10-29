@@ -106,7 +106,7 @@ function EditableTextWithVariables({
 
     const finalLength = fullText.replace(
       /\{\{([^}]+)\}\}/g,
-      (match, variableName) => {
+      (_, variableName) => {
         const value = variableValues[variableName] || '';
         return value;
       }

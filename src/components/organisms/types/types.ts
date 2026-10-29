@@ -85,7 +85,7 @@ export interface RecipientsPanelProps {
   onSend: (validEmails: string[]) => Promise<void>;
 }
 
-export type SendVariant = 'email' | 'push';
+export type SendVariant = 'email' | 'push' | 'telegram';
 
 export interface SendControllerProps<TPayload> {
   variant: SendVariant;

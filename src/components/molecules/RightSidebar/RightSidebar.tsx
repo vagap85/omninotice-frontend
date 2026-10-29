@@ -12,7 +12,7 @@ export default function RightSidebar({ title, children }: RightSidebarProps) {
       as="form"
       maxW={{
         base: 'unset',
-        notification: '360px',
+        laptop: '360px',
         xxl: '29.17vw'
       }}
       p={'20px 24px'}
@@ -20,8 +20,8 @@ export default function RightSidebar({ title, children }: RightSidebarProps) {
       bg="white"
       borderLeft="1px solid"
       borderColor="gray.200"
-      minH={{ base: 'unset', notification: '100%' }}
-      borderRadius={{ base: '10px', notification: 'none' }}
+      minH={{ base: 'unset', laptop: '100%' }}
+      borderRadius={{ base: '10px', laptop: 'none' }}
     >
       <Heading
         size="md"
