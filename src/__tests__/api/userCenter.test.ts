@@ -56,27 +56,27 @@ describe('userCenter API', () => {
       json: async () => ({ data: [{}] })
     });
 
-    test('бросает ошибку если в ответе нет user_id или account_id', async () => {
-      (fetch as Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          data: [
-            {
-              auth_data: { access_token: 'token123' },
-              user_data: { login: 'user@mail.com' },
-              organization_data: {}
-            }
-          ]
-        })
-      });
+    await expect(loginUserCenter('user@mail.com', 'pass')).rejects.toThrow(
+      'UserCenter не вернул access_token'
+    );
+  });
 
-      await expect(loginUserCenter('user@mail.com', 'pass')).rejects.toThrow(
-        'UserCenter не вернул user_id'
-      );
+  test('бросает ошибку если в ответе нет user_id или account_id', async () => {
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: [
+          {
+            auth_data: { access_token: 'token123' },
+            user_data: { login: 'user@mail.com' },
+            organization_data: {}
+          }
+        ]
+      })
     });
 
     await expect(loginUserCenter('user@mail.com', 'pass')).rejects.toThrow(
-      'UserCenter не вернул access_token'
+      'UserCenter не вернул user_id'
     );
   });
 
