@@ -1,9 +1,10 @@
-import { Box, Button, Heading, HStack, Icon, Text } from '@chakra-ui/react';
+import { Box, Heading, HStack, Icon, Text } from '@chakra-ui/react';
 import { useState, useMemo, useEffect, useContext } from 'react';
-import { LuSparkles, LuCircleAlert } from 'react-icons/lu';
+import { LuCircleAlert } from 'react-icons/lu';
 import { useSearchParams } from 'react-router-dom';
 
 import EditableTextWithVariables from '@/components/molecules/EditableTextWithVariables/EditableTextWithVariables';
+import ImproveTextButton from '@/components/molecules/ImproveTextButton/ImproveTextButton';
 import { FormTextAreaField } from '@/components/molecules/Form/Elements/FormTextAreaField';
 import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
 import { FormsRegistryContext } from '@/components/molecules/Form/FormContext';
@@ -54,17 +55,13 @@ export function NotificationContentFields({
     );
   }, [variables, variableValues]);
 
-  const isContentValid =
-    title.trim().length > 0 && text.trim().length > 0 && allVariablesFilled;
-
   useEffect(() => {
     if (store) {
       store.setValue('title', title);
       store.setValue('text', text);
       store.setValue('variableValues', variableValues);
-      store.setValue('_isContentValid', isContentValid);
     }
-  }, [title, text, variableValues, isContentValid, store]);
+  }, [title, text, variableValues, store]);
 
   const handleTemplateSelect = (template: NotificationTemplate | null) => {
     setSelectedTemplate(template);
@@ -171,20 +168,7 @@ export function NotificationContentFields({
         justify="flex-end"
         mt={6}
       >
-        <Button
-          variant="accent"
-          leftIcon={<LuSparkles size={20} />}
-          color="white"
-          borderRadius="12px"
-          h={'auto'}
-          px={5}
-          py={3}
-          loadingText="Обработка..."
-          lineHeight={'1.5em'}
-          disabled
-        >
-          Улучшить текст
-        </Button>
+        <ImproveTextButton isDisabled />
       </HStack>
     </Box>
   );

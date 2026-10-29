@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import arrowIcon from '@/assets/landing/arrow-right.svg';
 import moveLeftIcon from '@/assets/landing/move-left.svg';
 import logoImage from '@/assets/logo.svg';
+import { ROUTES } from '@/routing/routes';
 
 import './LandingHeader.scss';
 
@@ -12,7 +13,7 @@ export default function LandingHeader() {
       <div className="landing-header__container">
         <nav className="landing-header__nav landing-header__nav--left">
           <Link
-            to="/"
+            to={ROUTES.home}
             className="landing-header__link"
           >
             <img
@@ -25,7 +26,7 @@ export default function LandingHeader() {
         </nav>
 
         <Link
-          to="/"
+          to={ROUTES.home}
           className="landing-header__logo"
         >
           <img
@@ -37,13 +38,13 @@ export default function LandingHeader() {
 
         <div className="landing-header__nav landing-header__nav--right">
           <Link
-            to="/login"
+            to={ROUTES.login}
             className="landing-header__link landing-header__link--outline"
           >
             Войти
           </Link>
           <Link
-            to="/registration"
+            to={ROUTES.registration}
             className="landing-header__link landing-header__link--primary"
           >
             Попробовать бесплатно

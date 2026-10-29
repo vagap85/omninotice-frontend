@@ -1,15 +1,19 @@
 export interface AuthState {
-  accessToken: string;
-  tokenType: string;
-  login?: string;
+  userId: string;
+  login: string;
+  accountId: string;
   firstName?: string;
   lastName?: string;
+}
+
+export interface AuthCredentials extends AuthState {
+  accessToken: string;
 }
 
 export interface AuthContextValue {
   authState: AuthState | null;
   isAuthorized: boolean;
-  login: (auth: AuthState) => void;
+  login: (auth: AuthCredentials) => void;
   logout: () => void;
   updateUser: (partial: Partial<AuthState>) => void;
 }

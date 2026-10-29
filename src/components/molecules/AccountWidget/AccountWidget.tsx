@@ -11,37 +11,13 @@ import {
   useDisclosure,
   VStack
 } from '@chakra-ui/react';
-import { memo, useMemo } from 'react';
+import { memo, useState } from 'react';
 import { LuChevronDown, LuChevronUp, LuLogOut, LuUser } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/auth/AuthContext';
 import UserIcon from '@/components/atoms/Icons/collections/Sigma/UserIcon';
 import LogoutModal from '@/components/organisms/Modals/LogoutModal';
-
-const getInitials = (
-  firstName?: string,
-  lastName?: string,
-  login?: string
-): string => {
-  const first = firstName?.trim();
-  const last = lastName?.trim();
-
-  if (first && last) {
-    return `${first[0]}${last[0]}`.toUpperCase();
-  }
-
-  if (first || last) {
-    const name = (first ?? last)!;
-    return name.slice(0, 2).toUpperCase();
-  }
-
-  if (login?.trim()) {
-    return login.trim().slice(0, 2).toUpperCase();
-  }
-
-  return '';
-};
 
 function AccountWidgetComponent() {
   const {
@@ -51,27 +27,36 @@ function AccountWidgetComponent() {
   } = useDisclosure();
   const { logout, authState } = useAuth();
   const navigate = useNavigate();
+  const [cachedName] = useState(() => {
+    const storedProfile = sessionStorage.getItem('profile_data');
+    if (!storedProfile) return { firstName: '', lastName: '' };
 
-  const storedProfile = useMemo(() => {
     try {
-      const raw = sessionStorage.getItem('profile_data');
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
+      const profile: unknown = JSON.parse(storedProfile);
+      if (!profile || typeof profile !== 'object') {
+        return { firstName: '', lastName: '' };
+      }
+
+      const { firstName, lastName } = profile as Record<string, unknown>;
+      return {
+        firstName: typeof firstName === 'string' ? firstName.trim() : '',
+        lastName: typeof lastName === 'string' ? lastName.trim() : ''
+      };
+    } catch (error) {
+      console.warn('Could not read cached profile name:', error);
+      return { firstName: '', lastName: '' };
     }
   }, []);
-
-  const firstName =
-    authState?.firstName?.trim() || storedProfile?.firstName?.trim() || 'Иван';
-  const lastName =
-    authState?.lastName?.trim() || storedProfile?.lastName?.trim() || 'Иванов';
-  const email =
-    authState?.login?.trim() || storedProfile?.email?.trim() || 'mail@mail.ru';
-
-  const fullName = `${firstName} ${lastName}`.trim();
-  const displayName = fullName || firstName || email;
-  const initials = getInitials(firstName, lastName, email);
-
+  const displayName =
+    [
+      authState?.firstName || cachedName.firstName,
+      authState?.lastName || cachedName.lastName
+    ]
+      .filter((name) => name?.trim())
+      .join(' ') ||
+    authState?.login ||
+    '';
+  const initials = displayName.trim().slice(0, 2).toUpperCase();
   return (
     <>
       <Menu
@@ -136,7 +121,7 @@ function AccountWidgetComponent() {
                     color="#52525B"
                     mt="2px"
                   >
-                    {email}
+                    {authState?.login}
                   </Text>
                 </VStack>
                 <Icon

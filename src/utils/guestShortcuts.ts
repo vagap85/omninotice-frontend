@@ -79,7 +79,6 @@ export const getGuestTtlHours = (): number => TTL_HOURS;
  * авторизовался. Вызывается один раз после получения токена авторизации.
  */
 export async function claimAllGuestShortcuts(
-  accessToken: string,
   projectId: string,
 ): Promise<void> {
   const guests = getGuestShortcuts();
@@ -88,7 +87,7 @@ export async function claimAllGuestShortcuts(
 
   for (const guest of guests) {
     try {
-      await claimShortcut(guest.shortcut, projectId, accessToken);
+      await claimShortcut(guest.shortcut, projectId);
       removeGuestShortcut(guest.shortcut);
     } catch (err) {
       const code = (err as Error & { code?: string }).code;

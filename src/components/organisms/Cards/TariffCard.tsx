@@ -2,6 +2,7 @@ import { Box, Text, VStack } from '@chakra-ui/react';
 
 import CustomButton from '@/components/atoms/Button/CustomButton';
 import TariffCardFeature from '@/components/molecules/TariffCardFeature/TariffCardFeature';
+import { ROUTES } from '@/routing/routes';
 
 import { TariffCardProps } from '../types/types';
 
@@ -71,7 +72,7 @@ export default function TariffCard({
 
       <CustomButton
         as={'a'}
-        href="/create/email"
+        href={ROUTES.createEmail}
         mt={10}
         w="100%"
         maxW={'unset'}

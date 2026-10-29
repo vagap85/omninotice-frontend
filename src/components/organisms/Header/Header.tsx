@@ -10,6 +10,7 @@ import { useAuth } from '@/auth/AuthContext';
 import ArrowRightIcon from '@/components/atoms/Icons/home/ArrowRightIcon';
 import LogoFigmaIcon from '@/components/atoms/Icons/home/LogoFigmaIcon';
 import { AccountWidget } from '@/components/molecules/AccountWidget/AccountWidget';
+import { ROUTES } from '@/routing/routes';
 
 import Navigation from '../../molecules/Navigation/Navigation';
 
@@ -63,13 +64,13 @@ export default function Header() {
           }}
           alignItems="center"
           justifyContent="flex-end"
-          flexWrap={'wrap'}
+          flexWrap="wrap"
         >
           {!isAuthorized && (
             <Button
               as="a"
               variant="outline"
-              href="/login"
+              href={ROUTES.login}
               fontSize={{
                 base: '12px',
                 md: 'sm'
@@ -78,7 +79,7 @@ export default function Header() {
                 base: '4px 8px',
                 md: '10px 16px'
               }}
-              minH={'unset'}
+              minH="unset"
               lineHeight={{
                 base: '12px',
                 md: 'sm'
@@ -90,7 +91,7 @@ export default function Header() {
 
           <Button
             as="a"
-            href="/create/email"
+            href={ROUTES.createEmail}
             rightIcon={
               <ArrowRightIcon
                 width={iconSize}

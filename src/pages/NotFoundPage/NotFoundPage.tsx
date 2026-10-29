@@ -3,6 +3,7 @@ import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import authBg from '@/assets/background.jpg';
 import CustomButton from '@/components/atoms/Button/CustomButton';
 import { DashedCircularArrow } from '@/components/atoms/Icons/DashedCircularArrow';
+import { ROUTES } from '@/routing/routes';
 
 export function NotFoundPage() {
   return (
@@ -72,7 +73,7 @@ export function NotFoundPage() {
       <Flex gap={"clamp(12px, 1.2vw, 20px)"} flexWrap={"wrap"} justifyContent={"center"}>
         <CustomButton
           as={'a'}
-          href="/"
+          href={ROUTES.home}
           variant={'outline'}
           fontWeight={500}
           px={5}
@@ -81,7 +82,7 @@ export function NotFoundPage() {
         </CustomButton>
         <CustomButton
           as={'a'}
-          href="/create/email"
+          href={ROUTES.createEmail}
           px={5}
         >
           Создать рассылку

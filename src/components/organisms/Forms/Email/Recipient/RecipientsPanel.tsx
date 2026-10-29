@@ -1,5 +1,5 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons';
-import { Box, Flex, Heading, Text, useDisclosure } from '@chakra-ui/react';
+import { Flex, Text, useDisclosure } from '@chakra-ui/react';
 
 import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
 import { FormTextAreaField } from '@/components/molecules/Form/Elements/FormTextAreaField';
@@ -7,6 +7,7 @@ import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegi
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
 import { hasValidRecipient } from '@/components/molecules/Form/validators/domainValidators';
 import { required } from '@/components/molecules/Form/validators/validators';
+import RightSidebar from '@/components/molecules/RightSidebar/RightSidebar';
 import SendController from '@/components/organisms/Modals/SendController/SendController';
 import type { RecipientsPanelProps } from '@/components/organisms/types/types';
 import { RecipientsFormValues } from '@/pages/types/types';
@@ -39,26 +40,7 @@ export default function RecipientsPanel({
 
   return (
     <FormProvider formId="recipients">
-      <Box
-        as="form"
-        maxW={{ base: 'unset', md: '360px', xxl: '29.17vw' }}
-        p={{
-          base: 'clamp(12px, 1.7vw + 0.125rem, 24px)',
-          md: '20px 24px'
-        }}
-        w={'full'}
-        bg="white"
-        borderLeft="1px solid"
-        borderColor="gray.200"
-        minH="calc(100vh - 73px)"
-      >
-        <Heading
-          size="md"
-          mb={6}
-        >
-          Настройка рассылки
-        </Heading>
-
+      <RightSidebar title="Настройка рассылки">
         <FormTextAreaField
           name="emails"
           label="Получатели"
@@ -100,7 +82,7 @@ export default function RecipientsPanel({
           getPayload={getValidEmails}
           onSend={onSend}
         />
-      </Box>
+      </RightSidebar>
     </FormProvider>
   );
 }

@@ -82,44 +82,47 @@ export async function loginUserCenter(
     data && typeof data === 'object'
       ? (data as Record<string, unknown>).user_data
       : undefined;
-  const profileData =
+  const organizationData =
     data && typeof data === 'object'
-      ? (data as Record<string, unknown>).profile_data
+      ? (data as Record<string, unknown>).organization_data
       : undefined;
 
-  const accessToken =
+  const authRecord =
     authData && typeof authData === 'object'
-      ? (authData as Record<string, unknown>).access_token
-      : undefined;
+      ? (authData as Record<string, unknown>)
+      : {};
+  const userRecord =
+    userData && typeof userData === 'object'
+      ? (userData as Record<string, unknown>)
+      : {};
+  const organizationRecord =
+    organizationData && typeof organizationData === 'object'
+      ? (organizationData as Record<string, unknown>)
+      : {};
+
+  const accessToken = authRecord.access_token;
+  const userId = userRecord.user_id;
+  const login = userRecord.login;
+  const accountId = organizationRecord.account_id;
 
   if (typeof accessToken !== 'string' || !accessToken.trim()) {
     throw new Error('UserCenter не вернул access_token');
   }
-
-  const tokenType =
-    authData && typeof authData === 'object'
-      ? (authData as Record<string, unknown>).token_type
-      : undefined;
-
-  const login =
-    userData && typeof userData === 'object'
-      ? (userData as Record<string, unknown>).login
-      : undefined;
-  const firstName =
-    profileData && typeof profileData === 'object'
-      ? (profileData as Record<string, unknown>).first_name
-      : undefined;
-  const lastName =
-    profileData && typeof profileData === 'object'
-      ? (profileData as Record<string, unknown>).last_name
-      : undefined;
+  if (typeof userId !== 'string' || !userId.trim()) {
+    throw new Error('UserCenter не вернул user_id');
+  }
+  if (typeof login !== 'string' || !login.trim()) {
+    throw new Error('UserCenter не вернул login');
+  }
+  if (typeof accountId !== 'string' || !accountId.trim()) {
+    throw new Error('UserCenter не вернул account_id');
+  }
 
   return {
     accessToken,
-    tokenType: typeof tokenType === 'string' ? tokenType : 'bearer',
-    login: typeof login === 'string' ? login : undefined,
-    firstName: typeof firstName === 'string' ? firstName : undefined,
-    lastName: typeof lastName === 'string' ? lastName : undefined
+    userId,
+    login,
+    accountId
   };
 }
 

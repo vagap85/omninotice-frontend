@@ -1,4 +1,5 @@
 import { ButtonProps } from '@chakra-ui/react';
+import type { ReactNode } from 'react';
 
 import {
   CustomInputProps,
@@ -51,17 +52,27 @@ export interface FormSubmitButtonProps extends Omit<
   beforeSubmitValidate?: () => boolean;
 }
 
-export interface FormTextAreaFieldProps extends Omit<
+export interface FormTextAreaFieldControlProps<T> {
+  value: T;
+  error?: string;
+  onChange: (value: T) => void;
+  onBlur: () => void;
+  labelId?: string;
+  controlProps: Omit<CustomTextareaProps, 'value' | 'onChange' | 'onBlur'>;
+}
+
+export interface FormTextAreaFieldProps<T = string> extends Omit<
   CustomTextareaProps,
   'value' | 'onChange' | 'onBlur'
 > {
   name: string;
   label?: string;
-  initialValue?: string;
-  validators?: Validator<string>[];
+  initialValue?: T;
+  validators?: Validator<T>[];
   subTitlte?: string;
   validateOnChange?: boolean;
   maxLengthMessage?: string;
+  renderControl?: (props: FormTextAreaFieldControlProps<T>) => ReactNode;
 }
 
 export interface FormTextFieldProps extends Omit<

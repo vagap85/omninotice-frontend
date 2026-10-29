@@ -11,10 +11,9 @@ export interface ImproveTextResponse {
 
 export interface UserCenterLoginSuccess {
   accessToken: string;
-  tokenType: string;
-  login?: string;
-  firstName?: string;
-  lastName?: string;
+  userId: string;
+  login: string;
+  accountId: string;
 }
 
 export interface UserCenterCreateSuccess {

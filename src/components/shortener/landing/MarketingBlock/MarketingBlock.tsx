@@ -5,6 +5,7 @@ import linkIcon from '@/assets/landing/link.svg';
 import personIcon from '@/assets/landing/person.svg';
 import verifiedIcon from '@/assets/landing/verified_user.svg';
 import { useAuth } from '@/auth/AuthContext';
+import { ROUTES } from '@/routing/routes';
 import { claimAllGuestShortcuts } from '@/utils/guestShortcuts';
 
 import './MarketingBlock.scss';
@@ -46,9 +47,9 @@ export function MarketingBlock() {
     const projectId =
       (import.meta.env.VITE_SHORTENER_PROJECT_ID as string) || '';
 
-    if (!authState?.accessToken || !projectId) return;
+    if (!authState || !projectId) return;
 
-    void claimAllGuestShortcuts(authState.accessToken, projectId);
+    void claimAllGuestShortcuts(projectId);
   };
 
   return (
@@ -69,7 +70,7 @@ export function MarketingBlock() {
           </p>
 
           <Link
-            to="/registration"
+            to={ROUTES.registration}
             className="marketing-block__btn"
             aria-label="Зарегистрироваться"
             onClick={handleRegister}

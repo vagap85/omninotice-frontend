@@ -1,48 +1,11 @@
 import { CloseIcon } from '@chakra-ui/icons';
-import {
-  Box,
-  Flex,
-  IconButton,
-  Radio,
-  RadioGroup,
-  Stack,
-  Text
-} from '@chakra-ui/react';
+import { Flex, IconButton, Text } from '@chakra-ui/react';
 
 import { useSelectedUsers } from '../hooks/useSelectedUsers';
 import { useSelectingRecipientApp } from '../hooks/useSelectingRecipientApp';
 import SearchInput from '../Inputs/SearchInput';
 import type { RecipientsMode, UsersSelectProps } from '../types/types';
-
-const rowStyles = {
-  w: 'full',
-  px: '18px',
-  py: 3,
-  bg: '#F8FAFC',
-  borderRadius: '10px',
-  border: '1px solid',
-  borderColor: '#E2EBF3',
-  cursor: 'pointer'
-};
-
-const controlStyles = {
-  '.chakra-radio__control': {
-    borderColor: '#CBD5E1',
-    _checked: { bg: '#3B6EA0', borderColor: '#2563EB' }
-  },
-  '&::before': {
-    width: '6px',
-    height: '6px',
-    transform: 'translateX(0.5px)'
-  },
-  '.chakra-radio__label': {
-    marginLeft: '12px',
-    fontSize: 'md',
-    color: '#12233F',
-    backgroundColor: '#F8FAFC',
-    outline: '1px solid #E2EBF3'
-  }
-};
+import RecipientsModeSelect from './RecipientsModeSelect';
 
 export default function UsersSelect({ value, onChange }: UsersSelectProps) {
   const {
@@ -79,43 +42,11 @@ export default function UsersSelect({ value, onChange }: UsersSelectProps) {
         Получатели
       </Text>
 
-      <RadioGroup
+      <RecipientsModeSelect
         value={selectedValue}
         onChange={handleChange}
         isDisabled={selectedApp == null}
-        data-tour="recipients-select"
-      >
-        <Stack spacing={2}>
-          <Box
-            bg={'#F8FAFC'}
-            border={'1px solid #E2EBF3'}
-            borderRadius={'10px'}
-          >
-            <Radio
-              value="all"
-              colorScheme="blue"
-              sx={controlStyles}
-              {...rowStyles}
-            >
-              Все пользователи
-            </Radio>
-          </Box>
-          <Box
-            bg={'#F8FAFC'}
-            border={'1px solid #E2EBF3'}
-            borderRadius={'10px'}
-          >
-            <Radio
-              value="individual"
-              fill={'#3B6EA0'}
-              sx={controlStyles}
-              {...rowStyles}
-            >
-              Отдельные пользователи
-            </Radio>
-          </Box>
-        </Stack>
-      </RadioGroup>
+      />
 
       {selectedValue == 'individual' && selectedApp && (
         <SearchInput

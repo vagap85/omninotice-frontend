@@ -1,7 +1,6 @@
 import { Box, Flex, Heading, VStack } from '@chakra-ui/react';
-import { LuSparkles } from 'react-icons/lu';
 
-import CustomButton from '@/components/atoms/Button/CustomButton';
+import ImproveTextButton from '@/components/molecules/ImproveTextButton/ImproveTextButton';
 import { FormTextAreaField } from '@/components/molecules/Form/Elements/FormTextAreaField';
 import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
 import { httpUrl } from '@/components/molecules/Form/validators/validators';
@@ -56,22 +55,10 @@ export default function EmailMainFields({
           />
 
           <Flex justify="flex-end">
-            <CustomButton
-            variant={"accent"}
-              leftIcon={<LuSparkles size={20}/>}
-              color="white"
-              borderRadius="12px"
-              h="auto"
-              py={3}
-              px={5}
+            <ImproveTextButton
               onClick={() => {}}
-              loadingText="Обработка..."
               isDisabled={!canImprove}
-              whiteSpace={'normal'}
-              lineHeight={'1.5em'}
-            >
-              Улучшить текст
-            </CustomButton>
+            />
           </Flex>
         </VStack>
       </Box>

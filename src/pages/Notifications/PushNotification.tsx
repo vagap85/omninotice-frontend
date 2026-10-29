@@ -6,13 +6,14 @@ import 'omni-notice-sigma-notification-widget/style.css';
 import { LuLightbulb } from 'react-icons/lu'; // Иконка лампочки
 
 import { useAuth } from '@/auth/AuthContext';
+import NotificationLayout from '@/components/layouts/NotificationLayout';
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
 import { FormsRegistryProvider } from '@/components/molecules/Form/Providers/FormsRegistryProvider';
 import { OnboardingTour } from '@/components/molecules/OnboardingTour/OnboaringTour';
 import { IncludeServices } from '@/components/molecules/IncludeServices/IncludeServices';
 import ActionFields from '@/components/organisms/Forms/Push/ActionFields';
 import NotificationContentFields from '@/components/organisms/Forms/Push/NotificationContentFields';
-import PushDraftUrlSync from '@/components/organisms/Forms/Push/PushDraftUrlSync';
+import { PushNotificationProvider } from '@/components/organisms/Forms/Push/Providers/PushNotificationProvider';
 import SelectingRecipientApp from '@/components/organisms/Forms/Push/SelectingRecipientApp/SelectingRecipientApp';
 import '@/lib/notification-widget/notification-widget.css';
 
@@ -71,42 +72,33 @@ function PushCreateNotificatonInner({
       }}
     >
       <FormProvider formId="pushNotification">
-        <PushDraftUrlSync />
-        <Flex>
-          <Box
-            flex="1"
-            bg="#ECF2F8"
+        <PushNotificationProvider>
+          <NotificationLayout
+            sidebar={<SelectingRecipientApp isAuthorized={isAuthorized} />}
           >
             <Flex
-              flexDirection={{ md: 'row', base: 'column' }}
-              justifyContent={'space-between'}
+              as="form"
+              direction="column"
+              gap={5}
+              flex="1"
+              p="clamp(12px, 1.7vw + 0.125rem, 24px)"
+              maxW="900px"
+              mx="auto"
             >
-              <Flex
-                as="form"
-                direction="column"
-                gap={5}
-                flex="1"
-                p={'clamp(12px, 1.7vw + 0.125rem, 24px)'}
-                maxW={'900px'}
-                mx={'auto'}
-              >
-                <IncludeServices />
-                <Box data-tour="notification-text">
-                  <NotificationContentFields
-                    key={templateId}
-                    formId="pushNotification"
-                  />
-                </Box>
+              <IncludeServices />
+              <Box data-tour="notification-text">
+                <NotificationContentFields
+                  key={templateId}
+                  formId="pushNotification"
+                />
+              </Box>
 
-                <Box data-tour="action-block">
-                  <ActionFields />
-                </Box>
-              </Flex>
-
-              <SelectingRecipientApp isAuthorized={isAuthorized} />
+              <Box data-tour="action-block">
+                <ActionFields />
+              </Box>
             </Flex>
-          </Box>
-        </Flex>
+          </NotificationLayout>
+        </PushNotificationProvider>
 
         {!isTourOpen && (
           <Portal>

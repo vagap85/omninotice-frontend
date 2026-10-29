@@ -1,16 +1,17 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons/ArrowForward';
-import { Box, Flex, Heading, useDisclosure } from '@chakra-ui/react';
+import { Flex, useDisclosure } from '@chakra-ui/react';
 import { memo } from 'react';
 import type { ComponentType } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  createDispatch,
+  dispatchNotification,
   DispatchError,
-  generateRequestId
+  ALL_RECIPIENTS_FALLBACK_ID
 } from '@/api/vishenka';
 import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
 import { useFormValues } from '@/components/molecules/Form/hooks/useFormValues';
+import RightSidebar from '@/components/molecules/RightSidebar/RightSidebar';
 import SendController from '@/components/organisms/Modals/SendController/SendController';
 import type {
   PushPayload,
@@ -25,6 +26,7 @@ import { SelectedUsersProvider } from './Providers/SelectedUsers.provider';
 import SelectingRecipientAppProviderTest from './Providers/SelectingRecipientApp.provider';
 import BellRingIcon from '@/components/atoms/Icons/collections/Sigma/BellRingIcon';
 import { useNotification } from 'omni-notice-sigma-notification-widget';
+import { ROUTES } from '@/routing/routes';
 
 interface PanelContentProps {
   isAuthorized: boolean;
@@ -45,9 +47,7 @@ function SelectingRecipientApp({ isAuthorized }: PanelContentProps) {
   return (
     <SelectingRecipientAppProviderTest>
       <SelectedUsersProvider>
-        <PanelContentInner
-          isAuthorized={isAuthorized}
-        />
+        <PanelContentInner isAuthorized={isAuthorized} />
       </SelectedUsersProvider>
     </SelectingRecipientAppProviderTest>
   );
@@ -60,17 +60,26 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
     useSelectingRecipientApp();
   const { selectedUsers } = useSelectedUsers();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const {add} = useNotification()
+  const { add } = useNotification();
 
-  const onAuthClick = () => navigate('/login');
+  const onAuthClick = () => navigate(ROUTES.login);
 
   const recipientsCount =
     recipientsMode === 'all' ? (selectedApp?.count ?? 0) : selectedUsers.length;
 
   const formValues = useFormValues<
-    PushNotificationFormValues & { _isContentValid: boolean }
+    PushNotificationFormValues & {
+      variableValues?: Record<string, string>;
+    }
   >('pushNotification');
-  const isContentValid = formValues._isContentValid === true;
+  const contentText = formValues.text || '';
+  const variables = contentText.match(/\{\{([^}]+)\}\}/g) || [];
+  const allVariablesFilled = variables.every((variable) =>
+    formValues.variableValues?.[variable.slice(2, -2)]?.trim()
+  );
+  const isContentValid = Boolean(
+    formValues.title?.trim() && contentText.trim() && allVariablesFilled
+  );
 
   const validateExtraFields = (): boolean => {
     setAppError(null);
@@ -148,17 +157,24 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
 
         localStorage.setItem('onboarding_real_send', 'true');
       } else {
-        const response = await createDispatch({
-          request_id: generateRequestId(),
+        const response = await dispatchNotification({
           application_id: app?.id ?? 'sigma',
-          channel: 'popup',
+          channels: ['in_app'],
           title: payload.title,
           body: payload.text,
-          audience_type: payload.recipientsMode === 'all' ? 'all' : 'selected',
-          recipient_ids:
+          recipients:
             payload.recipientsMode === 'individual'
               ? (payload.selectedUsers?.map((u) => u.id) ?? [])
-              : []
+              : [ALL_RECIPIENTS_FALLBACK_ID],
+          ...(payload.buttonText.trim() && payload.buttonLink.trim()
+            ? {
+                action: {
+                  title: payload.buttonText,
+                  url: payload.buttonLink,
+                  type: 'button' as const
+                }
+              }
+            : {})
         });
         console.log('Push отправлен:', response.detail.code);
         localStorage.setItem('onboarding_real_send', 'true');
@@ -172,50 +188,26 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
   };
 
   return (
-    <Box
-      as="form"
-      maxW={{ base: 'unset', md: '360px', xxl: '29.17vw' }}
-      p={{ base: 'clamp(12px, 1.7vw + 0.125rem, 24px)', md: 'unset' }}
-      borderLeft="1px solid"
-      borderColor="gray.200"
-      minH={{ base: 'unset', md: 'calc(100vh - 73px)' }}
-      w={'full'}
-    >
+    <RightSidebar title="Настройка рассылки">
       <Flex
-        w="100%"
-        h={'100%'}
-        px={6}
-        py={5}
-        bg="white"
-        flexDirection={'column'}
-        borderRadius={{ base: '10px', md: 'none' }}
+        direction="column"
+        gap={3}
       >
-        <Heading
-          size="md"
-          mb={6}
-        >
-          Настройка рассылки
-        </Heading>
-        <Flex
-          direction="column"
-          gap={3}
-        >
-          <AllSelectBoxes />
+        <AllSelectBoxes />
 
-          <FormSubmitButton
-            rightIcon={<ArrowForwardIcon />}
-            maxW="fit-content"
-            ml="auto"
-            isAuthorized={isAuthorized}
-            onUnauthorized={onAuthClick}
-            formIds={['pushNotification']}
-            beforeSubmitValidate={validateExtraFields}
-            onSubmit={() => onOpen()}
-            isDisabled={!isContentValid}
-          >
-            {isAuthorized ? 'Отправить' : 'Авторизоваться для отправки'}
-          </FormSubmitButton>
-        </Flex>
+        <FormSubmitButton
+          rightIcon={<ArrowForwardIcon />}
+          maxW="fit-content"
+          ml="auto"
+          isAuthorized={isAuthorized}
+          onUnauthorized={onAuthClick}
+          formIds={['pushNotification']}
+          beforeSubmitValidate={validateExtraFields}
+          onSubmit={() => onOpen()}
+          isDisabled={!isContentValid}
+        >
+          {isAuthorized ? 'Отправить' : 'Авторизоваться для отправки'}
+        </FormSubmitButton>
       </Flex>
 
       <SendController
@@ -226,7 +218,7 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
         getPayload={buildPayload}
         onSend={sendPushNotification}
       />
-    </Box>
+    </RightSidebar>
   );
 }
 
