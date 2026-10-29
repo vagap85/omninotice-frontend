@@ -9,6 +9,7 @@ import {
 import { useAuth } from '@/auth/AuthContext';
 import ArrowRightIcon from '@/components/atoms/Icons/home/ArrowRightIcon';
 import LogoFigmaIcon from '@/components/atoms/Icons/home/LogoFigmaIcon';
+import { AccountWidget } from '@/components/molecules/AccountWidget/AccountWidget';
 import { ROUTES } from '@/routing/routes';
 
 import Navigation from '../../molecules/Navigation/Navigation';
@@ -63,78 +64,13 @@ export default function Header() {
           }}
           alignItems="center"
           justifyContent="flex-end"
-          flexWrap={'wrap'}
+          flexWrap="wrap"
         >
-          <Navigation />
-        </GridItem>
-
-        <GridItem area="actions">
-          <Flex
-            gap={{
-              base: 1,
-              md: 4
-            }}
-            justifyContent="flex-end"
-            flexWrap={'wrap'}
-          >
-            {isAuthorized ? (
-              <CustomButton
-                bg="#E2EBF3"
-                color="#2D547B"
-                borderRadius="10px"
-                h="30px"
-                px={3}
-                fontSize="12px"
-                lineHeight="16px"
-                fontWeight="500"
-                rightIcon={
-                  <Icon
-                    as={LuLogOut}
-                    boxSize={3.5}
-                  />
-                }
-                onClick={onOpen}
-                _hover={{ bg: '#D6E3EF' }}
-              >
-                Выйти
-              </CustomButton>
-            ) : (
-              <Button
-                as="a"
-                variant="outline"
-                href={ROUTES.login}
-                fontSize={{
-                  base: '12px',
-                  md: 'sm'
-                }}
-                padding={{
-                  base: '4px 8px',
-                  md: '10px 16px'
-                }}
-                minH={'unset'}
-                lineHeight={{
-                  base: '12px',
-                  md: 'sm'
-                }}
-              >
-                Войти
-              </Button>
-            )}
-
+          {!isAuthorized && (
             <Button
               as="a"
-              href={ROUTES.createEmail}
-              rightIcon={
-                <ArrowRightIcon
-                  width={iconSize}
-                  height={iconSize}
-                />
-              }
-              minH={'unset'}
-              padding={{
-                base: '4px 8px',
-                md: '10px 16px'
-              }}
+              variant="outline"
+              href={ROUTES.login}
               fontSize={{
                 base: '12px',
                 md: 'sm'
@@ -143,7 +79,7 @@ export default function Header() {
                 base: '4px 8px',
                 md: '10px 16px'
               }}
-              minH={'unset'}
+              minH="unset"
               lineHeight={{
                 base: '12px',
                 md: 'sm'
@@ -155,7 +91,7 @@ export default function Header() {
 
           <Button
             as="a"
-            href="/create/email"
+            href={ROUTES.createEmail}
             rightIcon={
               <ArrowRightIcon
                 width={iconSize}

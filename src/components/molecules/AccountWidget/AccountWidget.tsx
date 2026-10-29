@@ -11,7 +11,7 @@ import {
   useDisclosure,
   VStack
 } from '@chakra-ui/react';
-import { memo, useMemo } from 'react';
+import { memo, useState } from 'react';
 import { LuChevronDown, LuChevronUp, LuLogOut, LuUser } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,8 +26,37 @@ function AccountWidgetComponent() {
     onClose: onCloseLogout
   } = useDisclosure();
   const { logout, authState } = useAuth();
-  const userName = authState?.login;
-  const initials = userName?.trim().slice(0, 2).toUpperCase() ?? '';
+  const navigate = useNavigate();
+  const [cachedName] = useState(() => {
+    const storedProfile = sessionStorage.getItem('profile_data');
+    if (!storedProfile) return { firstName: '', lastName: '' };
+
+    try {
+      const profile: unknown = JSON.parse(storedProfile);
+      if (!profile || typeof profile !== 'object') {
+        return { firstName: '', lastName: '' };
+      }
+
+      const { firstName, lastName } = profile as Record<string, unknown>;
+      return {
+        firstName: typeof firstName === 'string' ? firstName.trim() : '',
+        lastName: typeof lastName === 'string' ? lastName.trim() : ''
+      };
+    } catch (error) {
+      console.warn('Could not read cached profile name:', error);
+      return { firstName: '', lastName: '' };
+    }
+  }, []);
+  const displayName =
+    [
+      authState?.firstName || cachedName.firstName,
+      authState?.lastName || cachedName.lastName
+    ]
+      .filter((name) => name?.trim())
+      .join(' ') ||
+    authState?.login ||
+    '';
+  const initials = displayName.trim().slice(0, 2).toUpperCase();
   return (
     <>
       <Menu
@@ -92,7 +121,7 @@ function AccountWidgetComponent() {
                     color="#52525B"
                     mt="2px"
                   >
-                    {email}
+                    {authState?.login}
                   </Text>
                 </VStack>
                 <Icon

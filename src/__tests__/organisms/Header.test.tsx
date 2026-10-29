@@ -6,22 +6,33 @@ import Header from '@/components/organisms/Header/Header';
 import { renderWithProviders } from '../../test/utils';
 
 let mockIsAuthorized = false;
+let mockAuthState: {
+  firstName?: string;
+  lastName?: string;
+  login: string;
+} = {
+  firstName: 'Тест',
+  lastName: 'Пользователь',
+  login: 'test@example.com'
+};
 
 vi.mock('@/auth/AuthContext', () => ({
   useAuth: () => ({
     isAuthorized: mockIsAuthorized,
     logout: vi.fn(),
-    authState: {
-      firstName: 'Тест',
-      lastName: 'Пользователь',
-      login: 'test@example.com'
-    }
+    authState: mockAuthState
   })
 }));
 
 describe('Header', () => {
   beforeEach(() => {
     mockIsAuthorized = false;
+    mockAuthState = {
+      firstName: 'Тест',
+      lastName: 'Пользователь',
+      login: 'test@example.com'
+    };
+    sessionStorage.clear();
   });
 
   test('для неавторизованного пользователя отображает Войти и Попробовать, но не меню пользователя', () => {
@@ -54,5 +65,23 @@ describe('Header', () => {
       tryButton.compareDocumentPosition(accountMenu) &
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
+  });
+
+  test('показывает имя и фамилию из сохраненного профиля над логином', () => {
+    mockIsAuthorized = true;
+    mockAuthState = { login: 'test@example.com' };
+    sessionStorage.setItem(
+      'profile_data',
+      JSON.stringify({
+        firstName: 'Иван',
+        lastName: 'Иванов',
+        email: 'work@example.com'
+      })
+    );
+
+    renderWithProviders(<Header />);
+
+    expect(screen.getByText('Иван Иванов')).toBeInTheDocument();
+    expect(screen.getByText('test@example.com')).toBeInTheDocument();
   });
 });

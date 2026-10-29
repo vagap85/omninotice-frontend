@@ -22,8 +22,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthState({
       userId: auth.userId,
       login: auth.login,
-      accountId: auth.accountId
+      accountId: auth.accountId,
+      firstName: auth.firstName,
+      lastName: auth.lastName
     });
+  }, []);
+
+  const updateUser = useCallback((partial: Partial<AuthState>) => {
+    setAuthState((current) => (current ? { ...current, ...partial } : current));
   }, []);
 
   const logout = useCallback(() => {

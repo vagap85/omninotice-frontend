@@ -15,15 +15,20 @@ import { MAILING_CHANNELS, ROUTES } from '@/routing/routes';
 
 export default function HeroSection() {
   const { isAuthorized } = useAuth();
-  const channelBadges = MAILING_CHANNELS.map((channel) => {
-    const Icon = channel.Icon;
-    return {
-      id: channel.id,
-      label: channel.heroLabel,
-      href: channel.href ?? '',
-      icon: <Icon />
-    };
-  });
+  const channelBadges = [...MAILING_CHANNELS]
+    .sort(
+      (first, second) =>
+        Number(first.id === 'push') - Number(second.id === 'push')
+    )
+    .map((channel) => {
+      const Icon = channel.Icon;
+      return {
+        id: channel.id,
+        label: channel.heroLabel,
+        href: channel.href ?? '',
+        icon: <Icon />
+      };
+    });
 
   return (
     <Box as="section">

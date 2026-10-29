@@ -1,6 +1,8 @@
+import { screen } from '@testing-library/react';
 import { describe, test, expect, vi } from 'vitest';
 
 import HomePage from '@/pages/HomePage/HomePage';
+import { MAILING_CHANNELS } from '@/routing/routes';
 
 import { renderWithProviders } from '../../test/utils';
 
@@ -29,5 +31,23 @@ describe('HomePage', () => {
   test('содержит хедер', () => {
     renderWithProviders(<HomePage />);
     expect(document.body).not.toBeEmptyDOMElement();
+  });
+
+  test('показывает Push-уведомления последним каналом', () => {
+    renderWithProviders(<HomePage />);
+
+    const pushBadge = screen.getByText('Push-уведомления').closest('a');
+    expect(pushBadge).not.toBeNull();
+
+    MAILING_CHANNELS.filter((channel) => channel.id !== 'push').forEach(
+      (channel) => {
+        const badge = screen.getByText(channel.heroLabel).closest('a');
+        expect(badge).not.toBeNull();
+        expect(
+          badge!.compareDocumentPosition(pushBadge!) &
+            Node.DOCUMENT_POSITION_FOLLOWING
+        ).toBeTruthy();
+      }
+    );
   });
 });
