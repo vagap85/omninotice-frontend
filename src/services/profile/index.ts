@@ -72,9 +72,15 @@ export const profileService = {
               seed.lastName ||
               mockProfileData.lastName,
             email:
+              apiProfile.contact_email?.find(
+                (item) =>
+                  item.title?.toLowerCase() === 'work' ||
+                  item.title?.toLowerCase() === 'рабочий'
+              )?.value ||
               apiProfile.contact_email?.[0]?.value ||
-              seed.email ||
+              (apiProfile.info?.work_email?.value as string) ||
               cached.email ||
+              seed.email ||
               '',
             phone:
               apiProfile.contact_phone?.[0]?.value ||

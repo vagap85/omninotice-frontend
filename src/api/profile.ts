@@ -295,7 +295,7 @@ export async function updateMyProfile(
   const contactEmail =
     data.email !== undefined
       ? data.email
-        ? [{ title: 'email', value: data.email }]
+        ? [{ title: 'work', value: data.email }]
         : []
       : undefined;
 

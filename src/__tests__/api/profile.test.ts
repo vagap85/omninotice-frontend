@@ -135,7 +135,7 @@ describe('profile API and service', () => {
         body: JSON.stringify({
           first_name: 'Иван',
           last_name: 'Иванов',
-          contact_email: [{ title: 'email', value: 'ivan@test.ru' }],
+          contact_email: [{ title: 'work', value: 'ivan@test.ru' }],
           contact_phone: [{ title: 'phone', value: '+79998887766' }]
         })
       })
@@ -292,6 +292,51 @@ describe('profile API and service', () => {
     expect(loaded.email).toBe('alex@test.ru');
     expect(loaded.phone).toBe('+79993334455');
     expect(loaded.position).toBe('Архитектор');
+  });
+
+  test('profileService.loadProfile отдает предпочтение рабочему email с title "work"', async () => {
+    localStorage.setItem(
+      'usercenter_auth',
+      JSON.stringify({ accessToken: MOCK_TOKEN_WITH_ALL, tokenType: 'bearer' })
+    );
+
+    (fetch as Mock).mockImplementation((url: string) => {
+      if (url.includes('/profile/')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            data: [
+              {
+                first_name: 'Анна',
+                last_name: 'Павлова',
+                contact_email: [
+                  { title: 'personal', value: 'personal@mail.ru' },
+                  { title: 'work', value: 'work.anna@corporate.ru' }
+                ],
+                contact_phone: [{ title: 'phone', value: '+79990001122' }]
+              }
+            ]
+          })
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({ data: [] })
+      });
+    });
+
+    const seed: UserProfile = {
+      firstName: 'Анна',
+      lastName: '',
+      email: 'account_login@mail.ru',
+      phone: '',
+      position: ''
+    };
+
+    const loaded = await profileService.loadProfile(seed);
+    expect(loaded.email).toBe('work.anna@corporate.ru');
   });
 
   test('profileService.saveProfile выбрасывает ошибки для занятого email и телефона', async () => {
