@@ -9,3 +9,15 @@
 
 /coverage
 /.vscode
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/codeStyles/Project.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/.gitignore
+/.idea/cherry.iml
+/.idea/modules.xml
+/.idea/prettier.xml
+/.idea/vcs.xml
+
+/PROJECT_CONTEXT.md
+AGENTS.md
+docs/

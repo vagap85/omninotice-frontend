@@ -84,6 +84,16 @@ export default function Navigation() {
       >
         Тарифы
       </Link>
+      <Link
+        href="/links-landing"
+        fontSize={{
+          base: '12px',
+          md: 'md'
+        }}
+        _hover={{ color: '#2D547B' }}
+      >
+        Сократить ссылку
+      </Link>
       <Flex
         ref={desktopMenuContainerRef}
         position="relative"

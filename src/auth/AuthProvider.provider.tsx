@@ -47,9 +47,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authState,
       isAuthorized: Boolean(authState),
       login,
-      logout
+      logout,
+      updateUser
     }),
-    [authState, login, logout]
+    [authState, login, logout, updateUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
