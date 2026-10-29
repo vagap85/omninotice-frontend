@@ -10,6 +10,7 @@ import { Sidebar } from '@/components/organisms/Sidebar/Sidebar';
 const pageTitles: Record<string, string> = {
   '/create/email': 'Создание e-mail рассылки',
   '/create/push': 'Создание рассылки push-уведомлений',
+  '/push/history': 'История рассылок push-уведомлений',
   '/overview': 'Обзор',
   '/templates': 'Шаблоны рассылок'
 };

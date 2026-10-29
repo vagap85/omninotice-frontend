@@ -6,6 +6,7 @@ import SpinnerLoader from './components/atoms/Loaders/SpinnerLoader/SpinnerLoade
 import SidebarLayout from './components/layouts/SidebarLayout';
 import { registerClearMailingDraftBeforeUnload } from './mailingDraftStorage';
 import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage';
+import NotificationHistoryPage from './pages/Notifications/PushNotificationHistory';
 import { OverviewPage } from './pages/OverviewPage/OverviewPage';
 import TemplatesPage from './pages/TemplatesPage/TemplatesPage';
 import ProtectedRoute from './routing/ProtectedRoute';
@@ -83,6 +84,10 @@ function App() {
             <Route
               path="/create/push"
               element={<PushNotification />}
+            />
+            <Route
+              path="/push/history"
+              element={<NotificationHistoryPage />}
             />
           </Route>
           <Route

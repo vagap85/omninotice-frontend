@@ -52,7 +52,12 @@ function SidebarContent() {
 
 function SidebarComponent() {
   const { pathname } = useLocation();
-  const pathnames = ['/create/email', '/create/push', '/templates'];
+  const pathnames = [
+    '/create/email',
+    '/create/push',
+    '/templates',
+    '/push/history'
+  ];
 
   const isCollapsed = pathnames.includes(pathname);
 
