@@ -21,7 +21,8 @@ export const ROUTES = {
   linkDetails: '/links/:id',
   campaigns: '/campaigns',
   login: '/login',
-  registration: '/registration'
+  registration: '/registration',
+  about: '/about-yourself'
 } as const;
 
 interface MailingChannel {

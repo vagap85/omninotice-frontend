@@ -11,7 +11,7 @@ import {
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { loginUserCenter } from '@/api/userCenter';
+import { createUserCenter, loginUserCenter } from '@/api/userCenter';
 import { ROUTES } from '@/routing/routes';
 import authBg from '@/assets/background.jpg';
 import logo from '@/assets/logo.svg';
@@ -56,9 +56,10 @@ function AuthRegisterPageInner() {
 
     setIsLoading(true);
     try {
-      // Запрос сохранён как в оригинале: createUserCenter здесь не вызывается,
-      // аккаунт логинится напрямую через loginUserCenter — поведение не меняю по вашей просьбе.
-      const auth = await loginUserCenter(login.trim(), password);
+      const trimmedLogin = login.trim();
+      await createUserCenter(trimmedLogin, password);
+
+      const auth = await loginUserCenter(trimmedLogin, password);
 
       setAuth(auth);
 
@@ -86,7 +87,7 @@ function AuthRegisterPageInner() {
           </Box>
         )
       });
-      navigate(ROUTES.createEmail);
+      navigate(ROUTES.about);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Ошибка авторизации';
       store.setFieldError('passwordConfirm', message);

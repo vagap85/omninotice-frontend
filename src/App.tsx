@@ -46,6 +46,9 @@ const AuthLoginPage = lazyWithMinDelay(
 const AuthRegisterPage = lazyWithMinDelay(
   () => import('@/pages/Auth/AuthRegisterPage')
 );
+const AboutYourselfPage = lazyWithMinDelay(
+  () => import('@/pages/Auth/AboutYourselfPage')
+);
 const LinksRegistryPage = lazyWithMinDelay(
   () => import('@/pages/Shortener/LinksRegistryPage/LinksRegistryPage')
 );
@@ -103,7 +106,7 @@ function App() {
               element={<ProfilePage />}
             />
             <Route
-              path="/push/history"
+              path={ROUTES.history}
               element={<NotificationHistoryPage />}
             />
           </Route>
@@ -138,6 +141,10 @@ function App() {
             element={<CampaignsPage />}
           />
           <Route
+            path="/dashboard"
+            element={<Navigate to={ROUTES.overview} replace />}
+          />
+          <Route
             path="/dashboard/profile"
             element={
               <Navigate
@@ -154,6 +161,10 @@ function App() {
         <Route
           path={ROUTES.registration}
           element={<AuthRegisterPage />}
+        />
+        <Route
+          path={ROUTES.about}
+          element={<AboutYourselfPage />}
         />
 
         <Route
