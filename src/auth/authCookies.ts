@@ -30,7 +30,11 @@ function clearCookie(name: string): void {
 export function saveAuthCookies(auth: AuthCredentials): void {
   writeCookie(COOKIE_NAMES.userId, auth.userId);
   writeCookie(COOKIE_NAMES.login, auth.login);
-  writeCookie(COOKIE_NAMES.accountId, auth.accountId);
+  if (auth.accountId) {
+    writeCookie(COOKIE_NAMES.accountId, auth.accountId);
+  } else {
+    clearCookie(COOKIE_NAMES.accountId);
+  }
   writeCookie(COOKIE_NAMES.accessToken, auth.accessToken);
 }
 
@@ -40,9 +44,9 @@ export function readAuthCookies(): AuthState | null {
   const accountId = readCookie(COOKIE_NAMES.accountId);
   const accessToken = readCookie(COOKIE_NAMES.accessToken);
 
-  if (!userId || !login || !accountId || !accessToken) return null;
+  if (!userId || !login || !accessToken) return null;
 
-  return { userId, login, accountId };
+  return { userId, login, accountId: accountId ?? null };
 }
 
 export function getAccessTokenCookie(): string | null {
