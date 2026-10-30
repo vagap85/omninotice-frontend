@@ -1,18 +1,39 @@
+import { getAccessTokenCookie, getAccountIdCookie } from '@/auth/authCookies';
+
 /**
  * Клиент для Vishenka-services API.
  * POST {BASE_URL}/api/v1/dispatches
- * In-App уведомления (лента + плашка).
+ * Dispatch-уведомления для in_app и Telegram.
  */
 
 export interface DispatchRequest {
   request_id: string; // UUID, генерирует фронт
+  delegated_token: string;
+  account_id: string;
   application_id: string; // "sigma", "raida", ...
-  channel: 'feed' | 'popup'; // UC-02 / UC-02a
+  channels: Array<'in_app' | 'tg'>;
   title: string; // 1-200
   body: string; // 1-4000
-  audience_type: 'all' | 'selected';
-  recipient_ids: string[]; // обязательно при selected
+  recipients: string[];
+  created_at: string;
+  action?: DispatchAction;
+  picture?: {
+    main: string;
+    icon: string;
+    emoji: string;
+  };
 }
+
+export type DispatchAction =
+  | {
+      title: string;
+      url: string;
+      type: 'button';
+    }
+  | {
+      name: string;
+      url: string;
+    };
 
 export interface ResponseDetail {
   code: 'OK' | 'ALREADY_APPLIED' | null;
@@ -52,6 +73,11 @@ export class DispatchError extends Error {
   }
 }
 
+//!УБРАТЬ НА ПРОДАКШЕНЕ
+//! ЭТО USERID ТЕСТОВОГО ПОЛЬЗОВАТЕЛЯ КОМАНДЫ ФОКУСА
+export const ALL_RECIPIENTS_FALLBACK_ID =
+  '9c4e2f5a-1115-4b7e-83fd-8eb64e4383b2';
+
 const getBaseUrl = (): string => {
   const url = import.meta.env.VITE_VISHENKA_BASE_URL;
   if (!url) {
@@ -78,6 +104,35 @@ export async function createDispatch(
   }
 
   return response.json();
+}
+
+export type NotificationDispatchInput = Omit<
+  DispatchRequest,
+  'request_id' | 'delegated_token' | 'account_id' | 'created_at'
+>;
+
+export async function dispatchNotification(
+  payload: NotificationDispatchInput
+): Promise<SuccessfulResponse> {
+  const delegated_token = getAccessTokenCookie();
+  if (!delegated_token) {
+    throw new Error(
+      'Не удалось получить omni_access_token для отправки уведомления.'
+    );
+  }
+
+  const account_id = getAccountIdCookie();
+  if (!account_id) {
+    throw new Error('Не удалось определить аккаунт для отправки уведомления.');
+  }
+
+  return createDispatch({
+    ...payload,
+    request_id: generateRequestId(),
+    delegated_token,
+    account_id,
+    created_at: new Date().toISOString()
+  });
 }
 
 /** Генератор UUID для `request_id` (крипто-стойкий, если доступен). */

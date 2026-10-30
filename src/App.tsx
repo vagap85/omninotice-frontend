@@ -1,15 +1,15 @@
 import { Flex } from '@chakra-ui/react';
 import { useEffect, lazy, Suspense, ComponentType } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 
 import SpinnerLoader from './components/atoms/Loaders/SpinnerLoader/SpinnerLoader';
 import SidebarLayout from './components/layouts/SidebarLayout';
 import { registerClearMailingDraftBeforeUnload } from './mailingDraftStorage';
 import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage';
-import NotificationHistoryPage from './pages/Notifications/PushNotificationHistory';
 import { OverviewPage } from './pages/OverviewPage/OverviewPage';
 import TemplatesPage from './pages/TemplatesPage/TemplatesPage';
 import ProtectedRoute from './routing/ProtectedRoute';
+import { ROUTES } from './routing/routes';
 
 function lazyWithMinDelay<P extends object>(
   factory: () => Promise<{ default: ComponentType<P> }>,
@@ -30,6 +30,16 @@ const EmailNotification = lazyWithMinDelay(
 const PushNotification = lazyWithMinDelay(
   () => import('@/pages/Notifications/PushNotification')
 );
+
+const TelegramNotification = lazyWithMinDelay(
+  () => import('@/pages/Notifications/TelegramNotification')
+);
+const TelegramBotConnection = lazyWithMinDelay(
+  () => import('@/pages/Notifications/TelegramBotConnection')
+);
+const NotificationHistoryPage = lazyWithMinDelay(
+  () => import('@/pages/Notifications/PushNotificationHistory')
+);
 const AuthLoginPage = lazyWithMinDelay(
   () => import('@/pages/Auth/AuthLoginPage')
 );
@@ -47,6 +57,9 @@ const CampaignsPage = lazyWithMinDelay(
 );
 const LinksLandingPage = lazyWithMinDelay(
   () => import('@/pages/Shortener/LinksLandingPage/LinksLandingPage')
+);
+const ProfilePage = lazyWithMinDelay(
+  () => import('@/pages/ProfilePage/ProfilePage')
 );
 
 function App() {
@@ -68,55 +81,78 @@ function App() {
     >
       <Routes>
         <Route
-          path="/"
+          path={ROUTES.home}
           element={<HomePage />}
         />
         <Route
-          path="/links-landing"
+          path={ROUTES.linksLanding}
           element={<LinksLandingPage />}
         />
         <Route element={<SidebarLayout />}>
           <Route
-            path="/create/email"
+            path={ROUTES.createEmail}
             element={<EmailNotification />}
           />
           <Route element={<ProtectedRoute />}>
             <Route
-              path="/create/push"
+              path={ROUTES.createPush}
               element={<PushNotification />}
+            />
+            <Route
+              path="/profile"
+              element={<ProfilePage />}
             />
             <Route
               path="/push/history"
               element={<NotificationHistoryPage />}
             />
           </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route
+              path={ROUTES.createTelegram}
+              element={<TelegramNotification />}
+            />
+            <Route
+              path={ROUTES.connectTelegramBot}
+              element={<TelegramBotConnection />}
+            />
+          </Route>
           <Route
-            path="/overview"
+            path={ROUTES.overview}
             element={<OverviewPage />}
           />
           <Route
-            path="/templates"
+            path={ROUTES.templates}
             element={<TemplatesPage />}
           />
           <Route
-            path="/links"
+            path={ROUTES.links}
             element={<LinksRegistryPage />}
           />
           <Route
-            path="/links/:id"
+            path={ROUTES.linkDetails}
             element={<LinkDetailPage />}
           />
           <Route
-            path="/campaigns"
+            path={ROUTES.campaigns}
             element={<CampaignsPage />}
+          />
+          <Route
+            path="/dashboard/profile"
+            element={
+              <Navigate
+                to="/profile"
+                replace
+              />
+            }
           />
         </Route>
         <Route
-          path="/login"
+          path={ROUTES.login}
           element={<AuthLoginPage />}
         />
         <Route
-          path="/registration"
+          path={ROUTES.registration}
           element={<AuthRegisterPage />}
         />
 

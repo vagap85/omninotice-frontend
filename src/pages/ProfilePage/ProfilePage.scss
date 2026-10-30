@@ -1,0 +1,349 @@
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  // ── Контейнер и заголовок страницы (как на странице списка ссылок) ─────────
+  &__container {
+    width: 100%;
+    padding: 28px 32px 48px;
+    box-sizing: border-box;
+  }
+
+  &__title {
+    margin: 0 0 28px;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #12233f;
+  }
+
+  // ── Карточки секций ────────────────────────────────────────────────────────
+  &__card {
+    width: 100%;
+    box-sizing: border-box;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 30px 36px 28px;
+    margin-bottom: 20px;
+
+    &--error {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 36px 44px;
+      text-align: center;
+    }
+  }
+
+  &__section-title {
+    margin: 0 0 8px;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #12233f;
+  }
+
+  &__section-desc {
+    margin: 0 0 24px;
+    max-width: 950px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #52525b;
+  }
+
+  &__security-email {
+    font-weight: 600;
+    color: #12233f;
+  }
+
+  // ── Сетка полей (3 колонки, как в макете) ──────────────────────────────────
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 20px;
+  }
+
+  // ── Ряд «Сохранить изменения» между секциями ──────────────────────────────
+  &__save-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  &__discard-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    color: #12233f;
+    cursor: pointer;
+    transition: opacity 0.15s;
+
+    &:hover:not(:disabled) {
+      text-decoration: underline;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  // ── Футер секции «Безопасность» ────────────────────────────────────────────
+  &__pwd-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 24px;
+    margin-top: 24px;
+  }
+
+  &__ghost-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    color: #12233f;
+    cursor: pointer;
+    transition: opacity 0.15s;
+
+    &:hover:not(:disabled) {
+      text-decoration: underline;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  // ── Кнопка действия (Сохранить изменения / Изменить пароль) ────────────────
+  &__btn {
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 20px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    background: #3b6ea0 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    transition: background 0.15s !important;
+
+    &:hover:not(:disabled) {
+      background: #34608c !important;
+    }
+
+    &:active:not(:disabled) {
+      background: #2d547b !important;
+    }
+
+    &:disabled {
+      opacity: 0.6 !important;
+      cursor: not-allowed !important;
+    }
+  }
+
+  // ── Баннер успеха и ошибки ─────────────────────────────────────────────────
+  &__banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    max-width: 720px;
+    margin-bottom: 28px;
+    padding: 14px 20px;
+    background: #16a34a;
+    border-radius: 10px;
+    color: #ffffff;
+
+    &-icon {
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    &-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    &-text {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.45;
+
+      &--single {
+        font-weight: 500;
+        font-size: 14px;
+      }
+    }
+  }
+
+  &__error-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 20px;
+    background: #fef2f2;
+    border: 1px solid #fee2e2;
+    border-radius: 12px;
+  }
+
+  &__error-title {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #12233f;
+  }
+
+  &__error-text {
+    margin: 0 0 24px;
+    font-size: 14px;
+    color: #52525b;
+  }
+}
+
+// ── Поле формы ───────────────────────────────────────────────────────────────
+.profile-field {
+  display: flex;
+  flex-direction: column;
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+
+  &__label {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #12233f;
+  }
+
+  &__required {
+    color: #ef4444;
+    font-size: 13px;
+    line-height: 1;
+    margin-left: 1px;
+  }
+
+  &__control {
+    position: relative;
+    width: 100%;
+  }
+
+  &__input {
+    width: 100%;
+    height: 38px;
+    box-sizing: border-box;
+    padding: 0 14px;
+    background: #f8fafc;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #12233f;
+    outline: none;
+    transition:
+      border-color 0.15s,
+      background-color 0.15s;
+
+    &::placeholder {
+      color: #8b95a5;
+    }
+
+    &:focus {
+      border-color: #79b5e3;
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: default;
+    }
+
+    &--password {
+      padding-right: 40px;
+    }
+  }
+
+  &--error &__input {
+    border-color: #ef4444;
+  }
+
+  &__eye {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: none;
+    border: none;
+    color: #12233f;
+    cursor: pointer;
+    transform: translateY(-50%);
+    opacity: 0.85;
+    transition: opacity 0.15s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &__caption {
+    margin: 6px 0 0;
+    font-size: 11px;
+    line-height: 1.35;
+    color: #71717a;
+  }
+
+  &__error {
+    margin: 6px 0 0;
+    font-size: 11px;
+    line-height: 1.35;
+    color: #ef4444;
+  }
+}
+
+// ── Адаптив ──────────────────────────────────────────────────────────────────
+@media (max-width: 1080px) {
+  .profile-page__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .profile-page__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .profile-page__save-row,
+  .profile-page__pwd-footer {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .profile-page__card {
+    padding: 24px 20px;
+  }
+
+  .profile-page__container {
+    padding: 20px 16px 40px;
+  }
+}

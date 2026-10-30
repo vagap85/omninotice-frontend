@@ -85,7 +85,7 @@ export interface RecipientsPanelProps {
   onSend: (validEmails: string[]) => Promise<void>;
 }
 
-export type SendVariant = 'email' | 'push';
+export type SendVariant = 'email' | 'push' | 'telegram';
 
 export interface SendControllerProps<TPayload> {
   variant: SendVariant;
@@ -133,4 +133,9 @@ export interface NotificationLog {
   created_at: string; // ISO-дата
   status: NotificationStatus;
   template_name?: string;
+}
+
+export interface TelegramNotificationCardProps {
+  message?: string;
+  buttonText?: string;
 }

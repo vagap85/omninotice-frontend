@@ -90,10 +90,9 @@ describe('AuthRegisterPage', () => {
     const user = userEvent.setup();
     (loginUserCenter as Mock).mockResolvedValueOnce({
       accessToken: 'token123',
-      tokenType: 'bearer',
+      userId: 'user-123',
       login: 'new@mail.com',
-      firstName: 'Новый',
-      lastName: 'Пользователь'
+      accountId: 'account-123'
     });
 
     renderWithProviders(<AuthRegisterPage />);

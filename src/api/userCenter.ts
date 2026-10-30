@@ -1,3 +1,4 @@
+import { parseJwtPayload } from './profile';
 import { UserCenterCreateSuccess, UserCenterLoginSuccess } from './types';
 
 const DEFAULT_USERCENTER_BASE_URL = 'https://api.users.skroy.ru';
@@ -82,44 +83,55 @@ export async function loginUserCenter(
     data && typeof data === 'object'
       ? (data as Record<string, unknown>).user_data
       : undefined;
-  const profileData =
+  const organizationData =
     data && typeof data === 'object'
-      ? (data as Record<string, unknown>).profile_data
+      ? (data as Record<string, unknown>).organization_data
       : undefined;
 
-  const accessToken =
+  const authRecord =
     authData && typeof authData === 'object'
-      ? (authData as Record<string, unknown>).access_token
-      : undefined;
+      ? (authData as Record<string, unknown>)
+      : {};
+  const userRecord =
+    userData && typeof userData === 'object'
+      ? (userData as Record<string, unknown>)
+      : {};
+  const organizationRecord =
+    organizationData && typeof organizationData === 'object'
+      ? (organizationData as Record<string, unknown>)
+      : {};
+
+  const accessToken = authRecord.access_token;
+  const userId = userRecord.user_id;
+  const login = userRecord.login;
+  let accountId: string | null = null;
+  if (
+    typeof organizationRecord.account_id === 'string' &&
+    organizationRecord.account_id.trim()
+  ) {
+    accountId = organizationRecord.account_id.trim();
+  } else if (typeof accessToken === 'string' && accessToken.trim()) {
+    const sub = parseJwtPayload(accessToken);
+    if (typeof sub?.account_id === 'string' && sub.account_id.trim()) {
+      accountId = sub.account_id.trim();
+    }
+  }
 
   if (typeof accessToken !== 'string' || !accessToken.trim()) {
     throw new Error('UserCenter не вернул access_token');
   }
-
-  const tokenType =
-    authData && typeof authData === 'object'
-      ? (authData as Record<string, unknown>).token_type
-      : undefined;
-
-  const login =
-    userData && typeof userData === 'object'
-      ? (userData as Record<string, unknown>).login
-      : undefined;
-  const firstName =
-    profileData && typeof profileData === 'object'
-      ? (profileData as Record<string, unknown>).first_name
-      : undefined;
-  const lastName =
-    profileData && typeof profileData === 'object'
-      ? (profileData as Record<string, unknown>).last_name
-      : undefined;
+  if (typeof userId !== 'string' || !userId.trim()) {
+    throw new Error('UserCenter не вернул user_id');
+  }
+  if (typeof login !== 'string' || !login.trim()) {
+    throw new Error('UserCenter не вернул login');
+  }
 
   return {
     accessToken,
-    tokenType: typeof tokenType === 'string' ? tokenType : 'bearer',
-    login: typeof login === 'string' ? login : undefined,
-    firstName: typeof firstName === 'string' ? firstName : undefined,
-    lastName: typeof lastName === 'string' ? lastName : undefined
+    userId,
+    login,
+    accountId
   };
 }
 

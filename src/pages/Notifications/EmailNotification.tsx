@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 import type { EventForEMail } from '@/api/types';
 import { useAuth } from '@/auth/AuthContext';
+import NotificationLayout from '@/components/layouts/NotificationLayout';
+import { ROUTES } from '@/routing/routes';
 import DraftAutosave from '@/components/molecules/Form/DraftAutoSave';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
@@ -145,45 +147,46 @@ function EmailNotificationInner() {
   return (
     <Flex>
       <DraftAutosave />
-      <Box
-        flex="1"
-        bg="#ECF2F8"
-      >
-        <Flex bg={'gray.100'}>
-          <FormProvider formId="email">
-            <Box
-              as="form"
-              flex="1"
-              padding={6}
-              maxW="900px"
-              mx="auto"
-            >
-              <EmailThemeFields
-                initialSubject={draft.subject}
-                initialPreheader={draft.preheader}
-              />
-              <EmailMainFields
-                canImprove={isAuthorized}
-                initialValues={{
-                  messageTitle: draft.messageTitle,
-                  body: draft.body,
-                  signature: draft.signature,
-                  actionText: draft.actionText,
-                  actionLink: draft.actionLink
-                }}
-              />
-            </Box>
-          </FormProvider>
-
+      <NotificationLayout
+        sidebar={
           <RecipientsPanel
             initialEmails={draft.emails}
             canSend={isAuthorized}
-            onAuthClick={() => navigate('/login')}
+            onAuthClick={() => navigate(ROUTES.login)}
             onValidateEmailForm={validateEmailForm}
             onSend={sendMailing}
           />
-        </Flex>
-      </Box>
+        }
+      >
+        <FormProvider formId="email">
+          <Box
+            as="form"
+            w="full"
+            flex="1"
+            p={{
+              base: 'clamp(12px, 1.7vw + 0.125rem, 24px)',
+              md: 6
+            }}
+            maxW="900px"
+            mx="auto"
+          >
+            <EmailThemeFields
+              initialSubject={draft.subject}
+              initialPreheader={draft.preheader}
+            />
+            <EmailMainFields
+              canImprove={isAuthorized}
+              initialValues={{
+                messageTitle: draft.messageTitle,
+                body: draft.body,
+                signature: draft.signature,
+                actionText: draft.actionText,
+                actionLink: draft.actionLink
+              }}
+            />
+          </Box>
+        </FormProvider>
+      </NotificationLayout>
     </Flex>
   );
 }

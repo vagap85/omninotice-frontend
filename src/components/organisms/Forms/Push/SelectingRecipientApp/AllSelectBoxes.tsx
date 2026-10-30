@@ -16,20 +16,16 @@ export default function AllSelectBoxes() {
       flexDirection={'column'}
       gap={3}
     >
-      <Box data-tour="app-select">
-        <AppSelect />
-      </Box>
+      <AppSelect />
 
-      <Box data-tour="icon-select">
-        <IconSelect />
-      </Box>
+      <IconSelect />
 
-      <Box data-tour="recipients-select">
+      <Box>
         <UsersSelectTest />
       </Box>
 
       {selectedApp && (
-        <Box data-tour="preview-block">
+        <Box>
           <Flex
             direction={'column'}
             gap={1.5}

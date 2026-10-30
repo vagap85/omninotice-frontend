@@ -1,9 +1,10 @@
-import { Box, Button, Heading, HStack, Icon, Text } from '@chakra-ui/react';
+import { Box, Heading, HStack, Icon, Text } from '@chakra-ui/react';
 import { useState, useMemo, useEffect, useContext } from 'react';
-import { LuSparkles, LuCircleAlert } from 'react-icons/lu';
+import { LuCircleAlert } from 'react-icons/lu';
 import { useSearchParams } from 'react-router-dom';
 
 import EditableTextWithVariables from '@/components/molecules/EditableTextWithVariables/EditableTextWithVariables';
+import ImproveTextButton from '@/components/molecules/ImproveTextButton/ImproveTextButton';
 import { FormTextAreaField } from '@/components/molecules/Form/Elements/FormTextAreaField';
 import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
 import { FormsRegistryContext } from '@/components/molecules/Form/FormContext';
@@ -38,7 +39,6 @@ export function NotificationContentFields({
   const [variableValues, setVariableValues] = useState<Record<string, string>>(
     {}
   );
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedTemplate, setSelectedTemplate] =
     useState<NotificationTemplate | null>(initialTemplate || null);
 
@@ -69,28 +69,15 @@ export function NotificationContentFields({
       setTitle(template.title);
       setText(template.body);
       setVariableValues({});
-      setErrors({});
     } else {
       setTitle('');
       setText('');
       setVariableValues({});
-      setErrors({});
     }
   };
 
   const handleVariableChange = (variable: string, value: string) => {
-    setVariableValues((prev) => ({
-      ...prev,
-      [variable]: value
-    }));
-
-    if (errors[variable]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[variable];
-        return newErrors;
-      });
-    }
+    setVariableValues((prev) => ({ ...prev, [variable]: value }));
   };
 
   return (
@@ -123,6 +110,7 @@ export function NotificationContentFields({
           subTitlte="Отображается первой строкой в ленте уведомлений более крупно и заметно"
           validators={[required()]}
           initialValue={title}
+          maxLength={50}
         />
       </Box>
 
@@ -142,6 +130,7 @@ export function NotificationContentFields({
               variableValues={variableValues}
               onVariableChange={handleVariableChange}
               onTextChange={setText}
+
               placeholder="Введите текст уведомления"
             />
           </>
@@ -151,8 +140,8 @@ export function NotificationContentFields({
             label="Текст уведомления"
             placeholder="Введите текст уведомления"
             minH="155px"
-            maxLength={155}
-            validators={[required(), maxLength(155)]}
+            maxLength={200}
+            validators={[required(), maxLength(200)]}
             initialValue={text}
           />
         )}
@@ -168,7 +157,7 @@ export function NotificationContentFields({
               boxSize={4}
             />
             <Text>
-              В тексте есть переменные вида {`{{  }}`} — замените их на реальные
+              В тексте есть переменные вида {'{{ }}'} — замените их на реальные
               значения перед отправкой.
             </Text>
           </HStack>
@@ -179,20 +168,7 @@ export function NotificationContentFields({
         justify="flex-end"
         mt={6}
       >
-        <Button
-          variant="accent"
-          leftIcon={<LuSparkles size={20} />}
-          color="white"
-          borderRadius="12px"
-          h={'auto'}
-          px={5}
-          py={3}
-          loadingText="Обработка..."
-          lineHeight={'1.5em'}
-          disabled
-        >
-          Улучшить текст
-        </Button>
+        <ImproveTextButton isDisabled />
       </HStack>
     </Box>
   );

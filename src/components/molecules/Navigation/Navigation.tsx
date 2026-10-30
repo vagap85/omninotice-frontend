@@ -12,69 +12,23 @@ import {
 import { useEffect, useRef, useState } from 'react';
 
 import CustomButton from '@/components/atoms/Button/CustomButton';
-import LogoCherryIcon from '@/components/atoms/Icons/home/LogoCherryIcon';
-import LogoMailIcon from '@/components/atoms/Icons/home/LogoMailIcon';
-import LogoMaxIcon from '@/components/atoms/Icons/home/LogoMaxIcon';
-import LogoSmsIcon from '@/components/atoms/Icons/home/LogoSmsIcon';
-import LogoTelegramIcon from '@/components/atoms/Icons/home/LogoTelegramIcon';
+import { MAILING_CHANNELS } from '@/routing/routes';
 
-const submenuItems = [
-  {
-    label: 'По e-mail',
-    href: '/create/email',
-    hint: '',
+const submenuItems = MAILING_CHANNELS.map((channel) => {
+  const Icon = channel.Icon;
+  return {
+    id: channel.id,
+    label: channel.label,
+    href: channel.href ?? '',
+    hint: channel.hint ?? '',
     icon: (
-      <LogoMailIcon
+      <Icon
         width={24}
         height={24}
       />
     )
-  },
-  {
-    label: 'Push',
-    href: '/create/push',
-    hint: '',
-    icon: (
-      <LogoCherryIcon
-        width={24}
-        height={24}
-      />
-    )
-  },
-  {
-    label: 'По смс',
-    href: '',
-    hint: 'СКОРО',
-    icon: (
-      <LogoSmsIcon
-        width={24}
-        height={24}
-      />
-    )
-  },
-  {
-    label: 'В телеграм',
-    href: '',
-    hint: 'СКОРО',
-    icon: (
-      <LogoTelegramIcon
-        width={24}
-        height={24}
-      />
-    )
-  },
-  {
-    label: 'В MAX',
-    href: '',
-    hint: 'СКОРО',
-    icon: (
-      <LogoMaxIcon
-        width={24}
-        height={24}
-      />
-    )
-  }
-];
+  };
+});
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -130,6 +84,16 @@ export default function Navigation() {
       >
         Тарифы
       </Link>
+      <Link
+        href="/links-landing"
+        fontSize={{
+          base: '12px',
+          md: 'md'
+        }}
+        _hover={{ color: '#2D547B' }}
+      >
+        Сократить ссылку
+      </Link>
       <Flex
         ref={desktopMenuContainerRef}
         position="relative"
@@ -182,9 +146,9 @@ export default function Navigation() {
             p={3}
             zIndex={20}
           >
-            {submenuItems.map(({ label, hint, icon, href }) => (
+            {submenuItems.map(({ id, label, hint, icon, href }) => (
               <CustomButton
-                key={label}
+                key={id}
                 as={'a'}
                 href={href}
                 variant={'ghost'}

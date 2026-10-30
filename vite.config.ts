@@ -52,5 +52,8 @@ export default defineConfig({
         './src/test/__mocks__/fileMock.ts'
       )
     }
+  },
+  optimizeDeps: {
+    include: ['omni-notice-sigma-notification-widget']
   }
 });

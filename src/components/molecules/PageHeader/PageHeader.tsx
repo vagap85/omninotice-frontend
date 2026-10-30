@@ -13,6 +13,7 @@ import { LuHouse } from 'react-icons/lu';
 
 import { AccountWidget } from '../AccountWidget/AccountWidget';
 import type { PageHeaderProps } from '../types/types';
+import { ROUTES } from '@/routing/routes';
 
 function PageHeader({ isAuthorized, title }: PageHeaderProps) {
   return (
@@ -46,7 +47,7 @@ function PageHeader({ isAuthorized, title }: PageHeaderProps) {
             <BreadcrumbItem>
               <BreadcrumbLink
                 color="#52525B"
-                href="/"
+                href={ROUTES.home}
               >
                 <Icon
                   as={LuHouse}

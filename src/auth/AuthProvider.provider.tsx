@@ -7,60 +7,56 @@ import {
 } from 'react';
 
 import { AuthContext } from './AuthContext';
-import type { AuthState } from './types';
-
-const AUTH_STORAGE_KEY = 'usercenter_auth';
-
-const readStoredAuth = (): AuthState | null => {
-  const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-  if (!raw) return null;
-
-  try {
-    const parsed = JSON.parse(raw) as AuthState;
-    if (!parsed?.accessToken || !parsed?.tokenType) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-};
+import {
+  clearAuthCookies,
+  readAuthCookies,
+  saveAuthCookies
+} from './authCookies';
+import type { AuthCredentials, AuthState } from './types';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [authState, setAuthState] = useState<AuthState | null>(() =>
-    readStoredAuth()
-  );
+  const [authState, setAuthState] = useState<AuthState | null>(readAuthCookies);
 
-  const login = useCallback((auth: AuthState) => {
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
-    setAuthState(auth);
+  const login = useCallback((auth: AuthCredentials) => {
+    saveAuthCookies(auth);
+    setAuthState({
+      userId: auth.userId,
+      login: auth.login,
+      accountId: auth.accountId ?? null,
+      firstName: auth.firstName,
+      lastName: auth.lastName
+    });
+  }, []);
+
+  const updateUser = useCallback((partial: Partial<AuthState>) => {
+    setAuthState((current) => (current ? { ...current, ...partial } : current));
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    clearAuthCookies();
     setAuthState(null);
   }, []);
 
-  // Синхронизация между вкладками: срабатывает только в ДРУГИХ вкладках,
-  // не в той, где произошло изменение (таково поведение window 'storage' по спецификации) —
-  // поэтому login/logout выше обновляют текущую вкладку напрямую через setAuthState,
-  // а этот обработчик подхватывает изменения, сделанные в соседних вкладках.
   useEffect(() => {
-    const handleStorage = (event: StorageEvent) => {
-      if (event.key !== AUTH_STORAGE_KEY) return;
-      setAuthState(readStoredAuth());
-    };
+    localStorage.removeItem('usercenter_auth');
+  }, []);
 
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+  useEffect(() => {
+    const syncAuth = () => setAuthState(readAuthCookies());
+
+    window.addEventListener('focus', syncAuth);
+    return () => window.removeEventListener('focus', syncAuth);
   }, []);
 
   const value = useMemo(
     () => ({
       authState,
-      isAuthorized: Boolean(authState?.accessToken),
+      isAuthorized: Boolean(authState),
       login,
-      logout
+      logout,
+      updateUser
     }),
-    [authState, login, logout]
+    [authState, login, logout, updateUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

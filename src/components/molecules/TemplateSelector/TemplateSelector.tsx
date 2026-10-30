@@ -53,7 +53,7 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
     return normalizedName.includes(query) || normalizedBody.includes(query);
   });
 
-  // Закрытие при клике вне компонента (это легитимный side-effect)
+  // Закрытие при клике вне компонента
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -74,7 +74,7 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
     };
   }, [isOpen, onClose]);
 
-  // Фокус на поиск при открытии (тоже легитимный side-effect)
+  // Фокус на поиск при открытии
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
       setTimeout(() => searchInputRef.current?.focus(), 100);
@@ -107,240 +107,249 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
   };
 
   const handleRetry = () => {
-    // Здесь в будущем будет реальная логика повторного запроса к API
-    // Например: fetchTemplates().catch(() => ...)
     console.log('Повторная загрузка...');
   };
 
   return (
-    <Box
-      position="relative"
-      mb={4}
-      ref={popoverRef}
-    >
-      {/* Триггер - кликабельная область */}
-      <Flex
-        align="center"
-        bg="#F8FAFC"
-        borderRadius="8px"
-        border="1px solid"
-        borderColor="#E2EBF3"
-        cursor="pointer"
-        _hover={{ borderColor: '#CBD5E1' }}
-        transition="border-color 0.2s"
-        px={3}
-        py={'10px'}
-        onClick={handleToggle}
+    <Box mb={4}>
+      <Box
+        position="relative"
+        ref={popoverRef}
       >
-        <Icon
-          as={LuFileText}
-          color="#12233F"
-          mr="8px"
-        />
-
-        <Text
-          flex={1}
-          fontSize="md"
-          color={'#12233F'}
-          noOfLines={1}
-        >
-          {initialTemplate?.name || 'Выбрать из шаблона'}
-        </Text>
-
-        {/* Крестик */}
-        {selectedId && (
-          <Box
-            as="button"
-            aria-label="Сбросить шаблон"
-            w="20px"
-            h="20px"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            bg="#E2EBF3"
-            borderRadius="50%"
-            color="#12233F"
-            cursor="pointer"
-            _hover={{ bg: '#12233F', color: '#E2EBF3' }}
-            mr={1}
-            onClick={handleClear}
-            transition="all 0.2s"
-          >
-            <LuX size={12} />
-          </Box>
-        )}
-
-        {/* Стрелка */}
-        <Icon
-          as={LuChevronDown}
-          color="#12233F"
-          boxSize={5}
-          transform={isOpen ? 'rotate(180deg)' : 'rotate(0)'}
-          transition="transform 0.2s"
-        />
-      </Flex>
-
-      {/* Выпадающий список */}
-      {isOpen && (
-        <Box
-          position="absolute"
-          top="100%"
-          left={0}
-          right={0}
-          mt="5px"
-          bg="white"
-          borderRadius="16px"
+        {/* Триггер - кликабельная область */}
+        <Flex
+          align="center"
+          bg="#F8FAFC"
+          borderRadius="8px"
           border="1px solid"
-          borderColor="#E2E8F0"
-          boxShadow="0 4px 12px rgba(0, 0, 0, 0.1)"
-          zIndex={10}
-          overflow="hidden"
+          borderColor="#E2EBF3"
+          cursor="pointer"
+          _hover={{ borderColor: '#CBD5E1' }}
+          transition="border-color 0.2s"
+          px={3}
+          py={'10px'}
+          onClick={handleToggle}
         >
-          {!isLoadFailed && (
+          <Icon
+            as={LuFileText}
+            color="#12233F"
+            mr="8px"
+          />
+
+          <Text
+            flex={1}
+            fontSize="md"
+            color={'#12233F'}
+            noOfLines={1}
+          >
+            {initialTemplate?.name || 'Выбрать из шаблона'}
+          </Text>
+
+          {/* Крестик */}
+          {selectedId && (
             <Box
-              borderBottom="1px solid"
-              borderColor="#A1A1AA"
+              as="button"
+              aria-label="Сбросить шаблон"
+              w="20px"
+              h="20px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              bg="#E2EBF3"
+              borderRadius="50%"
+              color="#12233F"
+              cursor="pointer"
+              _hover={{ bg: '#12233F', color: '#E2EBF3' }}
+              mr={1}
+              onClick={handleClear}
+              transition="all 0.2s"
             >
-              <Flex
-                align="center"
-                bg="white"
-                px="18px"
-                py="12px"
-              >
-                <Icon
-                  as={LuSearch}
-                  color="#A1A1AA"
-                  boxSize={4}
-                  mr="8px"
-                />
-                <Input
-                  ref={searchInputRef}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Поиск по названию или тексту"
-                  border="none"
-                  bg="transparent"
-                  p={0}
-                  fontSize="md"
-                  _focus={{ boxShadow: 'none' }}
-                  _placeholder={{ color: '#A1A1AA' }}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </Flex>
+              <LuX size={12} />
             </Box>
           )}
 
-          {/* Список шаблонов или ошибка */}
-          <VStack
-            spacing={0}
-            align="stretch"
-            maxH="285px"
-            overflowY="auto"
-            css={{
-              '&::-webkit-scrollbar': {
-                width: '6px'
-              },
-              '&::-webkit-scrollbar-track': {
-                background: '#F8FAFC'
-              },
-              '&::-webkit-scrollbar-thumb': {
-                background: '#CBD5E1',
-                borderRadius: '3px'
-              }
-            }}
+          {/* Стрелка */}
+          <Icon
+            as={LuChevronDown}
+            color="#12233F"
+            boxSize={5}
+            transform={isOpen ? 'rotate(180deg)' : 'rotate(0)'}
+            transition="transform 0.2s"
+          />
+        </Flex>
+
+        {/* Выпадающий список */}
+        {isOpen && (
+          <Box
+            position="absolute"
+            top="100%"
+            left={0}
+            right={0}
+            mt="5px"
+            bg="white"
+            borderRadius="16px"
+            border="1px solid"
+            borderColor="#E2E8F0"
+            boxShadow="0 4px 12px rgba(0, 0, 0, 0.1)"
+            zIndex={10}
+            overflow="hidden"
           >
-            {isLoadFailed ? (
-              // 1. Состояние ошибки загрузки
+            {!isLoadFailed && (
               <Box
-                py="24px"
-                textAlign="center"
+                borderBottom="1px solid"
+                borderColor="#A1A1AA"
               >
-                <Icon
-                  as={LuCircleAlert}
-                  w="20px"
-                  h="20px"
-                  boxSize="20px"
-                  color="#EF4444"
-                  mb="8px"
-                />
-                <Text
-                  fontSize="sm"
-                  color="#64748B"
-                  lineHeight="20px"
+                <Flex
+                  align="center"
+                  bg="white"
+                  px="18px"
+                  py="12px"
                 >
-                  Не удалось загрузить шаблоны.
-                </Text>
-                <Text
-                  fontSize="sm"
-                  color="#64748B"
-                  mb="10px"
-                >
-                  Проверьте соединение и повторите.
-                </Text>
-                <Button
-                  variant="outline"
-                  borderColor="#3B6EA0"
-                  color="#3B6EA0"
-                  borderRadius="12px"
-                  px="10px"
-                  py="8px"
-                  fontSize="xs"
-                  fontWeight="500"
-                  onClick={handleRetry}
-                >
-                  Повторить
-                </Button>
+                  <Icon
+                    as={LuSearch}
+                    color="#A1A1AA"
+                    boxSize={4}
+                    mr="8px"
+                  />
+                  <Input
+                    ref={searchInputRef}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Поиск по названию или тексту"
+                    border="none"
+                    bg="transparent"
+                    p={0}
+                    fontSize="md"
+                    _focus={{ boxShadow: 'none' }}
+                    _placeholder={{ color: '#A1A1AA' }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </Flex>
               </Box>
-            ) : filteredTemplates.length === 0 ? (
-              // 2. Поиск не дал результатов
-              <Box
-                py="24px"
-                textAlign="center"
-              >
-                <Text
-                  fontSize="sm"
-                  color="#A1A1AA"
-                >
-                  Шаблоны не найдены
-                </Text>
-              </Box>
-            ) : (
-              // 3. Список найденных шаблонов
-              filteredTemplates.map((template) => (
+            )}
+
+            {/* Список шаблонов или ошибка */}
+            <VStack
+              spacing={0}
+              align="stretch"
+              maxH="285px"
+              overflowY="auto"
+              css={{
+                '&::-webkit-scrollbar': {
+                  width: '6px'
+                },
+                '&::-webkit-scrollbar-track': {
+                  background: '#F8FAFC'
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: '#CBD5E1',
+                  borderRadius: '3px'
+                }
+              }}
+            >
+              {isLoadFailed ? (
                 <Box
-                  key={template.id}
-                  px={'18px'}
-                  py={'14px'}
-                  cursor="pointer"
-                  _hover={{ bg: '#F8FAFC' }}
-                  borderBottom="1px solid"
-                  borderColor="#E2E8F0"
-                  onClick={() => handleSelect(template)}
-                  bg={selectedId === template.id ? '#EBF4FF' : 'white'}
-                  transition="background-color 0.15s"
+                  py="24px"
+                  textAlign="center"
                 >
+                  <Icon
+                    as={LuCircleAlert}
+                    w="20px"
+                    h="20px"
+                    boxSize="20px"
+                    color="#EF4444"
+                    mb="8px"
+                  />
                   <Text
                     fontSize="sm"
-                    fontWeight="bold"
-                    lineHeight={'24px'}
-                    color="#12233F"
-                    mb={'4px'}
-                  >
-                    {template.name}
-                  </Text>
-                  <Text
-                    fontSize="sm"
-                    color="#12233F"
-                    noOfLines={2}
+                    color="#64748B"
                     lineHeight="20px"
                   >
-                    {template.body}
+                    Не удалось загрузить шаблоны.
+                  </Text>
+                  <Text
+                    fontSize="sm"
+                    color="#64748B"
+                    mb="10px"
+                  >
+                    Проверьте соединение и повторите.
+                  </Text>
+                  <Button
+                    variant="outline"
+                    borderColor="#3B6EA0"
+                    color="#3B6EA0"
+                    borderRadius="12px"
+                    px="10px"
+                    py="8px"
+                    fontSize="xs"
+                    fontWeight="500"
+                    onClick={handleRetry}
+                  >
+                    Повторить
+                  </Button>
+                </Box>
+              ) : filteredTemplates.length === 0 ? (
+                <Box
+                  py="24px"
+                  textAlign="center"
+                >
+                  <Text
+                    fontSize="sm"
+                    color="#A1A1AA"
+                  >
+                    Шаблоны не найдены
                   </Text>
                 </Box>
-              ))
-            )}
-          </VStack>
-        </Box>
+              ) : (
+                filteredTemplates.map((template) => (
+                  <Box
+                    key={template.id}
+                    px={'18px'}
+                    py={'14px'}
+                    cursor="pointer"
+                    _hover={{ bg: '#F8FAFC' }}
+                    borderBottom="1px solid"
+                    borderColor="#E2E8F0"
+                    onClick={() => handleSelect(template)}
+                    bg={selectedId === template.id ? '#EBF4FF' : 'white'}
+                    transition="background-color 0.15s"
+                  >
+                    <Text
+                      fontSize="sm"
+                      fontWeight="bold"
+                      lineHeight={'24px'}
+                      color="#12233F"
+                      mb={'4px'}
+                    >
+                      {template.name}
+                    </Text>
+                    <Text
+                      fontSize="sm"
+                      color="#12233F"
+                      noOfLines={2}
+                      lineHeight="20px"
+                    >
+                      {template.body}
+                    </Text>
+                  </Box>
+                ))
+              )}
+            </VStack>
+          </Box>
+        )}
+      </Box>
+
+      {/* Подсказка под шаблоном — только пока шаблон не выбран */}
+      {!selectedId && (
+        <Text
+          mt="6px"
+          fontSize="xs"
+          color="#52525B"
+          lineHeight="16px"
+        >
+          Можно выбрать готовый шаблон уведомления. Поля ниже заполнятся текстом
+          шаблона.
+        </Text>
       )}
     </Box>
   );
