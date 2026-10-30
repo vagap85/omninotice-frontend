@@ -286,11 +286,26 @@ export default function ProfilePage() {
     setPwdVisibility((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
+  const isProfileChanged = useMemo(() => {
+    if (!loaded) return false;
+    return (
+      (form.firstName ?? '') !== (loaded.firstName ?? '') ||
+      (form.lastName ?? '') !== (loaded.lastName ?? '') ||
+      (form.email ?? '') !== (loaded.email ?? '') ||
+      (form.phone ?? '') !== (loaded.phone ?? '') ||
+      (form.position ?? '') !== (loaded.position ?? '')
+    );
+  }, [form, loaded]);
+
   const resetProfileChanges = () => {
     if (!loaded) return;
     setForm(loaded);
     setErrors((prev) => ({ ...prev, firstName: '', email: '', phone: '' }));
   };
+
+  const isPasswordChanged = useMemo(() => {
+    return Boolean(passwords.current || passwords.next || passwords.repeat);
+  }, [passwords]);
 
   const resetPasswords = () => {
     setPasswords({ current: '', next: '', repeat: '' });
@@ -334,7 +349,7 @@ export default function ProfilePage() {
   };
 
   const handleSaveClick = () => {
-    if (!loaded || saving) return;
+    if (!loaded || saving || !isProfileChanged) return;
     const validation: FormErrors = {
       firstName: validateProfileField('firstName', form.firstName),
       email: validateProfileField('email', form.email),
@@ -380,7 +395,7 @@ export default function ProfilePage() {
   };
 
   const handleChangePwdClick = async () => {
-    if (pwdBusy) return;
+    if (pwdBusy || !isPasswordChanged) return;
     const validation: FormErrors = {
       current: passwords.current ? '' : 'Введите текущий пароль',
       next:
@@ -576,18 +591,20 @@ export default function ProfilePage() {
           </section>
 
           <div className="profile-page__save-row">
-            <button
-              type="button"
-              className="profile-page__discard-link"
-              onClick={resetProfileChanges}
-              disabled={saving}
-            >
-              Отменить изменения
-            </button>
+            {isProfileChanged && (
+              <button
+                type="button"
+                className="profile-page__discard-link"
+                onClick={resetProfileChanges}
+                disabled={saving}
+              >
+                Отменить изменения
+              </button>
+            )}
             <Button
               variant="primary"
               className="profile-page__btn"
-              disabled={saving}
+              disabled={!isProfileChanged || saving}
               onClick={handleSaveClick}
             >
               Сохранить изменения
@@ -645,18 +662,20 @@ export default function ProfilePage() {
               />
             </div>
             <div className="profile-page__pwd-footer">
-              <button
-                type="button"
-                className="profile-page__ghost-btn"
-                onClick={resetPasswords}
-                disabled={pwdBusy}
-              >
-                Отмена
-              </button>
+              {isPasswordChanged && (
+                <button
+                  type="button"
+                  className="profile-page__ghost-btn"
+                  onClick={resetPasswords}
+                  disabled={pwdBusy}
+                >
+                  Отмена
+                </button>
+              )}
               <Button
                 variant="primary"
                 className="profile-page__btn"
-                disabled={pwdBusy}
+                disabled={!isPasswordChanged || pwdBusy}
                 onClick={handleChangePwdClick}
               >
                 Изменить пароль

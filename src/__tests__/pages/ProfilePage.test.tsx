@@ -100,4 +100,67 @@ describe('ProfilePage', () => {
       'profile-page__security-email'
     );
   });
+  test('скрывает кнопку Отменить изменения и блокирует Сохранить изменения при отсутствии изменений', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<ProfilePage />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Имя/i)).not.toBeDisabled();
+    });
+
+    const saveButton = screen.getByRole('button', {
+      name: 'Сохранить изменения'
+    });
+
+    // Исходно: кнопка отмены скрыта, сохранения - неактивна
+    expect(screen.queryByText('Отменить изменения')).not.toBeInTheDocument();
+    expect(saveButton).toBeDisabled();
+
+    // Вносим изменения в поле
+    const nameInput = screen.getByLabelText(/Имя/i);
+    await user.type(nameInput, ' добавлено');
+
+    // Кнопка отмены появляется, кнопка сохранения становится активной
+    expect(screen.getByText('Отменить изменения')).toBeInTheDocument();
+    expect(saveButton).toBeEnabled();
+
+    // Нажимаем Отменить изменения
+    await user.click(screen.getByText('Отменить изменения'));
+
+    // Кнопка отмены снова скрыта, сохранения - неактивна
+    expect(screen.queryByText('Отменить изменения')).not.toBeInTheDocument();
+    expect(saveButton).toBeDisabled();
+  });
+  test('скрывает кнопку Отмена и блокирует Изменить пароль при отсутствии изменений в форме пароля', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<ProfilePage />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Текущий пароль/i)).not.toBeDisabled();
+    });
+
+    const changePwdButton = screen.getByRole('button', {
+      name: 'Изменить пароль'
+    });
+
+    // Исходно: кнопка Отмена скрыта, кнопка Изменить пароль неактивна
+    expect(screen.queryByText('Отмена')).not.toBeInTheDocument();
+    expect(changePwdButton).toBeDisabled();
+
+    // Вводим значение в текущий пароль
+    const currentPwdInput = screen.getByLabelText(/Текущий пароль/i);
+    await user.type(currentPwdInput, 'old-password');
+
+    // Кнопка Отмена появляется, кнопка Изменить пароль становится активной
+    expect(screen.getByText('Отмена')).toBeInTheDocument();
+    expect(changePwdButton).toBeEnabled();
+
+    // Нажимаем Отмена
+    await user.click(screen.getByText('Отмена'));
+
+    // Кнопка Отмена снова скрыта, кнопка Изменить пароль неактивна, значение очищено
+    expect(screen.queryByText('Отмена')).not.toBeInTheDocument();
+    expect(changePwdButton).toBeDisabled();
+    expect(currentPwdInput).toHaveValue('');
+  });
 });
