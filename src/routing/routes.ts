@@ -15,6 +15,7 @@ export const ROUTES = {
   createTelegram: '/create/telegram',
   connectTelegramBot: '/create/telegram/connect',
   overview: '/overview',
+  history: "/push/history",
   templates: '/templates',
   links: '/links',
   linkDetails: '/links/:id',
@@ -85,6 +86,7 @@ export const PAGE_TITLES: Partial<Record<string, string>> = {
   [ROUTES.createTelegram]: 'Создание Telegram-рассылки',
   [ROUTES.connectTelegramBot]: 'Создание Telegram-рассылки',
   [ROUTES.overview]: 'Обзор',
+  [ROUTES.history]: 'История рассылок push-уведомлений',
   [ROUTES.templates]: 'Шаблоны рассылок'
 };
 
@@ -93,5 +95,6 @@ export const COLLAPSED_SIDEBAR_ROUTES = [
   ROUTES.createPush,
   ROUTES.createTelegram,
   ROUTES.connectTelegramBot,
+  ROUTES.history,
   ROUTES.templates
 ] as const;

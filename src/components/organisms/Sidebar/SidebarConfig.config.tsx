@@ -49,7 +49,7 @@ export const createMenuEntries: SidebarMenuEntry[] = MAILING_CHANNELS.map(
                   height={SUB_MENU_ICON_SIZE}
                 />
               ),
-              disabled: true
+              href: '/push/history'
             }
           ]
         }
@@ -106,7 +106,8 @@ export const sidebarMenuItems: SidebarMenuItemProps[] = [
       />
     ),
     text: 'История',
-    disabled: true
+    as: 'a',
+    href: ROUTES.history
   },
   {
     leftIcon: (

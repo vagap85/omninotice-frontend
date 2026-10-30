@@ -37,6 +37,9 @@ const TelegramNotification = lazyWithMinDelay(
 const TelegramBotConnection = lazyWithMinDelay(
   () => import('@/pages/Notifications/TelegramBotConnection')
 );
+const NotificationHistoryPage = lazyWithMinDelay(
+  () => import('@/pages/Notifications/PushNotificationHistory')
+);
 const AuthLoginPage = lazyWithMinDelay(
   () => import('@/pages/Auth/AuthLoginPage')
 );
@@ -99,6 +102,10 @@ function App() {
               path="/profile"
               element={<ProfilePage />}
             />
+            <Route
+              path="/push/history"
+              element={<NotificationHistoryPage />}
+            />
           </Route>
           <Route element={<ProtectedRoute />}>
             <Route
@@ -132,7 +139,12 @@ function App() {
           />
           <Route
             path="/dashboard/profile"
-            element={<Navigate to="/profile" replace />}
+            element={
+              <Navigate
+                to="/profile"
+                replace
+              />
+            }
           />
         </Route>
         <Route
