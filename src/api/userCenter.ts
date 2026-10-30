@@ -1,3 +1,4 @@
+import { parseJwtPayload } from './profile';
 import { UserCenterCreateSuccess, UserCenterLoginSuccess } from './types';
 
 const DEFAULT_USERCENTER_BASE_URL = 'https://api.users.skroy.ru';
@@ -103,7 +104,18 @@ export async function loginUserCenter(
   const accessToken = authRecord.access_token;
   const userId = userRecord.user_id;
   const login = userRecord.login;
-  const accountId = organizationRecord.account_id;
+  let accountId: string | null = null;
+  if (
+    typeof organizationRecord.account_id === 'string' &&
+    organizationRecord.account_id.trim()
+  ) {
+    accountId = organizationRecord.account_id.trim();
+  } else if (typeof accessToken === 'string' && accessToken.trim()) {
+    const sub = parseJwtPayload(accessToken);
+    if (typeof sub?.account_id === 'string' && sub.account_id.trim()) {
+      accountId = sub.account_id.trim();
+    }
+  }
 
   if (typeof accessToken !== 'string' || !accessToken.trim()) {
     throw new Error('UserCenter не вернул access_token');
@@ -113,9 +125,6 @@ export async function loginUserCenter(
   }
   if (typeof login !== 'string' || !login.trim()) {
     throw new Error('UserCenter не вернул login');
-  }
-  if (typeof accountId !== 'string' || !accountId.trim()) {
-    throw new Error('UserCenter не вернул account_id');
   }
 
   return {

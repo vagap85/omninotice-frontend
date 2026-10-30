@@ -1,7 +1,7 @@
 export interface AuthState {
   userId: string;
   login: string;
-  accountId: string;
+  accountId?: string | null;
   firstName?: string;
   lastName?: string;
 }

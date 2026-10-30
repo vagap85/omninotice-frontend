@@ -22,7 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthState({
       userId: auth.userId,
       login: auth.login,
-      accountId: auth.accountId,
+      accountId: auth.accountId ?? null,
       firstName: auth.firstName,
       lastName: auth.lastName
     });

@@ -13,7 +13,7 @@ export interface UserCenterLoginSuccess {
   accessToken: string;
   userId: string;
   login: string;
-  accountId: string;
+  accountId?: string | null;
 }
 
 export interface UserCenterCreateSuccess {

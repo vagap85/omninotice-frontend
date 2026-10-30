@@ -41,4 +41,19 @@ describe('auth cookies', () => {
     expect(readAuthCookies()).toBeNull();
     expect(getAccessTokenCookie()).toBeNull();
   });
+  test('reads auth state successfully when accountId is missing/null', () => {
+    saveAuthCookies({
+      userId: 'user-123',
+      login: 'user+test@example.com',
+      accountId: null,
+      accessToken: 'secret-token'
+    });
+
+    expect(readAuthCookies()).toEqual({
+      userId: 'user-123',
+      login: 'user+test@example.com',
+      accountId: null
+    });
+    expect(getAccessTokenCookie()).toBe('secret-token');
+  });
 });
