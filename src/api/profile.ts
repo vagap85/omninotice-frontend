@@ -1,3 +1,4 @@
+import { getAccessTokenCookie } from '@/auth/authCookies';
 import type { ChangePasswordPayload } from '@/types/profile';
 
 const DEFAULT_USERCENTER_BASE_URL = 'https://api.users.skroy.ru';
@@ -19,6 +20,8 @@ export const getUserCenterProjectId = (): string => {
 };
 
 export const getStoredAccessToken = (): string | undefined => {
+  const fromCookie = getAccessTokenCookie();
+  if (fromCookie?.trim()) return fromCookie.trim();
   try {
     const raw = localStorage.getItem(AUTH_STORAGE_KEY);
     if (!raw) return undefined;
@@ -309,7 +312,7 @@ export async function updateMyProfile(
   // Случай 1: Профиль еще не создан -> POST /profile + привязка к пользователю
   if (!existingProfileId) {
     const createBody: Record<string, unknown> = {
-      profile_type: 'person',
+
       first_name: data.firstName || '',
       last_name: data.lastName || '',
       contact_email: contactEmail,

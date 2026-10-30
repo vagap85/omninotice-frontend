@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import { type Mock, describe, test, expect, vi, beforeEach } from 'vitest';
 
-import { loginUserCenter } from '@/api/userCenter';
+import { createUserCenter, loginUserCenter } from '@/api/userCenter';
 import AuthRegisterPage from '@/pages/Auth/AuthRegisterPage';
 
 import { renderWithProviders, screen, waitFor } from '../../test/utils';
@@ -88,6 +88,10 @@ describe('AuthRegisterPage', () => {
 
   test('успешная регистрация вызывает setAuth и редирект', async () => {
     const user = userEvent.setup();
+    (createUserCenter as Mock).mockResolvedValueOnce({
+      login: 'new@mail.com',
+      password: 'password123'
+    });
     (loginUserCenter as Mock).mockResolvedValueOnce({
       accessToken: 'token123',
       userId: 'user-123',
@@ -112,14 +116,22 @@ describe('AuthRegisterPage', () => {
     await user.click(screen.getByText('Создать аккаунт'));
 
     await waitFor(() => {
+      expect(createUserCenter).toHaveBeenCalledWith(
+        'new@mail.com',
+        'password123'
+      );
+      expect(loginUserCenter).toHaveBeenCalledWith(
+        'new@mail.com',
+        'password123'
+      );
       expect(mockLogin).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith('/create/email');
+      expect(mockNavigate).toHaveBeenCalledWith('/about-yourself');
     });
   });
 
   test('ошибка регистрации показывается пользователю', async () => {
     const user = userEvent.setup();
-    (loginUserCenter as Mock).mockRejectedValueOnce(
+    (createUserCenter as Mock).mockRejectedValueOnce(
       new Error('Логин уже занят')
     );
 

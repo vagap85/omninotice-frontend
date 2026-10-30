@@ -46,7 +46,7 @@ function AccountWidgetComponent() {
       console.warn('Could not read cached profile name:', error);
       return { firstName: '', lastName: '' };
     }
-  }, []);
+  });
   const displayName =
     [
       authState?.firstName || cachedName.firstName,
