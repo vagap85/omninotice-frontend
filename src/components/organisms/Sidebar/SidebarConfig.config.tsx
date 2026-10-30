@@ -107,7 +107,7 @@ export const sidebarMenuItems: SidebarMenuItemProps[] = [
     ),
     text: 'История',
     as: 'a',
-    disabled: true
+    href: ROUTES.history
   },
   {
     leftIcon: (
