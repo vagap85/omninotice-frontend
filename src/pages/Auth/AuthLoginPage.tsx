@@ -1,4 +1,3 @@
-import { ArrowBackIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -13,39 +12,31 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { fetchMyProfile } from '@/api/profile';
 import { loginUserCenter } from '@/api/userCenter';
-import { ROUTES } from '@/routing/routes';
-import authBg from '@/assets/background.jpg';
-import logo from '@/assets/logo.svg';
 import { useAuth } from '@/auth/AuthContext';
-import { FormPasswordField } from '@/components/molecules/Form/Elements/FormPasswordField';
-import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
-import { useFormValues } from '@/components/molecules/Form/hooks/useFormValues';
+import { useFormSelector } from '@/components/molecules/Form/hooks/useFormValues';
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
-import { FormsRegistryProvider } from '@/components/molecules/Form/Providers/FormsRegistryProvider';
-import {
-  required,
-  email as emailValidator
-} from '@/components/molecules/Form/validators/validators';
+import LoginForm from '@/components/organisms/Forms/Auth/LoginForm';
+import { getAuthRedirectPath } from '@/routing/authRedirect';
+import { ROUTES } from '@/routing/routes';
 
-type LocationState = {
-  from?: {
-    pathname: string;
-    search?: string;
-  };
+type LoginValues = {
+  login: string;
+  password: string;
 };
+
+const isLoginFormFilled = (values: LoginValues) =>
+  Boolean(values.login?.trim() && values.password?.trim());
 
 export default function AuthLoginPage() {
   return (
-    <FormsRegistryProvider>
-      <FormProvider formId="login">
-        <AuthLoginPageInner />
-      </FormProvider>
-    </FormsRegistryProvider>
+    <FormProvider formId="login">
+      <AuthLoginPageContent />
+    </FormProvider>
   );
 }
 
-function AuthLoginPageInner() {
+function AuthLoginPageContent() {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
@@ -53,11 +44,7 @@ function AuthLoginPageInner() {
   const { login: setAuth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  const state = location.state as LocationState | null;
-  const from = state?.from;
-  const redirectTo = from
-    ? `${from.pathname}${from.search ?? ''}`
-    : ROUTES.home;
+  const redirectTo = getAuthRedirectPath(location.state);
 
   const handleSubmit = async () => {
     const store = registry.getOrCreateStore('login');
@@ -71,43 +58,7 @@ function AuthLoginPageInner() {
     setIsLoading(true);
     try {
       const auth = await loginUserCenter(login.trim(), password);
-
-      let firstName = auth.firstName;
-      let lastName = auth.lastName;
-
-      try {
-        const profile = await fetchMyProfile(auth.accessToken);
-        if (profile) {
-          if (profile.first_name?.trim()) {
-            firstName = profile.first_name.trim();
-          }
-          if (profile.last_name?.trim()) {
-            lastName = profile.last_name.trim();
-          }
-          const profileData = {
-            firstName: firstName || '',
-            lastName: lastName || '',
-            email:
-              profile.contact_email?.find(
-                (item) =>
-                  item.title?.toLowerCase() === 'work' ||
-                  item.title?.toLowerCase() === 'рабочий'
-              )?.value ||
-              profile.contact_email?.[0]?.value ||
-              auth.login
-          };
-          sessionStorage.setItem('profile_data', JSON.stringify(profileData));
-        }
-      } catch (profileError) {
-        console.warn('Could not load profile on login:', profileError);
-      }
-
-      setAuth({
-        ...auth,
-        firstName,
-        lastName
-      });
-
+      setAuth(auth);
       toast({
         position: 'bottom',
         duration: 4000,
@@ -133,8 +84,9 @@ function AuthLoginPageInner() {
         )
       });
       navigate(redirectTo, { replace: true });
-    } catch (e) {
-      const message = e instanceof Error ? e.message : 'Ошибка авторизации';
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Ошибка авторизации';
       store.setFieldError('password', message);
     } finally {
       setIsLoading(false);
@@ -142,119 +94,31 @@ function AuthLoginPageInner() {
   };
 
   return (
-    <Box
-      position="relative"
-      w="100%"
-      minH="100vh"
-      sx={{ '@supports (min-height: 100dvh)': { minHeight: '100dvh' } }}
-      overflowX="hidden"
-      px={{ base: 4, sm: 6 }}
-      py={{ base: 16, md: 20 }}
-      fontFamily="Inter, system-ui, sans-serif"
-    >
-      <Box
-        aria-hidden
-        position="absolute"
-        inset={0}
-        zIndex={0}
-        bgImage={`url("${authBg}")`}
-        bgSize="cover"
-        bgPosition="center"
-        bgRepeat="no-repeat"
-        minW="100%"
-        minH="100%"
-      />
-      <Button
-        variant="ghost"
-        leftIcon={<ArrowBackIcon />}
-        color="#2D547B"
-        fontWeight="500"
-        fontSize="16px"
-        onClick={() => navigate(ROUTES.home)}
-        position="absolute"
-        zIndex={2}
-        top={{ base: '24px', md: '80px' }}
-        left={{ base: 4, md: '80px' }}
-      >
-        На главную
-      </Button>
-
-      <VStack
-        spacing={10}
-        position="relative"
-        zIndex={1}
-        w="100%"
-        maxW="460px"
-        mx="auto"
-        mt="8vh"
-      >
-        <Box
-          as="img"
-          src={logo}
-          alt="OmniNotice"
-          w="220px"
-          h="80px"
+    <Stack spacing={6}>
+      <LoginForm onEnter={() => void handleSubmit()} />
+      <VStack spacing={1}>
+        <LoginSubmitButton
+          isLoading={isLoading}
+          onSubmit={() => void handleSubmit()}
         />
-
-        <Box
-          w="100%"
-          bg="white"
-          borderRadius="20px"
-          boxShadow="0px 0px 1px rgba(25, 24, 27, 0.3), 0px 8px 16px rgba(26, 24, 27, 0.1)"
-          p={8}
-        >
-          <Stack spacing={6}>
-            <Stack spacing={5}>
-              <FormTextField
-                name="login"
-                label="Логин"
-                placeholder="example@omninotice"
-                validators={[
-                  required('Введите логин и пароль'),
-                  emailValidator()
-                ]}
-              />
-              <FormPasswordField
-                name="password"
-                label="Пароль"
-                placeholder="введите пароль"
-                validators={[required('Введите логин и пароль')]}
-                onEnter={() => void handleSubmit()}
-              />
-            </Stack>
-
-            <VStack spacing={1}>
-              <LoginSubmitButton
-                isLoading={isLoading}
-                onSubmit={() => void handleSubmit()}
-              />
-              <Link
-                color="#3B6EA0"
-                fontSize="16px"
-                fontWeight="500"
-                onClick={() => navigate(ROUTES.registration)}
-                _hover={{ textDecoration: 'none', color: '#2D547B' }}
-              >
-                Нет аккаунта? Зарегистрируйтесь
-              </Link>
-            </VStack>
-          </Stack>
-        </Box>
-
-        <Text
-          color="#2D547B"
-          fontSize="14px"
+        <Link
+          as="button"
+          type="button"
+          color="#3B6EA0"
+          fontSize="16px"
           fontWeight="500"
+          onClick={() =>
+            navigate(ROUTES.registration, { state: location.state })
+          }
+          _hover={{ textDecoration: 'none', color: '#2D547B' }}
         >
-          Не помню пароль
-        </Text>
+          Нет аккаунта? Зарегистрируйтесь
+        </Link>
       </VStack>
-    </Box>
+    </Stack>
   );
 }
 
-// Вынесено в лист, чтобы useFormValues (подписка на ВСЕ поля формы, нужная только
-// для расчёта opacity) не тянула за собой ре-рендер всей страницы при каждом нажатии клавиши.
 function LoginSubmitButton({
   isLoading,
   onSubmit
@@ -262,8 +126,7 @@ function LoginSubmitButton({
   isLoading: boolean;
   onSubmit: () => void;
 }) {
-  const values = useFormValues<{ login: string; password: string }>('login');
-  const isFilled = Boolean(values.login?.trim() && values.password?.trim());
+  const isFilled = useFormSelector('login', isLoginFormFilled);
 
   return (
     <Button
@@ -279,6 +142,7 @@ function LoginSubmitButton({
       isLoading={isLoading}
       loadingText="Входим..."
       opacity={isFilled ? 1 : 0.5}
+      disabled={!isFilled}
     >
       Войти
     </Button>

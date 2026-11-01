@@ -1,4 +1,3 @@
-import { ArrowBackIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -9,37 +8,40 @@ import {
   useToast
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { createUserCenter, loginUserCenter } from '@/api/userCenter';
-import { ROUTES } from '@/routing/routes';
-import authBg from '@/assets/background.jpg';
-import logo from '@/assets/logo.svg';
 import { useAuth } from '@/auth/AuthContext';
-import { FormPasswordField } from '@/components/molecules/Form/Elements/FormPasswordField';
-import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
-import { useFormValues } from '@/components/molecules/Form/hooks/useFormValues';
+import { useFormSelector } from '@/components/molecules/Form/hooks/useFormValues';
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
-import { FormsRegistryProvider } from '@/components/molecules/Form/Providers/FormsRegistryProvider';
-import {
-  required,
-  email as emailValidator,
-  matchesField
-} from '@/components/molecules/Form/validators/validators';
+import { RegisterForm } from '@/components/organisms/Forms/Auth/RegisterForm';
+import { ROUTES } from '@/routing/routes';
+
+type RegisterValues = {
+  login: string;
+  password: string;
+  passwordConfirm: string;
+};
+
+const isRegisterFormFilled = (values: RegisterValues) =>
+  Boolean(
+    values.login?.trim() &&
+    values.password?.trim() &&
+    values.passwordConfirm?.trim()
+  );
 
 export default function AuthRegisterPage() {
   return (
-    <FormsRegistryProvider>
-      <FormProvider formId="register">
-        <AuthRegisterPageInner />
-      </FormProvider>
-    </FormsRegistryProvider>
+    <FormProvider formId="register">
+      <AuthRegisterPageContent />
+    </FormProvider>
   );
 }
 
-function AuthRegisterPageInner() {
+function AuthRegisterPageContent() {
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
   const registry = useFormsRegistry();
   const { login: setAuth } = useAuth();
@@ -58,11 +60,8 @@ function AuthRegisterPageInner() {
     try {
       const trimmedLogin = login.trim();
       await createUserCenter(trimmedLogin, password);
-
       const auth = await loginUserCenter(trimmedLogin, password);
-
       setAuth(auth);
-
       toast({
         position: 'bottom',
         duration: 4000,
@@ -87,9 +86,10 @@ function AuthRegisterPageInner() {
           </Box>
         )
       });
-      navigate(ROUTES.about);
-    } catch (e) {
-      const message = e instanceof Error ? e.message : 'Ошибка авторизации';
+      navigate(ROUTES.about, { state: location.state });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Ошибка авторизации';
       store.setFieldError('passwordConfirm', message);
     } finally {
       setIsLoading(false);
@@ -97,115 +97,26 @@ function AuthRegisterPageInner() {
   };
 
   return (
-    <Box
-      position="relative"
-      w="100%"
-      minH="100vh"
-      sx={{ '@supports (min-height: 100dvh)': { minHeight: '100dvh' } }}
-      overflowX="hidden"
-      px={{ base: 4, sm: 6 }}
-      py={{ base: 16, md: 20 }}
-      fontFamily="Inter, system-ui, sans-serif"
-    >
-      <Box
-        aria-hidden
-        position="absolute"
-        inset={0}
-        zIndex={0}
-        bgImage={`url("${authBg}")`}
-        bgSize="cover"
-        bgPosition="center"
-        bgRepeat="no-repeat"
-        minW="100%"
-        minH="100%"
-      />
-      <Button
-        variant="ghost"
-        leftIcon={<ArrowBackIcon />}
-        color="#2D547B"
-        fontWeight="500"
-        fontSize="16px"
-        onClick={() => navigate(ROUTES.home)}
-        position="absolute"
-        zIndex={2}
-        top={{ base: '24px', md: '80px' }}
-        left={{ base: 4, md: '80px' }}
-      >
-        На главную
-      </Button>
-
-      <VStack
-        spacing={10}
-        position="relative"
-        zIndex={1}
-        w="100%"
-        maxW="460px"
-        mx="auto"
-        mt="8vh"
-      >
-        <Box
-          as="img"
-          src={logo}
-          alt="OmniNotice"
-          w="220px"
-          h="80px"
+    <Stack spacing={6}>
+      <RegisterForm onEnter={() => void handleSubmit()} />
+      <VStack spacing={1}>
+        <RegisterSubmitButton
+          isLoading={isLoading}
+          onSubmit={() => void handleSubmit()}
         />
-
-        <Box
-          w="100%"
-          bg="white"
-          borderRadius="20px"
-          boxShadow="0px 0px 1px rgba(25, 24, 27, 0.3), 0px 8px 16px rgba(26, 24, 27, 0.1)"
-          p={8}
+        <Link
+          as="button"
+          type="button"
+          color="#3B6EA0"
+          fontSize="16px"
+          fontWeight="500"
+          onClick={() => navigate(ROUTES.login)}
+          _hover={{ textDecoration: 'none', color: '#2D547B' }}
         >
-          <Stack spacing={6}>
-            <Stack spacing={5}>
-              <FormTextField
-                name="login"
-                label="Логин"
-                placeholder="example@omninotice"
-                validators={[
-                  required('Введите логин и пароль'),
-                  emailValidator()
-                ]}
-              />
-              <FormPasswordField
-                name="password"
-                label="Придумайте пароль"
-                placeholder="введите пароль"
-                validators={[required('Введите логин и пароль')]}
-              />
-              <FormPasswordField
-                name="passwordConfirm"
-                label="Повторите пароль"
-                placeholder="повторите пароль"
-                validators={[
-                  required('Введите логин и пароль'),
-                  matchesField('password')
-                ]}
-                onEnter={() => void handleSubmit()}
-              />
-            </Stack>
-
-            <VStack spacing={1}>
-              <RegisterSubmitButton
-                isLoading={isLoading}
-                onSubmit={() => void handleSubmit()}
-              />
-              <Link
-                color="#3B6EA0"
-                fontSize="16px"
-                fontWeight="500"
-                onClick={() => navigate(ROUTES.login)}
-                _hover={{ textDecoration: 'none', color: '#2D547B' }}
-              >
-                У меня уже есть аккаунт
-              </Link>
-            </VStack>
-          </Stack>
-        </Box>
+          У меня уже есть аккаунт
+        </Link>
       </VStack>
-    </Box>
+    </Stack>
   );
 }
 
@@ -216,16 +127,7 @@ function RegisterSubmitButton({
   isLoading: boolean;
   onSubmit: () => void;
 }) {
-  const values = useFormValues<{
-    login: string;
-    password: string;
-    passwordConfirm: string;
-  }>('register');
-  const isFilled = Boolean(
-    values.login?.trim() &&
-    values.password?.trim() &&
-    values.passwordConfirm?.trim()
-  );
+  const isFilled = useFormSelector('register', isRegisterFormFilled);
 
   return (
     <Button

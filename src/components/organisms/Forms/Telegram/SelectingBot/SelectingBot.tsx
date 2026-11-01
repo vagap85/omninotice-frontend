@@ -8,7 +8,7 @@ import {
 } from '@chakra-ui/react';
 import type { JSONContent } from '@tiptap/core';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
   DispatchError,
@@ -46,6 +46,7 @@ const BOTS = [
 
 export default function SelectingBot() {
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
   const { isAuthorized } = useAuth();
   const [selectedBot, setSelectedBot] = useState<string | null>(null);
@@ -193,7 +194,9 @@ export default function SelectingBot() {
           beforeSubmitValidate={validateTelegramSettings}
           onSubmit={handleSubmit}
           isAuthorized={isAuthorized}
-          onUnauthorized={() => navigate(ROUTES.login)}
+          onUnauthorized={() =>
+            navigate(ROUTES.login, { state: { from: location } })
+          }
           ml={'auto'}
           rightIcon={<ArrowForwardIcon />}
         >

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import chartIcon from '@/assets/landing/chart_data.svg';
 import linkIcon from '@/assets/landing/link.svg';
@@ -40,6 +40,7 @@ const VerifiedUser = () => (
 
 export function MarketingBlock() {
   const { authState } = useAuth();
+  const location = useLocation();
 
   // Если пользователь уже авторизован — закрепляем гостевые ссылки за
   // аккаунтом прямо перед переходом на регистрацию
@@ -57,9 +58,7 @@ export function MarketingBlock() {
       <div className="marketing-block__wrapper">
         {/* ЛЕВАЯ ЧАСТЬ */}
         <div className="marketing-block__left">
-          <span className="marketing-block__title">
-            Больше возможностей
-          </span>
+          <span className="marketing-block__title">Больше возможностей</span>
           <br />
           <span className="marketing-block__title marketing-block__title--accent">
             для вашего маркетинга
@@ -71,6 +70,7 @@ export function MarketingBlock() {
 
           <Link
             to={ROUTES.registration}
+            state={{ from: location }}
             className="marketing-block__btn"
             aria-label="Зарегистрироваться"
             onClick={handleRegister}
@@ -87,9 +87,7 @@ export function MarketingBlock() {
                 <ShortLinkIcon />
               </div>
               <div className="marketing-block__content">
-                <h3 className="marketing-block__card-title">
-                  Короткие ссылки
-                </h3>
+                <h3 className="marketing-block__card-title">Короткие ссылки</h3>
                 <p className="marketing-block__card-description">
                   Легко делитесь ссылками в мессенджерах, соцсетях и письмах.
                 </p>
