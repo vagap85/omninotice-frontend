@@ -10,6 +10,7 @@ import {
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { fetchMyProfile } from '@/api/profile';
 import { loginUserCenter } from '@/api/userCenter';
 import { useAuth } from '@/auth/AuthContext';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';

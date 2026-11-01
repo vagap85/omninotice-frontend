@@ -1,8 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
 
-import arrowIcon from '@/assets/landing/arrow-right.svg';
 import moveLeftIcon from '@/assets/landing/move-left.svg';
 import logoImage from '@/assets/logo.svg';
+import { useAuth } from '@/auth/AuthContext';
+import ArrowRightIcon from '@/components/atoms/Icons/home/ArrowRightIcon';
+import { AccountWidget } from '@/components/molecules/AccountWidget/AccountWidget';
 import { ROUTES } from '@/routing/routes';
 
 import './LandingHeader.scss';
@@ -51,14 +53,11 @@ export default function LandingHeader() {
             state={{ from: location }}
             className="landing-header__link landing-header__link--primary"
           >
-            Попробовать бесплатно
-            <img
-              src={arrowIcon}
-              alt=""
-              className="landing-header__arrow"
-            />
-          </Link>
-        </div>
+            {buttonText}
+          </Button>
+
+          {isAuthorized && <AccountWidget />}
+        </Flex>
       </div>
     </header>
   );

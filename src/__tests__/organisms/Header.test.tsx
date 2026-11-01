@@ -1,6 +1,7 @@
-import { screen } from '@testing-library/react';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
 
+import { fetchMyProfile } from '@/api/profile';
 import Header from '@/components/organisms/Header/Header';
 
 import { renderWithProviders } from '../../test/utils';
@@ -16,12 +17,19 @@ let mockAuthState: {
   login: 'test@example.com'
 };
 
+const mockUpdateUser = vi.fn();
+
 vi.mock('@/auth/AuthContext', () => ({
   useAuth: () => ({
     isAuthorized: mockIsAuthorized,
     logout: vi.fn(),
-    authState: mockAuthState
+    authState: mockAuthState,
+    updateUser: mockUpdateUser
   })
+}));
+
+vi.mock('@/api/profile', () => ({
+  fetchMyProfile: vi.fn()
 }));
 
 describe('Header', () => {
@@ -33,6 +41,8 @@ describe('Header', () => {
       login: 'test@example.com'
     };
     sessionStorage.clear();
+    vi.clearAllMocks();
+    (fetchMyProfile as Mock).mockResolvedValue(null);
   });
 
   test('для неавторизованного пользователя отображает Войти и Попробовать, но не меню пользователя', () => {
@@ -83,5 +93,26 @@ describe('Header', () => {
 
     expect(screen.getByText('Иван Иванов')).toBeInTheDocument();
     expect(screen.getByText('test@example.com')).toBeInTheDocument();
+  });
+
+  test('загружает имя и фамилию из API если они отсутствуют в сессии и стейте', async () => {
+    mockIsAuthorized = true;
+    mockAuthState = { login: 'test@example.com' };
+    (fetchMyProfile as Mock).mockResolvedValueOnce({
+      first_name: 'Сергей',
+      last_name: 'Сидоров',
+      contact_email: [{ title: 'work', value: 'work@example.com' }]
+    });
+
+    renderWithProviders(<Header />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Сергей Сидоров')).toBeInTheDocument();
+    });
+    expect(screen.getByText('test@example.com')).toBeInTheDocument();
+    expect(mockUpdateUser).toHaveBeenCalledWith({
+      firstName: 'Сергей',
+      lastName: 'Сидоров'
+    });
   });
 });

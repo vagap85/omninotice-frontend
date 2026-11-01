@@ -4,7 +4,8 @@ import {
   clearAuthCookies,
   getAccessTokenCookie,
   readAuthCookies,
-  saveAuthCookies
+  saveAuthCookies,
+  updateAuthCookies
 } from '@/auth/authCookies';
 
 describe('auth cookies', () => {
@@ -28,7 +29,26 @@ describe('auth cookies', () => {
     expect(getAccessTokenCookie()).toBe('secret-token');
   });
 
-  test('clears the auth cookies', () => {
+  test('stores and reads firstName and lastName when provided', () => {
+    saveAuthCookies({
+      userId: 'user-123',
+      login: 'user@example.com',
+      accountId: 'account-123',
+      accessToken: 'secret-token',
+      firstName: 'Иван',
+      lastName: 'Иванов'
+    });
+
+    expect(readAuthCookies()).toEqual({
+      userId: 'user-123',
+      login: 'user@example.com',
+      accountId: 'account-123',
+      firstName: 'Иван',
+      lastName: 'Иванов'
+    });
+  });
+
+  test('updates auth cookies with updateAuthCookies', () => {
     saveAuthCookies({
       userId: 'user-123',
       login: 'user@example.com',
@@ -36,11 +56,36 @@ describe('auth cookies', () => {
       accessToken: 'secret-token'
     });
 
+    updateAuthCookies({
+      firstName: 'Петр',
+      lastName: 'Петров'
+    });
+
+    expect(readAuthCookies()).toEqual({
+      userId: 'user-123',
+      login: 'user@example.com',
+      accountId: 'account-123',
+      firstName: 'Петр',
+      lastName: 'Петров'
+    });
+  });
+
+  test('clears the auth cookies', () => {
+    saveAuthCookies({
+      userId: 'user-123',
+      login: 'user@example.com',
+      accountId: 'account-123',
+      accessToken: 'secret-token',
+      firstName: 'Иван',
+      lastName: 'Иванов'
+    });
+
     clearAuthCookies();
 
     expect(readAuthCookies()).toBeNull();
     expect(getAccessTokenCookie()).toBeNull();
   });
+
   test('reads auth state successfully when accountId is missing/null', () => {
     saveAuthCookies({
       userId: 'user-123',

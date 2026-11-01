@@ -11,13 +11,15 @@ import {
   useDisclosure,
   VStack
 } from '@chakra-ui/react';
-import { memo, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { LuChevronDown, LuChevronUp, LuLogOut, LuUser } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
 
+import { fetchMyProfile } from '@/api/profile';
 import { useAuth } from '@/auth/AuthContext';
 import UserIcon from '@/components/atoms/Icons/collections/Sigma/UserIcon';
 import LogoutModal from '@/components/organisms/Modals/LogoutModal';
+import { ROUTES } from '@/routing/routes';
 
 function AccountWidgetComponent() {
   const {
@@ -25,9 +27,9 @@ function AccountWidgetComponent() {
     onOpen: onOpenLogout,
     onClose: onCloseLogout
   } = useDisclosure();
-  const { logout, authState } = useAuth();
+  const { logout, authState, updateUser } = useAuth();
   const navigate = useNavigate();
-  const [cachedName] = useState(() => {
+  const [cachedName, setCachedName] = useState(() => {
     const storedProfile = sessionStorage.getItem('profile_data');
     if (!storedProfile) return { firstName: '', lastName: '' };
 
@@ -47,6 +49,107 @@ function AccountWidgetComponent() {
       return { firstName: '', lastName: '' };
     }
   });
+
+  useEffect(() => {
+    // 1. Sync from sessionStorage if it has name data
+    const stored = sessionStorage.getItem('profile_data');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as Record<string, unknown>;
+        const sFirst =
+          typeof parsed.firstName === 'string' ? parsed.firstName.trim() : '';
+        const sLast =
+          typeof parsed.lastName === 'string' ? parsed.lastName.trim() : '';
+        if (sFirst || sLast) {
+          setCachedName((prev) => ({
+            firstName: sFirst || prev.firstName,
+            lastName: sLast || prev.lastName
+          }));
+          if (
+            (sFirst && !authState?.firstName) ||
+            (sLast && !authState?.lastName)
+          ) {
+            updateUser?.({
+              ...(sFirst ? { firstName: sFirst } : {}),
+              ...(sLast ? { lastName: sLast } : {})
+            });
+          }
+        }
+      } catch {
+        // ignore parse error
+      }
+    }
+
+    // 2. If both first and last name are already available, no need to fetch
+    const currentFirst = authState?.firstName || cachedName.firstName;
+    const currentLast = authState?.lastName || cachedName.lastName;
+    if (currentFirst && currentLast) {
+      return;
+    }
+
+    // 3. Fetch from UserCenter profile API
+    let isMounted = true;
+    fetchMyProfile()
+      .then((profile) => {
+        if (!isMounted || !profile) return;
+        const fetchedFirst = profile.first_name?.trim() || '';
+        const fetchedLast = profile.last_name?.trim() || '';
+
+        if (fetchedFirst || fetchedLast) {
+          setCachedName((prev) => ({
+            firstName: fetchedFirst || prev.firstName,
+            lastName: fetchedLast || prev.lastName
+          }));
+
+          updateUser?.({
+            ...(fetchedFirst ? { firstName: fetchedFirst } : {}),
+            ...(fetchedLast ? { lastName: fetchedLast } : {})
+          });
+
+          try {
+            const raw = sessionStorage.getItem('profile_data');
+            const current = raw
+              ? (JSON.parse(raw) as Record<string, unknown>)
+              : {};
+            sessionStorage.setItem(
+              'profile_data',
+              JSON.stringify({
+                ...current,
+                firstName: fetchedFirst || current.firstName || '',
+                lastName: fetchedLast || current.lastName || '',
+                email:
+                  profile.contact_email?.find(
+                    (item) =>
+                      item.title?.toLowerCase() === 'work' ||
+                      item.title?.toLowerCase() === 'рабочий'
+                  )?.value ||
+                  profile.contact_email?.[0]?.value ||
+                  current.email ||
+                  authState?.login ||
+                  ''
+              })
+            );
+          } catch {
+            // ignore storage error
+          }
+        }
+      })
+      .catch((error) => {
+        console.warn('Could not fetch profile in AccountWidget:', error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    authState?.firstName,
+    authState?.lastName,
+    authState?.login,
+    cachedName.firstName,
+    cachedName.lastName,
+    updateUser
+  ]);
+
   const displayName =
     [
       authState?.firstName || cachedName.firstName,
@@ -56,7 +159,16 @@ function AccountWidgetComponent() {
       .join(' ') ||
     authState?.login ||
     '';
-  const initials = displayName.trim().slice(0, 2).toUpperCase();
+
+  const initials = (() => {
+    const first = (authState?.firstName || cachedName.firstName || '').trim();
+    const last = (authState?.lastName || cachedName.lastName || '').trim();
+    if (first && last) {
+      return (first[0] + last[0]).toUpperCase();
+    }
+    return displayName.trim().slice(0, 2).toUpperCase();
+  })();
+
   return (
     <>
       <Menu
@@ -144,7 +256,7 @@ function AccountWidgetComponent() {
               zIndex={1000}
             >
               <MenuItem
-                onClick={() => navigate('/profile')}
+                onClick={() => navigate(ROUTES.profile)}
                 borderRadius="8px"
                 px="14px"
                 py="10px"
