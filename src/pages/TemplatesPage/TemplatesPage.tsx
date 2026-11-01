@@ -127,11 +127,11 @@ const TemplatesPage: React.FC = () => {
 
   return (
     <Container
-      maxW="1760px"
+      maxW="none"
       bg="#ECF2F8"
       minH="100vh"
       py="40px"
-      px={"clamp(24px, 2vw, 40px)"}
+      px={'clamp(24px, 2vw, 40px)'}
     >
       {/* Липкая шапка */}
       <Box
@@ -158,12 +158,13 @@ const TemplatesPage: React.FC = () => {
           align={{ base: 'stretch', md: 'center' }}
           gap={{ base: 4, md: 6 }}
           w="100%"
-          flexWrap={"wrap"}
         >
           <InputGroup
-            flex="1"
+            flex={{ base: 'none', md: '1' }}
+            w={{ base: '100%', md: 'auto' }}
             maxW="984px"
             size="md"
+            h="44px"
           >
             <InputLeftElement
               pointerEvents="none"
@@ -200,11 +201,12 @@ const TemplatesPage: React.FC = () => {
                 fontWeight: 'normal',
                 lineHeight: '24px'
               }}
-              minW={"200px"}
+              minW={'200px'}
             />
           </InputGroup>
 
           <Flex
+            w={{ base: '100%', md: 'auto' }}
             overflowX="auto"
             flexWrap="wrap"
             gap={2}
@@ -297,7 +299,7 @@ const TemplatesPage: React.FC = () => {
         </Center>
       ) : (
         <SimpleGrid
-          columns={{ base: 1, md: 2, lg: 3 }}
+          columns={{ base: 1, sm: 2, md: 2, lg: 3 }}
           spacing={6}
         >
           {filteredTemplates
