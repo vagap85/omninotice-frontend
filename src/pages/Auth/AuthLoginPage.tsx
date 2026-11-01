@@ -58,7 +58,42 @@ function AuthLoginPageContent() {
     setIsLoading(true);
     try {
       const auth = await loginUserCenter(login.trim(), password);
-      setAuth(auth);
+      let authWithProfile = auth;
+      try {
+        const profile = await fetchMyProfile(auth.accessToken);
+        if (profile) {
+          const firstName = profile.first_name?.trim();
+          const lastName = profile.last_name?.trim();
+          authWithProfile = {
+            ...auth,
+            ...(firstName ? { firstName } : {}),
+            ...(lastName ? { lastName } : {})
+          };
+
+          if (firstName || lastName) {
+            const email =
+              profile.contact_email?.find(
+                (item) =>
+                  item.title?.toLowerCase() === 'work' ||
+                  item.title?.toLowerCase() === 'рабочий'
+              )?.value ||
+              profile.contact_email?.[0]?.value ||
+              auth.login;
+            sessionStorage.setItem(
+              'profile_data',
+              JSON.stringify({
+                firstName: firstName ?? '',
+                lastName: lastName ?? '',
+                email
+              })
+            );
+          }
+        }
+      } catch (error) {
+        console.warn('Could not load profile after login:', error);
+      }
+
+      setAuth(authWithProfile);
       toast({
         position: 'bottom',
         duration: 4000,

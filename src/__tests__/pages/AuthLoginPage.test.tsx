@@ -130,7 +130,7 @@ describe('AuthLoginPage', () => {
       contact_email: [{ title: 'work', value: 'alex@work.com' }]
     });
 
-    renderWithProviders(<AuthLoginPage />);
+    renderWithProviders(<AuthPages mode="login" />);
 
     await user.type(
       screen.getByPlaceholderText(/example@omninotice/i),
