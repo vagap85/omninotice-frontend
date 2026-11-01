@@ -11,6 +11,8 @@ import './LandingHeader.scss';
 
 export default function LandingHeader() {
   const location = useLocation();
+  const { isAuthorized } = useAuth();
+  const buttonText = 'Попробовать';
 
   return (
     <header className="landing-header">
@@ -41,23 +43,28 @@ export default function LandingHeader() {
         </Link>
 
         <div className="landing-header__nav landing-header__nav--right">
-          <Link
-            to={ROUTES.login}
-            state={{ from: location }}
-            className="landing-header__link landing-header__link--outline"
-          >
-            Войти
-          </Link>
+          {!isAuthorized && (
+            <Link
+              to={ROUTES.login}
+              state={{ from: location }}
+              className="landing-header__link landing-header__link--outline"
+            >
+              Войти
+            </Link>
+          )}
           <Link
             to={ROUTES.registration}
             state={{ from: location }}
             className="landing-header__link landing-header__link--primary"
           >
             {buttonText}
-          </Button>
+            <span className="landing-header__arrow">
+              <ArrowRightIcon />
+            </span>
+          </Link>
 
           {isAuthorized && <AccountWidget />}
-        </Flex>
+        </div>
       </div>
     </header>
   );
