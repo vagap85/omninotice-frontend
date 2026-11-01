@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { type Mock, describe, test, expect, vi, beforeEach } from 'vitest';
 
 import { loginUserCenter } from '@/api/userCenter';
-import AuthLoginPage from '@/pages/Auth/AuthLoginPage';
+import AuthPages from '@/pages/Auth/AuthPages';
 
 import { renderWithProviders, screen, waitFor } from '../../test/utils';
 
@@ -44,36 +44,38 @@ describe('AuthLoginPage', () => {
     vi.clearAllMocks();
   });
 
-  test('рендерит форму логина', () => {
-    renderWithProviders(<AuthLoginPage />);
+  test('рендерит форму логина', async () => {
+    renderWithProviders(<AuthPages mode="login" />);
     expect(
-      screen.getByPlaceholderText(/example@omninotice/i)
+      await screen.findByPlaceholderText(/example@omninotice/i)
     ).toBeInTheDocument();
-    expect(screen.getByText('Войти')).toBeInTheDocument();
+    expect(await screen.findByText('Войти')).toBeInTheDocument();
   });
 
-  test('есть ссылка "Зарегистрируйтесь"', () => {
-    renderWithProviders(<AuthLoginPage />);
-    expect(screen.getByText(/Зарегистрируйтесь/i)).toBeInTheDocument();
+  test('есть ссылка "Зарегистрируйтесь"', async () => {
+    renderWithProviders(<AuthPages mode="login" />);
+    expect(await screen.findByText(/Зарегистрируйтесь/i)).toBeInTheDocument();
   });
 
   test('есть кнопка "На главную"', () => {
-    renderWithProviders(<AuthLoginPage />);
+    renderWithProviders(<AuthPages mode="login" />);
     expect(screen.getByText('На главную')).toBeInTheDocument();
   });
 
   test('клик по "Зарегистрируйтесь" ведёт на /registration', async () => {
     const user = userEvent.setup();
-    renderWithProviders(<AuthLoginPage />);
+    renderWithProviders(<AuthPages mode="login" />);
 
-    await user.click(screen.getByText(/Зарегистрируйтесь/i));
+    await user.click(await screen.findByText(/Зарегистрируйтесь/i));
 
-    expect(mockNavigate).toHaveBeenCalledWith('/registration');
+    expect(mockNavigate).toHaveBeenCalledWith('/registration', {
+      state: null
+    });
   });
 
   test('клик по "На главную" ведёт на /', async () => {
     const user = userEvent.setup();
-    renderWithProviders(<AuthLoginPage />);
+    renderWithProviders(<AuthPages mode="login" />);
 
     await user.click(screen.getByText('На главную'));
 
@@ -89,17 +91,17 @@ describe('AuthLoginPage', () => {
       accountId: 'account-123'
     });
 
-    renderWithProviders(<AuthLoginPage />);
+    renderWithProviders(<AuthPages mode="login" />);
 
     await user.type(
-      screen.getByPlaceholderText(/example@omninotice/i),
+      await screen.findByPlaceholderText(/example@omninotice/i),
       'user@mail.com'
     );
     await user.type(
-      screen.getByPlaceholderText(/введите пароль/i),
+      await screen.findByPlaceholderText(/введите пароль/i),
       'password123'
     );
-    await user.click(screen.getByText('Войти'));
+    await user.click(await screen.findByText('Войти'));
 
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalled();

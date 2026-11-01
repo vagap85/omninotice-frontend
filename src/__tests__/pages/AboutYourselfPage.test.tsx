@@ -9,11 +9,13 @@ import { renderWithProviders, screen, waitFor } from '../../test/utils';
 // ===== МОКИ =====
 
 const mockNavigate = vi.fn();
+const mockLocationState = { value: null as unknown };
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useNavigate: () => mockNavigate
+    useNavigate: () => mockNavigate,
+    useLocation: () => ({ state: mockLocationState.value })
   };
 });
 
@@ -47,6 +49,7 @@ vi.mock('@/assets/logo.svg', () => ({ default: 'logo.svg' }));
 describe('AboutYourselfPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockLocationState.value = null;
   });
 
   test('рендерит заголовок и поля формы', () => {
@@ -62,9 +65,7 @@ describe('AboutYourselfPage', () => {
     expect(
       screen.getByPlaceholderText('Например, Маркетолог')
     ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('+7 999 999 99 99')
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('+7 999 999 99 99')).toBeInTheDocument();
     expect(screen.getByText('Сохранить данные')).toBeInTheDocument();
   });
 
@@ -86,7 +87,7 @@ describe('AboutYourselfPage', () => {
     expect(profileService.saveProfile).not.toHaveBeenCalled();
   });
 
-  test('успешное сохранение вызывает profileService.saveProfile и переход на обзор', async () => {
+  test('после сохранения без исходной страницы переходит на главную', async () => {
     const user = userEvent.setup();
     (profileService.saveProfile as Mock).mockResolvedValueOnce(undefined);
 
@@ -113,7 +114,34 @@ describe('AboutYourselfPage', () => {
         firstName: 'Иван',
         lastName: 'Иванов'
       });
-      expect(mockNavigate).toHaveBeenCalledWith('/overview');
+      expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true });
+    });
+  });
+
+  test('после сохранения возвращает пользователя на внутреннюю страницу', async () => {
+    const user = userEvent.setup();
+    mockLocationState.value = {
+      from: {
+        pathname: '/campaigns',
+        search: '?status=active',
+        hash: '#list'
+      }
+    };
+    (profileService.saveProfile as Mock).mockResolvedValueOnce(undefined);
+
+    renderWithProviders(<AboutYourselfPage />);
+
+    const inputs = screen.getAllByRole('textbox');
+    await user.type(inputs[0], 'Иван');
+    await user.click(screen.getByText('Сохранить данные'));
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/campaigns?status=active#list',
+        {
+          replace: true
+        }
+      );
     });
   });
 

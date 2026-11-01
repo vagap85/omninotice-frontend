@@ -1,4 +1,4 @@
-import { ButtonProps } from '@chakra-ui/react';
+import { ButtonProps, FormLabelProps } from '@chakra-ui/react';
 import type { ReactNode } from 'react';
 
 import {
@@ -80,7 +80,8 @@ export interface FormTextFieldProps extends Omit<
   'value' | 'onChange' | 'onBlur'
 > {
   name: string;
-  label?: string;
+  label?: ReactNode;
+  labelFontSize?: FormLabelProps['fontSize'];
   initialValue?: string;
   validators?: Validator<string>[];
   subTitlte?: string;
@@ -93,11 +94,6 @@ export interface FormsRegistry {
   getStore: (formId: string) => FormStore | undefined;
 }
 
-export interface FormPasswordFieldProps {
-  name: string;
-  label?: string;
-  placeholder?: string;
-  initialValue?: string;
-  validators?: Validator<string>[];
+export type FormPasswordFieldProps = Omit<FormTextFieldProps, 'type'> & {
   onEnter?: () => void;
-}
+};

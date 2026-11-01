@@ -7,6 +7,7 @@ import SidebarLayout from './components/layouts/SidebarLayout';
 import { registerClearMailingDraftBeforeUnload } from './mailingDraftStorage';
 import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage';
 import { OverviewPage } from './pages/OverviewPage/OverviewPage';
+import AuthPages from './pages/Auth/AuthPages';
 import TemplatesPage from './pages/TemplatesPage/TemplatesPage';
 import ProtectedRoute from './routing/ProtectedRoute';
 import { ROUTES } from './routing/routes';
@@ -39,12 +40,6 @@ const TelegramBotConnection = lazyWithMinDelay(
 );
 const NotificationHistoryPage = lazyWithMinDelay(
   () => import('@/pages/Notifications/PushNotificationHistory')
-);
-const AuthLoginPage = lazyWithMinDelay(
-  () => import('@/pages/Auth/AuthLoginPage')
-);
-const AuthRegisterPage = lazyWithMinDelay(
-  () => import('@/pages/Auth/AuthRegisterPage')
 );
 const AboutYourselfPage = lazyWithMinDelay(
   () => import('@/pages/Auth/AboutYourselfPage')
@@ -142,7 +137,12 @@ function App() {
           />
           <Route
             path="/dashboard"
-            element={<Navigate to={ROUTES.overview} replace />}
+            element={
+              <Navigate
+                to={ROUTES.overview}
+                replace
+              />
+            }
           />
           <Route
             path="/dashboard/profile"
@@ -156,16 +156,18 @@ function App() {
         </Route>
         <Route
           path={ROUTES.login}
-          element={<AuthLoginPage />}
+          element={<AuthPages mode="login" />}
         />
         <Route
           path={ROUTES.registration}
-          element={<AuthRegisterPage />}
+          element={<AuthPages mode="register" />}
         />
-        <Route
-          path={ROUTES.about}
-          element={<AboutYourselfPage />}
-        />
+        <Route element={<ProtectedRoute />}>
+          <Route
+            path={ROUTES.about}
+            element={<AboutYourselfPage />}
+          />
+        </Route>
 
         <Route
           path="*"
