@@ -10,8 +10,10 @@ import {
   Flex,
   Text,
   Link,
-  Progress
+  Progress,
+  chakra
 } from '@chakra-ui/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Fragment } from 'react';
 
 import { StatusBadge } from '@/components/atoms/Badge/StatusBadge';
@@ -23,6 +25,27 @@ interface NotificationsTableProps {
   expandedId?: string | null;
   onRowClick?: (id: string) => void;
 }
+
+const MotionTr = chakra(motion.tr);
+
+const detailsVariants = {
+  collapsed: {
+    height: 0,
+    opacity: 0,
+    transition: {
+      height: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
+      opacity: { duration: 0.2, ease: 'easeInOut' }
+    }
+  },
+  expanded: {
+    height: 'auto',
+    opacity: 1,
+    transition: {
+      height: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+      opacity: { duration: 0.3, delay: 0.1, ease: 'easeInOut' }
+    }
+  }
+};
 
 export const NotificationsTable = ({
   data,
@@ -40,48 +63,70 @@ export const NotificationsTable = ({
       bg="white"
       borderRadius="16px"
       overflow="hidden"
+      w="full"
     >
-      <Table fontSize="md">
+      <Table
+        fontSize="md"
+        layout="fixed"
+      >
         <Thead>
           <Tr
             sx={{ th: { py: '22px' } }}
             fontWeight="semibold"
           >
-            <Th>Приложение</Th>
-            <Th>Шаблон</Th>
-            <Th>Заголовок</Th>
-            <Th textAlign="center">Отправлено</Th>
-            <Th>Дата и время</Th>
-            <Th textAlign="center">Статус</Th>
+            <Th w="15%">Приложение</Th>
+            <Th w="18%">Шаблон</Th>
+            <Th w="25%">Заголовок</Th>
+            <Th
+              w="12%"
+              textAlign="center"
+            >
+              Отправлено
+            </Th>
+            <Th w="15%">Дата и время</Th>
+            <Th
+              w="15%"
+              textAlign="center"
+            >
+              Статус
+            </Th>
           </Tr>
         </Thead>
         <Tbody fontWeight="normal">
           {data.map((row) => {
             const isExpanded = expandedId === row.event_id;
+            const isError = row.status === 'error';
 
             return (
-              <Fragment key={row.event_id}>
-                <Tr
+              <Fragment key={`row-group-${row.event_id}`}>
+                <MotionTr
                   onClick={() => onRowClick && onRowClick(row.event_id)}
                   cursor={onRowClick ? 'pointer' : 'default'}
                   _hover={{
-                    bg: row.status === 'error' ? '#FEF2F2' : '#F8FAFC'
+                    bg: isError ? '#FEF2F2' : '#F8FAFC'
                   }}
-                  transition="background 0.2s"
                   sx={{
                     td: {
-                      borderBottom: isExpanded ? 'none' : '1px solid #E2E8F0'
+                      borderBottom: isExpanded ? 'none' : '1px solid #E2E8F0',
+                      transition: 'background-color 0.2s ease'
                     }
                   }}
                 >
                   <Td>
                     <Flex align="center">
-                      <Text color="#12233F">
+                      <Text
+                        color="#12233F"
+                        isTruncated
+                      >
                         {formatAppName(row.application_id)}
                       </Text>
                     </Flex>
                   </Td>
-                  <Td color="#2D547B">{row.template_name || 'Без шаблона'}</Td>
+                  <Td color="#2D547B">
+                    <Text isTruncated>
+                      {row.template_name || 'Без шаблона'}
+                    </Text>
+                  </Td>
                   <Td>
                     <Tooltip
                       label={row.body}
@@ -109,7 +154,9 @@ export const NotificationsTable = ({
                   >
                     {row.recipients.length}
                   </Td>
-                  <Td color="#12233F">{formatDate(row.created_at)}</Td>
+                  <Td color="#12233F">
+                    <Text isTruncated>{formatDate(row.created_at)}</Text>
+                  </Td>
                   <Td textAlign="center">
                     <Flex
                       w="100%"
@@ -118,217 +165,269 @@ export const NotificationsTable = ({
                       <StatusBadge status={row.status} />
                     </Flex>
                   </Td>
-                </Tr>
+                </MotionTr>
 
-                {isExpanded && (
-                  <Tr>
-                    <Td
-                      colSpan={6}
-                      p={0}
-                      borderBottom="1px solid #E2E8F0"
-                    >
-                      <Box
-                        bg="#F8FAFC"
-                        p="24px"
-                        borderTop="1px solid #E2E8F0"
+                <AnimatePresence initial={false}>
+                  {isExpanded && (
+                    <Tr key={`details-${row.event_id}`}>
+                      <Td
+                        colSpan={6}
+                        p={0}
+                        borderBottom="1px solid #E2E8F0"
                       >
-                        <Flex
-                          gap="60px"
-                          mb="24px"
+                        <motion.div
+                          variants={detailsVariants}
+                          initial="collapsed"
+                          animate="expanded"
+                          exit="collapsed"
+                          style={{ overflow: 'hidden' }}
                         >
-                          <Box flex="1">
-                            <Text
-                              fontSize="sm"
-                              color="#64748B"
-                              mb="4px"
-                            >
-                              Заголовок
-                            </Text>
-                            <Text
-                              fontSize="md"
-                              fontWeight="500"
-                              color="#12233F"
-                              mb="16px"
-                            >
-                              {row.title}
-                            </Text>
-
-                            <Text
-                              fontSize="sm"
-                              color="#64748B"
-                              mb="4px"
-                            >
-                              Описание
-                            </Text>
-                            <Text
-                              fontSize="md"
-                              color="#12233F"
-                              mb="16px"
-                              lineHeight="tall"
-                            >
-                              {row.body}
-                            </Text>
-
-                            <Text
-                              fontSize="sm"
-                              color="#64748B"
-                              mb="4px"
-                            >
-                              Ссылка действия
-                            </Text>
-                            <Link
-                              color="#3B6EA0"
-                              fontSize="md"
-                              href="#"
-                              isExternal
-                            >
-                              https://omni.skroy.ru/create/push?
-                            </Link>
-                          </Box>
-
                           <Box
-                            flex="1.5"
-                            display="grid"
-                            gridTemplateColumns="repeat(3, 1fr)"
-                            gap="24px"
-                            alignContent="start"
+                            bg="#F8FAFC"
+                            p="24px"
+                            borderTop="1px solid #E2E8F0"
+                            w="full"
                           >
-                            <Box>
-                              <Text
-                                fontSize="sm"
-                                color="#64748B"
-                                mb="4px"
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{
+                                opacity: 1,
+                                y: 0,
+                                transition: { delay: 0.15, duration: 0.3 }
+                              }}
+                              exit={{ opacity: 0, y: -10 }}
+                            >
+                              <Flex
+                                gap="60px"
+                                mb="24px"
+                                w="full"
                               >
-                                Дата и время
-                              </Text>
-                              <Text
-                                fontSize="md"
-                                color="#12233F"
-                              >
-                                {formatDate(row.created_at)}
-                              </Text>
-                            </Box>
-                            <Box>
-                              <Text
-                                fontSize="sm"
-                                color="#64748B"
-                                mb="4px"
-                              >
-                                Способ отправки
-                              </Text>
-                              <Text
-                                fontSize="md"
-                                color="#12233F"
-                              >
-                                {getMethodName(row.send_method)}
-                              </Text>
-                            </Box>
-                            <Box>
-                              <Text
-                                fontSize="sm"
-                                color="#64748B"
-                                mb="4px"
-                              >
-                                Получатели
-                              </Text>
-                              <Text
-                                fontSize="md"
-                                color="#12233F"
-                              >
-                                {formatAppName(row.application_id)} (
-                                {row.recipients.length})
-                              </Text>
-                            </Box>
-                            <Box gridColumn="span 3">
-                              <Text
-                                fontSize="sm"
-                                color="#64748B"
-                                mb="4px"
-                              >
-                                Инициатор отправления
-                              </Text>
-                              <Text
-                                fontSize="md"
-                                color="#12233F"
-                              >
-                                Иван Иванов
-                              </Text>
-                            </Box>
-                          </Box>
-                        </Flex>
+                                <Box
+                                  flex="1"
+                                  minW="0"
+                                >
+                                  <Text
+                                    fontSize="sm"
+                                    color="#64748B"
+                                    mb="4px"
+                                  >
+                                    Заголовок
+                                  </Text>
+                                  <Text
+                                    fontSize="md"
+                                    fontWeight="500"
+                                    color="#12233F"
+                                    mb="16px"
+                                    wordBreak="break-word"
+                                  >
+                                    {row.title}
+                                  </Text>
+                                  <Text
+                                    fontSize="sm"
+                                    color="#64748B"
+                                    mb="4px"
+                                  >
+                                    Описание
+                                  </Text>
+                                  <Text
+                                    fontSize="md"
+                                    color="#12233F"
+                                    mb="16px"
+                                    lineHeight="tall"
+                                    wordBreak="break-word"
+                                  >
+                                    {row.body}
+                                  </Text>
+                                  <Text
+                                    fontSize="sm"
+                                    color="#64748B"
+                                    mb="4px"
+                                  >
+                                    Ссылка действия
+                                  </Text>
+                                  <Link
+                                    color="#3B6EA0"
+                                    fontSize="md"
+                                    href="#"
+                                    isExternal
+                                    wordBreak="break-all"
+                                  >
+                                    https://omni.skroy.ru/create/push?
+                                  </Link>
+                                </Box>
 
-                        {/* Блок статистики */}
-                        <Flex
-                          mt="24px"
-                          gap="48px"
-                          align="center"
-                        >
-                          <Box>
-                            <Text
-                              fontSize="sm"
-                              color="#64748B"
-                              mb="4px"
-                            >
-                              Отправлено
-                            </Text>
-                            <Text
-                              fontSize="md"
-                              color="#12233F"
-                            >
-                              {row.recipients.length} (100%)
-                            </Text>
-                          </Box>
-                          <Box>
-                            <Text
-                              fontSize="sm"
-                              color="#64748B"
-                              mb="4px"
-                            >
-                              Ошибок
-                            </Text>
-                            <Text
-                              fontSize="md"
-                              color="#12233F"
-                            >
-                              0 (0%)
-                            </Text>
-                          </Box>
-                          <Box
-                            flex="1"
-                            maxW="300px"
-                          >
-                            <Text
-                              fontSize="sm"
-                              color="#64748B"
-                              mb="4px"
-                            >
-                              Прочитано получателями
-                            </Text>
-                            <Flex
-                              align="center"
-                              gap="12px"
-                            >
-                              <Text
-                                fontSize="md"
-                                color="#12233F"
-                                minW="40px"
+                                <Box
+                                  flex="1.5"
+                                  minW="0"
+                                  display="grid"
+                                  gridTemplateColumns="repeat(3, 1fr)"
+                                  gap="24px"
+                                  alignContent="start"
+                                >
+                                  <Box>
+                                    <Text
+                                      fontSize="sm"
+                                      color="#64748B"
+                                      mb="4px"
+                                    >
+                                      Дата и время
+                                    </Text>
+                                    <Text
+                                      fontSize="md"
+                                      color="#12233F"
+                                    >
+                                      {formatDate(row.created_at)}
+                                    </Text>
+                                  </Box>
+                                  <Box>
+                                    <Text
+                                      fontSize="sm"
+                                      color="#64748B"
+                                      mb="4px"
+                                    >
+                                      Способ отправки
+                                    </Text>
+                                    <Text
+                                      fontSize="md"
+                                      color="#12233F"
+                                    >
+                                      {getMethodName(row.send_method)}
+                                    </Text>
+                                  </Box>
+                                  <Box>
+                                    <Text
+                                      fontSize="sm"
+                                      color="#64748B"
+                                      mb="4px"
+                                    >
+                                      Получатели
+                                    </Text>
+                                    <Text
+                                      fontSize="md"
+                                      color="#12233F"
+                                    >
+                                      {formatAppName(row.application_id)} (
+                                      {row.recipients.length})
+                                    </Text>
+                                  </Box>
+                                  <Box gridColumn="span 3">
+                                    <Text
+                                      fontSize="sm"
+                                      color="#64748B"
+                                      mb="4px"
+                                    >
+                                      Инициатор отправления
+                                    </Text>
+                                    <Text
+                                      fontSize="md"
+                                      color="#12233F"
+                                    >
+                                      Иван Иванов
+                                    </Text>
+                                  </Box>
+                                </Box>
+                              </Flex>
+
+                              <Flex
+                                mt="24px"
+                                gap="48px"
+                                align="center"
+                                w="full"
                               >
-                                87%
-                              </Text>
-                              <Progress
-                                value={87}
-                                size="sm"
-                                colorScheme="blue"
-                                borderRadius="full"
-                                flex="1"
-                              />
-                            </Flex>
+                                <Box flexShrink={0}>
+                                  <Text
+                                    fontSize="sm"
+                                    color="#64748B"
+                                    mb="4px"
+                                  >
+                                    Отправлено
+                                  </Text>
+                                  <Text
+                                    fontSize="md"
+                                    color={isError ? '#EF4444' : '#12233F'}
+                                  >
+                                    {isError
+                                      ? '0 (0%)'
+                                      : `${row.recipients.length} (100%)`}
+                                  </Text>
+                                </Box>
+                                <Box flexShrink={0}>
+                                  <Text
+                                    fontSize="sm"
+                                    color="#64748B"
+                                    mb="4px"
+                                  >
+                                    Ошибок
+                                  </Text>
+                                  <Text
+                                    fontSize="md"
+                                    color={isError ? '#EF4444' : '#12233F'}
+                                  >
+                                    {isError
+                                      ? `${row.recipients.length} (100%)`
+                                      : '0 (0%)'}
+                                  </Text>
+                                </Box>
+
+                                {isError && (
+                                  <Box flexShrink={0}>
+                                    <Text
+                                      fontSize="sm"
+                                      color="#64748B"
+                                      mb="4px"
+                                    >
+                                      Причина ошибки
+                                    </Text>
+                                    <Text
+                                      fontSize="md"
+                                      color="#EF4444"
+                                    >
+                                      Ошибка сервера
+                                    </Text>
+                                  </Box>
+                                )}
+
+                                <Box
+                                  flex="1"
+                                  maxW="300px"
+                                  minW="150px"
+                                >
+                                  <Text
+                                    fontSize="sm"
+                                    color="#64748B"
+                                    mb="4px"
+                                  >
+                                    Прочитано получателями
+                                  </Text>
+                                  <Flex
+                                    align="center"
+                                    gap="12px"
+                                  >
+                                    <Text
+                                      fontSize="md"
+                                      color="#12233F"
+                                      minW="40px"
+                                    >
+                                      {isError ? '0%' : '87%'}
+                                    </Text>
+                                    <Progress
+                                      value={isError ? 0 : 87}
+                                      size="sm"
+                                      colorScheme={isError ? 'red' : 'blue'}
+                                      borderRadius="full"
+                                      flex="1"
+                                      bg={isError ? '#F1F5F9' : undefined}
+                                    />
+                                  </Flex>
+                                </Box>
+                              </Flex>
+                            </motion.div>
                           </Box>
-                        </Flex>
-                      </Box>
-                    </Td>
-                  </Tr>
-                )}
+                        </motion.div>
+                      </Td>
+                    </Tr>
+                  )}
+                </AnimatePresence>
               </Fragment>
             );
           })}

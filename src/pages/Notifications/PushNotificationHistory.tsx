@@ -5,10 +5,12 @@ import {
   Text,
   InputGroup,
   InputLeftElement,
-  HStack
+  HStack,
+  Button
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { FiInbox } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import CustomButton from '@/components/atoms/Button/CustomButton';
 import CustomInput from '@/components/atoms/Input/CustomInput';
@@ -19,16 +21,26 @@ import { MOCK_DATA } from '@/mocks/notificationMocks';
 
 const ITEMS_PER_PAGE = 6;
 
+// Варианты анимаций
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -10 },
+  transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] }
+};
+
+const fadeScale = {
+  initial: { opacity: 0, scale: 0.95 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.95 },
+  transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
+};
+
 export default function NotificationHistoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
-
-  // Состояние для имитации ошибки загрузки данных
   const [isError, setIsError] = useState(false);
-
-  // Состояние для раскрытой строки
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  // Состояния для фильтров
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedApp, setSelectedApp] = useState('Все приложения');
   const [selectedStatus, setSelectedStatus] = useState('Все статусы');
@@ -49,47 +61,37 @@ export default function NotificationHistoryPage() {
       setExpandedId(null);
     };
 
-  // Логика клика по строке
   const handleRowClick = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
-  const handleRetry = () => {
-    setIsError(false);
-  };
+  const handleRetry = () => setIsError(false);
 
   const filteredData = MOCK_DATA.filter((item) => {
     if (
       searchQuery &&
       !item.title.toLowerCase().includes(searchQuery.toLowerCase())
-    ) {
+    )
       return false;
-    }
-
     if (selectedApp !== 'Все приложения') {
       const appId = selectedApp === 'Сигма' ? 'sigma' : 'raida';
       if (item.application_id !== appId) return false;
     }
-
     if (selectedStatus !== 'Все статусы') {
       const statusId = selectedStatus === 'Отправлено' ? 'sent' : 'error';
       if (item.status !== statusId) return false;
     }
-
     if (selectedMethod !== 'Способ отправки' && selectedMethod !== 'Все') {
       const methodId = selectedMethod === 'Ручная' ? 'manual' : 'triggered';
       if (item.send_method !== methodId) return false;
     }
-
     if (selectedPeriod !== 'Период' && selectedPeriod !== 'За все время') {
       const now = new Date().getTime();
       const itemDate = new Date(item.created_at).getTime();
       const diffDays = (now - itemDate) / (1000 * 3600 * 24);
-
       if (selectedPeriod === 'За 7 дней' && diffDays > 7) return false;
       if (selectedPeriod === 'За 30 дней' && diffDays > 30) return false;
     }
-
     return true;
   });
 
@@ -100,6 +102,7 @@ export default function NotificationHistoryPage() {
     startIndex + ITEMS_PER_PAGE
   );
 
+  // Оставляем только раскрытую строку и следующую за ней
   let displayData = currentData;
   if (expandedId) {
     const expandedIndex = filteredData.findIndex(
@@ -123,6 +126,9 @@ export default function NotificationHistoryPage() {
     setExpandedId(null);
   };
 
+  // Ключ для анимации при смене страницы (чтобы таблица плавно обновлялась)
+  const tableKey = `table-page-${currentPage}`;
+
   return (
     <Box
       minH="100vh"
@@ -142,7 +148,6 @@ export default function NotificationHistoryPage() {
         >
           История рассылок push-уведомлений
         </Text>
-
         <CustomButton
           bg="#3B6EA0"
           color="white"
@@ -155,7 +160,7 @@ export default function NotificationHistoryPage() {
           alignItems="center"
           rightIcon={<Text fontSize="20px">+</Text>}
         >
-          Сохранить ссылку
+          Сократить ссылку
         </CustomButton>
       </Flex>
 
@@ -177,7 +182,6 @@ export default function NotificationHistoryPage() {
           >
             <SearchIcon color="#A1A1AA" />
           </InputLeftElement>
-
           <CustomInput
             placeholder="Поиск по названию рассылки"
             bg="white"
@@ -189,160 +193,221 @@ export default function NotificationHistoryPage() {
           />
         </InputGroup>
 
-        <HStack>
-          <FilterMenu
-            label="Все приложения"
-            options={['Все приложения', 'Сигма', 'Raida']}
-            value={selectedApp}
-            onSelect={handleFilterChange(setSelectedApp)}
-          />
-          <FilterMenu
-            label="Все статусы"
-            options={['Все статусы', 'Отправлено', 'Ошибка']}
-            value={selectedStatus}
-            onSelect={handleFilterChange(setSelectedStatus)}
-          />
-          <FilterMenu
-            label="Способ отправки"
-            options={['Все', 'Триггерная', 'Ручная']}
-            value={selectedMethod}
-            onSelect={handleFilterChange(setSelectedMethod)}
-          />
-          <FilterMenu
-            label="Период"
-            options={['За все время', 'За 7 дней', 'За 30 дней']}
-            value={selectedPeriod}
-            onSelect={handleFilterChange(setSelectedPeriod)}
-          />
-          <CustomButton
+        <HStack
+          spacing="8px"
+          align="center"
+          flexWrap="nowrap"
+        >
+          <Box
+            w="160px"
+            flexShrink={0}
+          >
+            <FilterMenu
+              label="Все приложения"
+              options={['Все приложения', 'Сигма', 'Raida']}
+              value={selectedApp}
+              onSelect={handleFilterChange(setSelectedApp)}
+            />
+          </Box>
+          <Box
+            w="150px"
+            flexShrink={0}
+          >
+            <FilterMenu
+              label="Все статусы"
+              options={['Все статусы', 'Отправлено', 'Ошибка']}
+              value={selectedStatus}
+              onSelect={handleFilterChange(setSelectedStatus)}
+            />
+          </Box>
+          <Box
+            w="170px"
+            flexShrink={0}
+          >
+            <FilterMenu
+              label="Способ отправки"
+              options={['Все', 'Триггерная', 'Ручная']}
+              value={selectedMethod}
+              onSelect={handleFilterChange(setSelectedMethod)}
+            />
+          </Box>
+          <Box
+            w="150px"
+            flexShrink={0}
+          >
+            <FilterMenu
+              label="Период"
+              options={['За все время', 'За 7 дней', 'За 30 дней']}
+              value={selectedPeriod}
+              onSelect={handleFilterChange(setSelectedPeriod)}
+            />
+          </Box>
+          <Button
+            flexShrink={0}
+            whiteSpace="nowrap"
+            variant="ghost"
             bg="transparent"
             color="#12233F"
             fontWeight="medium"
             fontSize="sm"
+            px="12px"
+            py="10px"
+            h="44px"
+            borderRadius="10px"
+            border="1px solid transparent"
+            transition="background-color 0.2s ease, color 0.2s ease"
+            _hover={{ color: '#2D547B' }}
+            _active={{ bg: '#D4E1EE' }}
+            _focusVisible={{ outline: 'none', borderColor: '#3B6EA0' }}
             onClick={handleResetFilters}
           >
             Сбросить фильтры
-          </CustomButton>
+          </Button>
         </HStack>
       </Flex>
 
-      {isError ? (
-        <Flex
-          direction="column"
-          align="center"
-          justify="center"
-          bg="#FFFFFF"
-          p="40px 32px"
-          borderRadius="20px"
-        >
-          <Box
-            bg="#FEF2F2"
-            p="16px"
-            borderRadius="16px"
-            mb="20px"
+      {/* AnimatePresence для плавных переходов между состояниями */}
+      <AnimatePresence mode="wait">
+        {isError ? (
+          <motion.div
+            key="error-state"
+            initial={fadeInUp.initial}
+            animate={fadeInUp.animate}
+            exit={fadeInUp.exit}
+            transition={fadeInUp.transition}
           >
-            <EmailIcon
-              color="#EF4444"
-              boxSize="24px"
-            />
-          </Box>
-          <Text
-            fontSize="xl"
-            fontWeight="bold"
-            color="#12233F"
-            mb="4px"
-          >
-            Не удалось загрузить историю
-          </Text>
-          <Text
-            fontSize="md"
-            color="#52525B"
-            mb="12px"
-          >
-            Проверьте соединение и повторите. Ничего не потеряется.
-          </Text>
-          <CustomButton
-            bg="#3B6EA0"
-            color="white"
-            borderRadius="xl"
-            fontSize="md"
-            fontWeight="500"
-            p="12px 20px"
-            onClick={handleRetry}
-          >
-            Повторить
-          </CustomButton>
-        </Flex>
-      ) : filteredData.length > 0 ? (
-        <>
-          <NotificationsTable
-            data={displayData}
-            expandedId={expandedId}
-            onRowClick={handleRowClick}
-          />
-          {!expandedId && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          )}
-        </>
-      ) : (
-        <Flex
-          direction="column"
-          align="center"
-          justify="center"
-          bg="#fff"
-          p="40px 32px"
-          borderRadius="20px"
-        >
-          <Box
-            bg="#ECF2F8"
-            p="12px 14px"
-            borderRadius="10px"
-            mb="24px"
-          >
-            <FiInbox
-              color="#12233F"
-              size="24px"
-            />
-          </Box>
-          <Text
-            fontSize="xl"
-            fontWeight="bold"
-            color="#12233F"
-            mb="4px"
-          >
-            Рассылки не найдены
-          </Text>
-          <Text
-            fontSize="md"
-            color="#64748B"
-            mb="12px"
-          >
-            Измените фильтры или отправьте первую рассылку
-          </Text>
-          <CustomButton
-            bg="#3B6EA0"
-            color="white"
-            borderRadius="xl"
-            fontSize="md"
-            fontWeight="500"
-            p="12px 16px"
-            rightIcon={
-              <Text
-                fontSize="20px"
-                fontWeight="300"
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              bg="#FFFFFF"
+              p="40px 32px"
+              borderRadius="20px"
+            >
+              <Box
+                bg="#FEF2F2"
+                p="16px"
+                borderRadius="16px"
+                mb="20px"
               >
-                +
+                <EmailIcon
+                  color="#EF4444"
+                  boxSize="24px"
+                />
+              </Box>
+              <Text
+                fontSize="xl"
+                fontWeight="bold"
+                color="#12233F"
+                mb="4px"
+              >
+                Не удалось загрузить историю
               </Text>
-            }
+              <Text
+                fontSize="md"
+                color="#52525B"
+                mb="12px"
+              >
+                Проверьте соединение и повторите. Ничего не потеряется.
+              </Text>
+              <CustomButton
+                bg="#3B6EA0"
+                color="white"
+                borderRadius="xl"
+                fontSize="md"
+                fontWeight="500"
+                p="12px 20px"
+                onClick={handleRetry}
+              >
+                Повторить
+              </CustomButton>
+            </Flex>
+          </motion.div>
+        ) : filteredData.length > 0 ? (
+          <motion.div
+            key={tableKey}
+            initial={fadeScale.initial}
+            animate={fadeScale.animate}
+            exit={fadeScale.exit}
+            transition={fadeScale.transition}
           >
-            Создать рассылку
-          </CustomButton>
-        </Flex>
-      )}
+            <NotificationsTable
+              data={displayData}
+              expandedId={expandedId}
+              onRowClick={handleRowClick}
+            />
+            {!expandedId && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            )}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="empty-state"
+            initial={fadeInUp.initial}
+            animate={fadeInUp.animate}
+            exit={fadeInUp.exit}
+            transition={fadeInUp.transition}
+          >
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              bg="#fff"
+              p="40px 32px"
+              borderRadius="20px"
+            >
+              <Box
+                bg="#ECF2F8"
+                p="12px 14px"
+                borderRadius="10px"
+                mb="24px"
+              >
+                <FiInbox
+                  color="#12233F"
+                  size="24px"
+                />
+              </Box>
+              <Text
+                fontSize="xl"
+                fontWeight="bold"
+                color="#12233F"
+                mb="4px"
+              >
+                Рассылки не найдены
+              </Text>
+              <Text
+                fontSize="md"
+                color="#64748B"
+                mb="12px"
+              >
+                Измените фильтры или отправьте первую рассылку
+              </Text>
+              <CustomButton
+                bg="#3B6EA0"
+                color="white"
+                borderRadius="xl"
+                fontSize="md"
+                fontWeight="500"
+                p="12px 16px"
+                rightIcon={
+                  <Text
+                    fontSize="20px"
+                    fontWeight="300"
+                  >
+                    +
+                  </Text>
+                }
+              >
+                Создать рассылку
+              </CustomButton>
+            </Flex>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Box>
   );
 }
