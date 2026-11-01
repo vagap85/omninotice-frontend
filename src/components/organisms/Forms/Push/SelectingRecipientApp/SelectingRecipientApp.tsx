@@ -2,7 +2,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons/ArrowForward';
 import { Flex, useDisclosure } from '@chakra-ui/react';
 import { memo } from 'react';
 import type { ComponentType } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   dispatchNotification,
   DispatchError,
@@ -55,6 +55,7 @@ function SelectingRecipientApp({ isAuthorized }: PanelContentProps) {
 
 function PanelContentInner({ isAuthorized }: PanelContentProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const registry = useFormsRegistry();
   const { selectedApp, recipientsMode, setAppError, setRecipientsError } =
     useSelectingRecipientApp();
@@ -62,7 +63,8 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { add } = useNotification();
 
-  const onAuthClick = () => navigate(ROUTES.login);
+  const onAuthClick = () =>
+    navigate(ROUTES.login, { state: { from: location } });
 
   const recipientsCount =
     recipientsMode === 'all' ? (selectedApp?.count ?? 0) : selectedUsers.length;

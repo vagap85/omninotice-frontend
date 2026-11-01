@@ -2,18 +2,20 @@ import userEvent from '@testing-library/user-event';
 import { type Mock, describe, test, expect, vi, beforeEach } from 'vitest';
 
 import { createUserCenter, loginUserCenter } from '@/api/userCenter';
-import AuthRegisterPage from '@/pages/Auth/AuthRegisterPage';
+import AuthPages from '@/pages/Auth/AuthPages';
 
 import { renderWithProviders, screen, waitFor } from '../../test/utils';
 
 // ===== МОКИ =====
 
 const mockNavigate = vi.fn();
+const mockLocationState = { value: null as unknown };
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useNavigate: () => mockNavigate
+    useNavigate: () => mockNavigate,
+    useLocation: () => ({ state: mockLocationState.value })
   };
 });
 
@@ -42,44 +44,49 @@ vi.mock('@/assets/logo.svg', () => ({ default: 'logo.svg' }));
 describe('AuthRegisterPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockLocationState.value = null;
   });
 
-  test('рендерит форму регистрации', () => {
-    renderWithProviders(<AuthRegisterPage />);
+  test('рендерит форму регистрации', async () => {
+    renderWithProviders(<AuthPages mode="register" />);
     expect(
-      screen.getByPlaceholderText(/example@omninotice/i)
+      await screen.findByPlaceholderText(/example@omninotice/i)
     ).toBeInTheDocument();
-    expect(screen.getByText('Создать аккаунт')).toBeInTheDocument();
+    expect(await screen.findByText('Создать аккаунт')).toBeInTheDocument();
   });
 
-  test('есть 3 поля: логин, пароль, подтверждение', () => {
-    renderWithProviders(<AuthRegisterPage />);
+  test('есть 3 поля: логин, пароль, подтверждение', async () => {
+    renderWithProviders(<AuthPages mode="register" />);
     expect(
-      screen.getByPlaceholderText(/example@omninotice/i)
+      await screen.findByPlaceholderText(/example@omninotice/i)
     ).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/введите пароль/i)).toBeInTheDocument();
     expect(
-      screen.getByPlaceholderText(/повторите пароль/i)
+      await screen.findByPlaceholderText(/введите пароль/i)
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByPlaceholderText(/повторите пароль/i)
     ).toBeInTheDocument();
   });
 
-  test('есть ссылка "У меня уже есть аккаунт"', () => {
-    renderWithProviders(<AuthRegisterPage />);
-    expect(screen.getByText(/У меня уже есть аккаунт/i)).toBeInTheDocument();
+  test('есть ссылка "У меня уже есть аккаунт"', async () => {
+    renderWithProviders(<AuthPages mode="register" />);
+    expect(
+      await screen.findByText(/У меня уже есть аккаунт/i)
+    ).toBeInTheDocument();
   });
 
   test('клик по "У меня уже есть аккаунт" ведёт на /login', async () => {
     const user = userEvent.setup();
-    renderWithProviders(<AuthRegisterPage />);
+    renderWithProviders(<AuthPages mode="register" />);
 
-    await user.click(screen.getByText(/У меня уже есть аккаунт/i));
+    await user.click(await screen.findByText(/У меня уже есть аккаунт/i));
 
     expect(mockNavigate).toHaveBeenCalledWith('/login');
   });
 
   test('клик по "На главную" ведёт на /', async () => {
     const user = userEvent.setup();
-    renderWithProviders(<AuthRegisterPage />);
+    renderWithProviders(<AuthPages mode="register" />);
 
     await user.click(screen.getByText('На главную'));
 
@@ -88,6 +95,9 @@ describe('AuthRegisterPage', () => {
 
   test('успешная регистрация вызывает setAuth и редирект', async () => {
     const user = userEvent.setup();
+    mockLocationState.value = {
+      from: { pathname: '/campaigns', search: '?status=active' }
+    };
     (createUserCenter as Mock).mockResolvedValueOnce({
       login: 'new@mail.com',
       password: 'password123'
@@ -99,21 +109,21 @@ describe('AuthRegisterPage', () => {
       accountId: 'account-123'
     });
 
-    renderWithProviders(<AuthRegisterPage />);
+    renderWithProviders(<AuthPages mode="register" />);
 
     await user.type(
-      screen.getByPlaceholderText(/example@omninotice/i),
+      await screen.findByPlaceholderText(/example@omninotice/i),
       'new@mail.com'
     );
     await user.type(
-      screen.getByPlaceholderText(/введите пароль/i),
+      await screen.findByPlaceholderText(/введите пароль/i),
       'password123'
     );
     await user.type(
-      screen.getByPlaceholderText(/повторите пароль/i),
+      await screen.findByPlaceholderText(/повторите пароль/i),
       'password123'
     );
-    await user.click(screen.getByText('Создать аккаунт'));
+    await user.click(await screen.findByText('Создать аккаунт'));
 
     await waitFor(() => {
       expect(createUserCenter).toHaveBeenCalledWith(
@@ -125,7 +135,9 @@ describe('AuthRegisterPage', () => {
         'password123'
       );
       expect(mockLogin).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith('/about-yourself');
+      expect(mockNavigate).toHaveBeenCalledWith('/about-yourself', {
+        state: mockLocationState.value
+      });
     });
   });
 
@@ -135,21 +147,21 @@ describe('AuthRegisterPage', () => {
       new Error('Логин уже занят')
     );
 
-    renderWithProviders(<AuthRegisterPage />);
+    renderWithProviders(<AuthPages mode="register" />);
 
     await user.type(
-      screen.getByPlaceholderText(/example@omninotice/i),
+      await screen.findByPlaceholderText(/example@omninotice/i),
       'taken@mail.com'
     );
     await user.type(
-      screen.getByPlaceholderText(/введите пароль/i),
+      await screen.findByPlaceholderText(/введите пароль/i),
       'password123'
     );
     await user.type(
-      screen.getByPlaceholderText(/повторите пароль/i),
+      await screen.findByPlaceholderText(/повторите пароль/i),
       'password123'
     );
-    await user.click(screen.getByText('Создать аккаунт'));
+    await user.click(await screen.findByText('Создать аккаунт'));
 
     await waitFor(() => {
       expect(screen.getByText('Логин уже занят')).toBeInTheDocument();

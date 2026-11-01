@@ -1,13 +1,19 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
-import arrowIcon from '@/assets/landing/arrow-right.svg';
 import moveLeftIcon from '@/assets/landing/move-left.svg';
 import logoImage from '@/assets/logo.svg';
+import { useAuth } from '@/auth/AuthContext';
+import ArrowRightIcon from '@/components/atoms/Icons/home/ArrowRightIcon';
+import { AccountWidget } from '@/components/molecules/AccountWidget/AccountWidget';
 import { ROUTES } from '@/routing/routes';
 
 import './LandingHeader.scss';
 
 export default function LandingHeader() {
+  const location = useLocation();
+  const { isAuthorized } = useAuth();
+  const buttonText = 'Попробовать';
+
   return (
     <header className="landing-header">
       <div className="landing-header__container">
@@ -37,23 +43,27 @@ export default function LandingHeader() {
         </Link>
 
         <div className="landing-header__nav landing-header__nav--right">
-          <Link
-            to={ROUTES.login}
-            className="landing-header__link landing-header__link--outline"
-          >
-            Войти
-          </Link>
+          {!isAuthorized && (
+            <Link
+              to={ROUTES.login}
+              state={{ from: location }}
+              className="landing-header__link landing-header__link--outline"
+            >
+              Войти
+            </Link>
+          )}
           <Link
             to={ROUTES.registration}
+            state={{ from: location }}
             className="landing-header__link landing-header__link--primary"
           >
-            Попробовать бесплатно
-            <img
-              src={arrowIcon}
-              alt=""
-              className="landing-header__arrow"
-            />
+            {buttonText}
+            <span className="landing-header__arrow">
+              <ArrowRightIcon />
+            </span>
           </Link>
+
+          {isAuthorized && <AccountWidget />}
         </div>
       </div>
     </header>

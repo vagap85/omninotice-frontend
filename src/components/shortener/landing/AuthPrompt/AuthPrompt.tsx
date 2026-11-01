@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import chartIcon from '@/assets/landing/chart_data.svg';
 import { useAuth } from '@/auth/AuthContext';
@@ -11,6 +11,7 @@ type AuthTarget = typeof ROUTES.login | typeof ROUTES.registration;
 
 function AuthPrompt() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { authState } = useAuth();
 
   /**
@@ -25,7 +26,7 @@ function AuthPrompt() {
       void claimAllGuestShortcuts(projectId);
     }
 
-    navigate(target);
+    navigate(target, { state: { from: location } });
   };
 
   return (

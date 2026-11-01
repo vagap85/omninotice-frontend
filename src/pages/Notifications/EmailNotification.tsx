@@ -1,6 +1,6 @@
 import { Box, Flex } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import type { EventForEMail } from '@/api/types';
 import { useAuth } from '@/auth/AuthContext';
@@ -64,6 +64,7 @@ export default function EmailNotification() {
 
 function EmailNotificationInner() {
   const navigate = useNavigate();
+  const location = useLocation();
   const registry = useFormsRegistry();
   const [draft] = useState<MailingDraft>(() => readStoredDraft());
   const { isAuthorized } = useAuth();
@@ -152,7 +153,9 @@ function EmailNotificationInner() {
           <RecipientsPanel
             initialEmails={draft.emails}
             canSend={isAuthorized}
-            onAuthClick={() => navigate(ROUTES.login)}
+            onAuthClick={() =>
+              navigate(ROUTES.login, { state: { from: location } })
+            }
             onValidateEmailForm={validateEmailForm}
             onSend={sendMailing}
           />

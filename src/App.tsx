@@ -1,12 +1,13 @@
 import { Flex } from '@chakra-ui/react';
 import { useEffect, lazy, Suspense, ComponentType } from 'react';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate, useParams } from 'react-router-dom';
 
 import SpinnerLoader from './components/atoms/Loaders/SpinnerLoader/SpinnerLoader';
 import SidebarLayout from './components/layouts/SidebarLayout';
 import { registerClearMailingDraftBeforeUnload } from './mailingDraftStorage';
 import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage';
 import { OverviewPage } from './pages/OverviewPage/OverviewPage';
+import AuthPages from './pages/Auth/AuthPages';
 import TemplatesPage from './pages/TemplatesPage/TemplatesPage';
 import ProtectedRoute from './routing/ProtectedRoute';
 import { ROUTES } from './routing/routes';
@@ -40,12 +41,6 @@ const TelegramBotConnection = lazyWithMinDelay(
 const NotificationHistoryPage = lazyWithMinDelay(
   () => import('@/pages/Notifications/PushNotificationHistory')
 );
-const AuthLoginPage = lazyWithMinDelay(
-  () => import('@/pages/Auth/AuthLoginPage')
-);
-const AuthRegisterPage = lazyWithMinDelay(
-  () => import('@/pages/Auth/AuthRegisterPage')
-);
 const AboutYourselfPage = lazyWithMinDelay(
   () => import('@/pages/Auth/AboutYourselfPage')
 );
@@ -64,6 +59,11 @@ const LinksLandingPage = lazyWithMinDelay(
 const ProfilePage = lazyWithMinDelay(
   () => import('@/pages/ProfilePage/ProfilePage')
 );
+
+function DashboardLinkRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/links/${id}`} replace />;
+}
 
 function App() {
   useEffect(() => registerClearMailingDraftBeforeUnload(), []);
@@ -102,15 +102,13 @@ function App() {
               element={<PushNotification />}
             />
             <Route
-              path="/profile"
+              path={ROUTES.profile}
               element={<ProfilePage />}
             />
             <Route
               path={ROUTES.history}
               element={<NotificationHistoryPage />}
             />
-          </Route>
-          <Route element={<ProtectedRoute />}>
             <Route
               path={ROUTES.createTelegram}
               element={<TelegramNotification />}
@@ -119,11 +117,24 @@ function App() {
               path={ROUTES.connectTelegramBot}
               element={<TelegramBotConnection />}
             />
+            <Route
+              path={ROUTES.overview}
+              element={<OverviewPage />}
+            />
+            <Route
+              path={ROUTES.dashboard}
+              element={<Navigate to={ROUTES.overview} replace />}
+            />
+            <Route
+              path="/dashboard/profile"
+              element={
+                <Navigate
+                  to={ROUTES.profile}
+                  replace
+                />
+              }
+            />
           </Route>
-          <Route
-            path={ROUTES.overview}
-            element={<OverviewPage />}
-          />
           <Route
             path={ROUTES.templates}
             element={<TemplatesPage />}
@@ -142,7 +153,12 @@ function App() {
           />
           <Route
             path="/dashboard"
-            element={<Navigate to={ROUTES.overview} replace />}
+            element={
+              <Navigate
+                to={ROUTES.overview}
+                replace
+              />
+            }
           />
           <Route
             path="/dashboard/profile"
@@ -156,16 +172,18 @@ function App() {
         </Route>
         <Route
           path={ROUTES.login}
-          element={<AuthLoginPage />}
+          element={<AuthPages mode="login" />}
         />
         <Route
           path={ROUTES.registration}
-          element={<AuthRegisterPage />}
+          element={<AuthPages mode="register" />}
         />
-        <Route
-          path={ROUTES.about}
-          element={<AboutYourselfPage />}
-        />
+        <Route element={<ProtectedRoute />}>
+          <Route
+            path={ROUTES.about}
+            element={<AboutYourselfPage />}
+          />
+        </Route>
 
         <Route
           path="*"

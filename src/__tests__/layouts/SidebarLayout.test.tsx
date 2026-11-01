@@ -74,6 +74,20 @@ describe('SidebarLayout', () => {
     expect(screen.getByTestId('page-header')).toHaveTextContent(/Обзор/i);
   });
 
+  test('показывает заголовок для /links как на /create/email', () => {
+    renderLayout('/links');
+    expect(screen.getByTestId('page-header')).toHaveTextContent(
+      /Короткие ссылки/i
+    );
+  });
+
+  test('показывает заголовок для /profile как на /create/email', () => {
+    renderLayout('/profile');
+    expect(screen.getByTestId('page-header')).toHaveTextContent(
+      /Настройка профиля/i
+    );
+  });
+
   test('не показывает заголовок для неизвестного пути', () => {
     renderLayout('/unknown');
     expect(screen.getByTestId('page-header')).toHaveTextContent('');

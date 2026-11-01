@@ -14,6 +14,8 @@ export interface UserCenterLoginSuccess {
   userId: string;
   login: string;
   accountId?: string | null;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface UserCenterCreateSuccess {
