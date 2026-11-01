@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react';
 import { useEffect, lazy, Suspense, ComponentType } from 'react';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate, useParams } from 'react-router-dom';
 
 import SpinnerLoader from './components/atoms/Loaders/SpinnerLoader/SpinnerLoader';
 import SidebarLayout from './components/layouts/SidebarLayout';
@@ -65,6 +65,11 @@ const ProfilePage = lazyWithMinDelay(
   () => import('@/pages/ProfilePage/ProfilePage')
 );
 
+function DashboardLinkRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/links/${id}`} replace />;
+}
+
 function App() {
   useEffect(() => registerClearMailingDraftBeforeUnload(), []);
 
@@ -102,15 +107,13 @@ function App() {
               element={<PushNotification />}
             />
             <Route
-              path="/profile"
+              path={ROUTES.profile}
               element={<ProfilePage />}
             />
             <Route
               path={ROUTES.history}
               element={<NotificationHistoryPage />}
             />
-          </Route>
-          <Route element={<ProtectedRoute />}>
             <Route
               path={ROUTES.createTelegram}
               element={<TelegramNotification />}
@@ -119,11 +122,24 @@ function App() {
               path={ROUTES.connectTelegramBot}
               element={<TelegramBotConnection />}
             />
+            <Route
+              path={ROUTES.overview}
+              element={<OverviewPage />}
+            />
+            <Route
+              path={ROUTES.dashboard}
+              element={<Navigate to={ROUTES.overview} replace />}
+            />
+            <Route
+              path="/dashboard/profile"
+              element={
+                <Navigate
+                  to={ROUTES.profile}
+                  replace
+                />
+              }
+            />
           </Route>
-          <Route
-            path={ROUTES.overview}
-            element={<OverviewPage />}
-          />
           <Route
             path={ROUTES.templates}
             element={<TemplatesPage />}
@@ -141,17 +157,8 @@ function App() {
             element={<CampaignsPage />}
           />
           <Route
-            path="/dashboard"
-            element={<Navigate to={ROUTES.overview} replace />}
-          />
-          <Route
-            path="/dashboard/profile"
-            element={
-              <Navigate
-                to="/profile"
-                replace
-              />
-            }
+            path="/dashboard/links/:id"
+            element={<DashboardLinkRedirect />}
           />
         </Route>
         <Route

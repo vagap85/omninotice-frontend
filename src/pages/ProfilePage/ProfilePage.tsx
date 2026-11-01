@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Heading } from '@chakra-ui/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -210,6 +210,12 @@ export default function ProfilePage() {
         setLoaded(profile);
         setForm(profile);
         setLoadState('loaded');
+        if (profile.firstName || profile.lastName) {
+          updateUser({
+            firstName: profile.firstName,
+            lastName: profile.lastName
+          });
+        }
       })
       .catch(() => {
         if (cancelled) return;
@@ -433,6 +439,16 @@ export default function ProfilePage() {
     <Box className="profile-page">
       {loadState === 'error' ? (
         <Box className="profile-page__container">
+          <Heading
+            as="h1"
+            fontSize="20px"
+            fontWeight={700}
+            color="#12233f"
+            mb="24px"
+            fontFamily="'Inter', sans-serif"
+          >
+            Настройка профиля
+          </Heading>
           <Box className="profile-page__card profile-page__card--error">
             <div className="profile-page__error-tile">
               <svg
@@ -480,7 +496,17 @@ export default function ProfilePage() {
         </Box>
       ) : (
         <Box className="profile-page__container">
-          <h1 className="profile-page__title">Настройка профиля</h1>
+          <Heading
+            as="h1"
+            fontSize="20px"
+            fontWeight={700}
+            color="#12233f"
+            mb="24px"
+            fontFamily="'Inter', sans-serif"
+          >
+            Настройка профиля
+          </Heading>
+
 
           {banner && (
             <div

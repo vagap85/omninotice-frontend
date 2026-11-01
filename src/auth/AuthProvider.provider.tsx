@@ -10,7 +10,8 @@ import { AuthContext } from './AuthContext';
 import {
   clearAuthCookies,
   readAuthCookies,
-  saveAuthCookies
+  saveAuthCookies,
+  updateAuthCookies
 } from './authCookies';
 import type { AuthCredentials, AuthState } from './types';
 
@@ -29,11 +30,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateUser = useCallback((partial: Partial<AuthState>) => {
+    updateAuthCookies(partial);
     setAuthState((current) => (current ? { ...current, ...partial } : current));
   }, []);
 
   const logout = useCallback(() => {
     clearAuthCookies();
+    sessionStorage.removeItem('profile_data');
     setAuthState(null);
   }, []);
 

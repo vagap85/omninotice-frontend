@@ -15,11 +15,13 @@ export const ROUTES = {
   createTelegram: '/create/telegram',
   connectTelegramBot: '/create/telegram/connect',
   overview: '/overview',
+  dashboard: '/dashboard',
   history: "/push/history",
   templates: '/templates',
   links: '/links',
   linkDetails: '/links/:id',
   campaigns: '/campaigns',
+  profile: '/profile',
   login: '/login',
   registration: '/registration',
   about: '/about-yourself'
@@ -87,8 +89,14 @@ export const PAGE_TITLES: Partial<Record<string, string>> = {
   [ROUTES.createTelegram]: 'Создание Telegram-рассылки',
   [ROUTES.connectTelegramBot]: 'Создание Telegram-рассылки',
   [ROUTES.overview]: 'Обзор',
+  [ROUTES.dashboard]: 'Обзор',
   [ROUTES.history]: 'История рассылок push-уведомлений',
-  [ROUTES.templates]: 'Шаблоны рассылок'
+  [ROUTES.templates]: 'Шаблоны рассылок',
+  [ROUTES.links]: 'Короткие ссылки',
+  [ROUTES.campaigns]: 'Кампании',
+  [ROUTES.linkDetails]: 'Детали ссылки',
+  [ROUTES.profile]: 'Настройка профиля',
+  '/dashboard/profile': 'Настройка профиля'
 };
 
 export const COLLAPSED_SIDEBAR_ROUTES = [

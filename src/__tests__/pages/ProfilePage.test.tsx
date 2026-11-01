@@ -33,6 +33,7 @@ describe('ProfilePage', () => {
   test('рендерит секции профиля пользователя', async () => {
     renderWithProviders(<ProfilePage />);
 
+
     expect(screen.getByText('Настройка профиля')).toBeInTheDocument();
     expect(screen.getByText('Личные данные')).toBeInTheDocument();
     expect(screen.getByText('Контакты')).toBeInTheDocument();

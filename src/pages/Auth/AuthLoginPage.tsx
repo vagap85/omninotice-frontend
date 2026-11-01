@@ -11,6 +11,7 @@ import {
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { fetchMyProfile } from '@/api/profile';
 import { loginUserCenter } from '@/api/userCenter';
 import { ROUTES } from '@/routing/routes';
 import authBg from '@/assets/background.jpg';
@@ -71,7 +72,41 @@ function AuthLoginPageInner() {
     try {
       const auth = await loginUserCenter(login.trim(), password);
 
-      setAuth(auth);
+      let firstName = auth.firstName;
+      let lastName = auth.lastName;
+
+      try {
+        const profile = await fetchMyProfile(auth.accessToken);
+        if (profile) {
+          if (profile.first_name?.trim()) {
+            firstName = profile.first_name.trim();
+          }
+          if (profile.last_name?.trim()) {
+            lastName = profile.last_name.trim();
+          }
+          const profileData = {
+            firstName: firstName || '',
+            lastName: lastName || '',
+            email:
+              profile.contact_email?.find(
+                (item) =>
+                  item.title?.toLowerCase() === 'work' ||
+                  item.title?.toLowerCase() === 'рабочий'
+              )?.value ||
+              profile.contact_email?.[0]?.value ||
+              auth.login
+          };
+          sessionStorage.setItem('profile_data', JSON.stringify(profileData));
+        }
+      } catch (profileError) {
+        console.warn('Could not load profile on login:', profileError);
+      }
+
+      setAuth({
+        ...auth,
+        firstName,
+        lastName
+      });
 
       toast({
         position: 'bottom',

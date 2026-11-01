@@ -2,7 +2,10 @@ import {
   SearchIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
   ArrowForwardIcon,
+  AddIcon,
 } from '@chakra-ui/icons';
 import {
   Box,
@@ -63,6 +66,7 @@ import { QrModal } from '@/components/shortener/QrModal/QrModal';
 import { ShortenModal } from '@/components/shortener/ShortenModal/ShortenModal';
 import { mockLinks, mockCampaigns } from '@/mocks/shortener';
 import type { LinkRow, CampaignRow } from '@/types/shortener';
+import { ROUTES } from '@/routing/routes';
 import './LinksRegistryPage.scss';
 
 /** Извлекает код shortcut из shortUrl вида "omni/abc123" */
@@ -131,6 +135,98 @@ function SortIndicator({ dir }: { dir: SortDir | null }) {
         </>
       )}
     </svg>
+  );
+}
+
+const statusFilterOptions: { label: string; value: string }[] = [
+  { label: 'Все статусы', value: '' },
+  { label: 'Активна', value: 'active' },
+  { label: 'Неактивна', value: 'inactive' },
+  { label: 'Заблокирована', value: 'blocked' },
+];
+
+interface FilterMenuSelectProps {
+  label: string;
+  value: string;
+  displayValue?: string;
+  options: { label: string; value: string }[];
+  onChange: (value: string) => void;
+}
+
+function FilterMenuSelect({
+  label,
+  value,
+  displayValue,
+  options,
+  onChange,
+}: FilterMenuSelectProps) {
+  return (
+    <Menu autoSelect={false}>
+      {({ isOpen }) => (
+        <Box>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            bg="#F8FAFC"
+            border="1px solid"
+            borderColor="#7095BA"
+            borderRadius="10px"
+            h="36px"
+            px="14px"
+            fontSize="14px"
+            fontWeight="400"
+            color="brand.800"
+            whiteSpace="nowrap"
+            rightIcon={
+              isOpen ? (
+                <ChevronDownIcon boxSize="16px" color="brand.800" />
+              ) : (
+                <ChevronUpIcon boxSize="16px" color="brand.800" />
+              )
+            }
+            _hover={{ bg: '#F8FAFC', borderColor: '#3B6EA0' }}
+            _active={{ bg: '#F8FAFC' }}
+          >
+            {displayValue || value || label}
+          </MenuButton>
+
+          <Portal>
+            <MenuList
+              bg="#F8FAFC"
+              border="none"
+              borderRadius="12px"
+              boxShadow="0 4px 20px rgba(18, 35, 63, 0.08)"
+              p="8px"
+              minW="166px"
+              maxH="280px"
+              overflowY="auto"
+              zIndex={1000}
+            >
+              {options.map((opt) => {
+                const isSelected = value === opt.value;
+                return (
+                  <MenuItem
+                    key={opt.value}
+                    borderRadius="8px"
+                    fontSize="14px"
+                    fontWeight="500"
+                    color="brand.800"
+                    h="44px"
+                    px="14px"
+                    bg={isSelected ? 'brand.60' : 'transparent'}
+                    _hover={{ bg: 'brand.60', color: 'brand.800' }}
+                    _focus={{ bg: 'brand.60', color: 'brand.800' }}
+                    onClick={() => onChange(opt.value)}
+                  >
+                    {opt.label}
+                  </MenuItem>
+                );
+              })}
+            </MenuList>
+          </Portal>
+        </Box>
+      )}
+    </Menu>
   );
 }
 
@@ -233,11 +329,6 @@ export default function LinksRegistryPage() {
           ...links.flatMap((l) => l.tags),
         ]),
       ).sort();
-  const allStatuses: LinkRow['status'][] = [
-    'active',
-    'inactive',
-    'blocked',
-  ];
 
   const filteredLinks = links.filter((link) => {
     const query = searchText.toLowerCase();
@@ -287,8 +378,6 @@ export default function LinksRegistryPage() {
     (safePage - 1) * ITEMS_PER_PAGE,
     safePage * ITEMS_PER_PAGE,
   );
-  const hasActiveFilters =
-    !!searchText || !!filterCampaign || !!filterTag || !!filterStatus;
 
   const resetFilters = () => {
     setSearchText('');
@@ -593,22 +682,6 @@ export default function LinksRegistryPage() {
   return (
     <Box className="links-registry">
       <Box px="32px" py="28px">
-        <Flex
-          justify="space-between"
-          align="center"
-          mb="8px"
-          flexWrap="wrap"
-          gap="12px"
-        >
-          <Heading
-            fontSize="28px"
-            fontWeight={700}
-            color="#12233f"
-            fontFamily="'Inter', sans-serif"
-          >
-            Короткие ссылки
-          </Heading>
-        </Flex>
 
         <Heading
           fontSize="20px"
@@ -620,75 +693,98 @@ export default function LinksRegistryPage() {
           Список сокращённых ссылок
         </Heading>
 
-        <Flex className="links-registry__toolbar">
-          <Flex className="links-registry__filters">
-            <InputGroup className="links-registry__filter-search">
-              <InputLeftElement className="links-registry__filter-search-icon-wrapper">
-                <SearchIcon className="links-registry__filter-search-icon" />
+        <Flex
+          justify="space-between"
+          align="center"
+          mb="20px"
+          gap="12px"
+          flexWrap="wrap"
+        >
+          <Flex align="center" gap="8px" flexWrap="wrap" flexGrow={1}>
+            <InputGroup maxW="420px">
+              <InputLeftElement pointerEvents="none" h="36px">
+                <SearchIcon color="gray.400" />
               </InputLeftElement>
               <Input
-                className="links-registry__filter-input"
                 value={searchText}
                 onChange={handleFilterChange(setSearchText)}
-                placeholder="Поиск по названию, URL, тегу, кампании"
+                placeholder="Поиск по названию, целевому URL или тегу"
+                bg="#F8FAFC"
+                border="none"
+                borderRadius="10px"
+                h="36px"
+                fontSize="14px"
+                _placeholder={{ color: '#94A3B8' }}
+                _focusVisible={{ outline: 'none', boxShadow: '0 0 0 1px #7095BA' }}
               />
             </InputGroup>
-            <Box className="links-registry__filter-select-wrapper links-registry__filter-select-wrapper--campaign">
-              <Select
-                className="links-registry__filter-select"
-                value={filterCampaign}
-                onChange={handleFilterChange(setFilterCampaign)}
-              >
-                <option value="">Все кампании</option>
-                {allCampaigns.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </Select>
-            </Box>
-            <Box className="links-registry__filter-select-wrapper links-registry__filter-select-wrapper--tag">
-              <Select
-                className="links-registry__filter-select"
-                value={filterTag}
-                onChange={handleFilterChange(setFilterTag)}
-              >
-                <option value="">Все теги</option>
-                {allTags.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </Select>
-            </Box>
-            <Box className="links-registry__filter-select-wrapper links-registry__filter-select-wrapper--status">
-              <Select
-                className="links-registry__filter-select"
-                value={filterStatus}
-                onChange={handleFilterChange(setFilterStatus)}
-              >
-                <option value="">Все статусы</option>
-                {allStatuses.map((s) => (
-                  <option key={s} value={s}>
-                    {statusLabels[s]}
-                  </option>
-                ))}
-              </Select>
-            </Box>
-            {hasActiveFilters && (
-              <Button
-                className="links-registry__filter-reset"
-                onClick={resetFilters}
-              >
-                Сбросить фильтры
-              </Button>
-            )}
+
+            <FilterMenuSelect
+              label="Кампании"
+              value={filterCampaign}
+              options={[
+                { label: 'Все кампании', value: '' },
+                ...allCampaigns.map((c) => ({ label: c, value: c })),
+              ]}
+              onChange={(val) => {
+                setFilterCampaign(val);
+                setCurrentPage(1);
+              }}
+            />
+
+            <FilterMenuSelect
+              label="Теги"
+              value={filterTag}
+              options={[
+                { label: 'Все теги', value: '' },
+                ...allTags.map((t) => ({ label: t, value: t })),
+              ]}
+              onChange={(val) => {
+                setFilterTag(val);
+                setCurrentPage(1);
+              }}
+            />
+
+            <FilterMenuSelect
+              label="Все статусы"
+              value={filterStatus}
+              displayValue={
+                filterStatus
+                  ? statusFilterOptions.find((o) => o.value === filterStatus)?.label
+                  : 'Все статусы'
+              }
+              options={statusFilterOptions}
+              onChange={(val) => {
+                setFilterStatus(val);
+                setCurrentPage(1);
+              }}
+            />
+
+            <Button
+              variant="unstyled"
+              fontSize="14px"
+              fontWeight="normal"
+              color="#12233F"
+              h="36px"
+              px="2"
+              ml={{ base: 0, md: '8px' }}
+              _hover={{ color: '#3B6EA0' }}
+              onClick={resetFilters}
+            >
+              Сбросить фильтры
+            </Button>
           </Flex>
+
           <Button
-            className="links-registry__create-btn"
-            rightIcon={
-              <Text className="links-registry__create-btn-icon">+</Text>
-            }
+            bg="#3B6EA0"
+            color="white"
+            borderRadius="10px"
+            h="36px"
+            px="16px"
+            fontSize="14px"
+            fontWeight="500"
+            _hover={{ bg: '#2D547B' }}
+            rightIcon={<AddIcon boxSize="11px" />}
             onClick={() => setIsShortenModalOpen(true)}
           >
             Сократить ссылку
@@ -796,7 +892,7 @@ export default function LinksRegistryPage() {
                           _hover={{ bg: '#f8fafc' }}
                           cursor="pointer"
                           onClick={() =>
-                            navigate(`/dashboard/links/${link.id}`)
+                            navigate(`${ROUTES.links}/${link.id}`)
                           }
                         >
                           <Td
@@ -966,66 +1062,105 @@ export default function LinksRegistryPage() {
                                   as={IconButton}
                                   aria-label="Действия со ссылкой"
                                   icon={
-                                    <Text className="links-registry__more-dots">
+                                    <Text fontSize="18px" lineHeight="1" color="#a1a1aa">
                                       ⋯
                                     </Text>
                                   }
                                   variant="ghost"
                                   size="sm"
-                                  className="links-registry__more-btn"
+                                  _hover={{ color: '#3b6ea0', bg: '#f0f5fa' }}
                                   onClick={(e: React.MouseEvent) =>
                                     e.stopPropagation()
                                   }
                                 />
                                 <Portal>
                                   <MenuList
-                                    className="links-registry__menu-list"
+                                    bg="white"
+                                    border="1px solid"
+                                    borderColor="brand.60"
+                                    borderRadius="12px"
+                                    boxShadow="0 4px 20px rgba(18, 35, 63, 0.08)"
+                                    p="8px"
+                                    minW="275px"
+                                    zIndex={1000}
                                     onClick={(e: React.MouseEvent) =>
                                       e.stopPropagation()
                                     }
                                   >
-                                    <Box className="links-registry__menu-header">
-                                      <Text className="links-registry__menu-title">
+                                    <Box px="12px" pt="6px" pb="12px">
+                                      <Text
+                                        fontSize="15px"
+                                        fontWeight="600"
+                                        color="brand.450"
+                                      >
                                         Действия со ссылкой
                                       </Text>
                                     </Box>
 
                                     <MenuItem
-                                      className="links-registry__menu-item"
+                                      borderRadius="8px"
+                                      h="44px"
+                                      px="12px"
+                                      color="brand.800"
+                                      fontSize="14px"
+                                      fontWeight="500"
+                                      bg="transparent"
+                                      _hover={{ bg: '#F8FAFC' }}
+                                      _focus={{ bg: '#F8FAFC' }}
                                       onClick={() => handleOpenRedirect(link)}
                                     >
-                                      <Flex className="links-registry__menu-item-icon">
+                                      <Flex
+                                        mr="12px"
+                                        align="center"
+                                        justify="center"
+                                        color="brand.800"
+                                      >
                                         <svg
+                                          width="18"
+                                          height="18"
                                           viewBox="0 0 24 24"
                                           fill="none"
                                           stroke="currentColor"
                                           strokeWidth="1.75"
                                           strokeLinecap="round"
                                           strokeLinejoin="round"
-                                          className="links-registry__menu-svg"
                                         >
                                           <polyline points="15 6 20 11 15 16" />
                                           <path d="M4 19v-4a4 4 0 0 1 4-4h12" />
                                         </svg>
                                       </Flex>
-                                      <Text className="links-registry__menu-item-text">
+                                      <Text fontSize="14px" fontWeight="500" color="brand.800">
                                         Перенаправить на другой URL
                                       </Text>
                                     </MenuItem>
 
                                     <MenuItem
-                                      className="links-registry__menu-item"
+                                      borderRadius="8px"
+                                      h="44px"
+                                      px="12px"
+                                      color="brand.800"
+                                      fontSize="14px"
+                                      fontWeight="500"
+                                      bg="transparent"
+                                      _hover={{ bg: '#F8FAFC' }}
+                                      _focus={{ bg: '#F8FAFC' }}
                                       onClick={() => handleOpenCampaign(link)}
                                     >
-                                      <Flex className="links-registry__menu-item-icon">
+                                      <Flex
+                                        mr="12px"
+                                        align="center"
+                                        justify="center"
+                                        color="brand.800"
+                                      >
                                         <svg
+                                          width="18"
+                                          height="18"
                                           viewBox="0 0 24 24"
                                           fill="none"
                                           stroke="currentColor"
                                           strokeWidth="1.75"
                                           strokeLinecap="round"
                                           strokeLinejoin="round"
-                                          className="links-registry__menu-svg"
                                         >
                                           <line
                                             x1="12"
@@ -1041,24 +1176,38 @@ export default function LinksRegistryPage() {
                                           />
                                         </svg>
                                       </Flex>
-                                      <Text className="links-registry__menu-item-text">
+                                      <Text fontSize="14px" fontWeight="500" color="brand.800">
                                         Добавить в кампанию
                                       </Text>
                                     </MenuItem>
 
                                     <MenuItem
-                                      className="links-registry__menu-item"
+                                      borderRadius="8px"
+                                      h="44px"
+                                      px="12px"
+                                      color="brand.800"
+                                      fontSize="14px"
+                                      fontWeight="500"
+                                      bg="transparent"
+                                      _hover={{ bg: '#F8FAFC' }}
+                                      _focus={{ bg: '#F8FAFC' }}
                                       onClick={() => handleOpenEdit(link)}
                                     >
-                                      <Flex className="links-registry__menu-item-icon">
+                                      <Flex
+                                        mr="12px"
+                                        align="center"
+                                        justify="center"
+                                        color="brand.800"
+                                      >
                                         <svg
+                                          width="18"
+                                          height="18"
                                           viewBox="0 0 24 24"
                                           fill="none"
                                           stroke="currentColor"
                                           strokeWidth="1.75"
                                           strokeLinecap="round"
                                           strokeLinejoin="round"
-                                          className="links-registry__menu-svg"
                                         >
                                           <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                                           <line
@@ -1069,37 +1218,52 @@ export default function LinksRegistryPage() {
                                           />
                                         </svg>
                                       </Flex>
-                                      <Text className="links-registry__menu-item-text">
+                                      <Text fontSize="14px" fontWeight="500" color="brand.800">
                                         Редактировать информацию
                                       </Text>
                                     </MenuItem>
 
                                     <MenuItem
-                                      className="links-registry__menu-item"
+                                      borderRadius="8px"
+                                      h="44px"
+                                      px="12px"
+                                      color="brand.800"
+                                      fontSize="14px"
+                                      fontWeight="500"
+                                      bg="transparent"
+                                      _hover={{ bg: '#F8FAFC' }}
+                                      _focus={{ bg: '#F8FAFC' }}
                                       onClick={() => handleToggleStatus(link)}
                                     >
-                                      <Flex className="links-registry__menu-item-icon">
+                                      <Flex
+                                        mr="12px"
+                                        align="center"
+                                        justify="center"
+                                        color="brand.800"
+                                      >
                                         {link.status === 'inactive' ? (
                                           <svg
+                                            width="18"
+                                            height="18"
                                             viewBox="0 0 24 24"
                                             fill="none"
                                             stroke="currentColor"
                                             strokeWidth="1.75"
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
-                                            className="links-registry__menu-svg"
                                           >
                                             <polygon points="5 3 19 12 5 21" />
                                           </svg>
                                         ) : (
                                           <svg
+                                            width="18"
+                                            height="18"
                                             viewBox="0 0 24 24"
                                             fill="none"
                                             stroke="currentColor"
                                             strokeWidth="1.75"
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
-                                            className="links-registry__menu-svg"
                                           >
                                             <rect
                                               x="6"
@@ -1118,7 +1282,7 @@ export default function LinksRegistryPage() {
                                           </svg>
                                         )}
                                       </Flex>
-                                      <Text className="links-registry__menu-item-text">
+                                      <Text fontSize="14px" fontWeight="500" color="brand.800">
                                         {link.status === 'inactive'
                                           ? 'Активировать'
                                           : 'Деактивировать'}
