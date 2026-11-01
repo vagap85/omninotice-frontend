@@ -77,13 +77,12 @@ describe('AboutYourselfPage', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
-  test('показывает ошибку при пустом имени', async () => {
-    const user = userEvent.setup();
+  test('не позволяет сохранить данные без обязательного имени', () => {
     renderWithProviders(<AboutYourselfPage />);
 
-    await user.click(screen.getByText('Сохранить данные'));
-
-    expect(screen.getByText('Введите имя')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Сохранить данные' })
+    ).toBeDisabled();
     expect(profileService.saveProfile).not.toHaveBeenCalled();
   });
 
