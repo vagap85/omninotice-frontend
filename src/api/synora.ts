@@ -39,7 +39,8 @@ export function getSynoraMailTemplateName(): string | undefined {
 
 export async function sendEventEmail(
   eventTopic: string,
-  payload: EventForEMail
+  payload: EventForEMail,
+  signal?: AbortSignal
 ): Promise<{ event_id?: string; raw?: unknown }> {
   const base = getBaseUrl();
   const projectId = getSynoraProjectId();
@@ -51,7 +52,8 @@ export async function sendEventEmail(
         'Content-Type': 'application/json',
         'Project-ID': projectId
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      ...(signal ? { signal } : {})
     }
   );
   if (!res.ok) {

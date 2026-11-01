@@ -108,7 +108,7 @@ function EmailNotificationInner() {
     };
   };
 
-  const sendMailing = async (validEmails: string[]) => {
+  const sendMailing = async (validEmails: string[], signal: AbortSignal) => {
     if (!isAuthorized)
       throw new Error('Для отправки рассылки нужно авторизоваться');
 
@@ -141,7 +141,7 @@ function EmailNotificationInner() {
       };
       if (templateName) payload.template_name = templateName;
       console.log('[Synora] mail-send queued', { sendTo, payload });
-      await sendEventEmail(topic, payload);
+      await sendEventEmail(topic, payload, signal);
     }
   };
 

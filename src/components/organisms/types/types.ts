@@ -82,7 +82,7 @@ export interface RecipientsPanelProps {
   // Проверяет форму письма (formId="email") и возвращает ошибку, если что-то не так
   onValidateEmailForm: () => ValidationError | null;
   // Отправка: получает готовые данные письма и список валидных email
-  onSend: (validEmails: string[]) => Promise<void>;
+  onSend: (validEmails: string[], signal: AbortSignal) => Promise<void>;
 }
 
 export type SendVariant = 'email' | 'push' | 'telegram';
@@ -93,7 +93,7 @@ export interface SendControllerProps<TPayload> {
   onClose: () => void;
   recipientsCount: number;
   getPayload: () => TPayload;
-  onSend: (payload: TPayload) => Promise<void>;
+  onSend: (payload: TPayload, signal: AbortSignal) => Promise<void>;
 }
 
 export type SendMessages = {

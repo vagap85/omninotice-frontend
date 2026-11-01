@@ -88,14 +88,16 @@ const getBaseUrl = (): string => {
 };
 
 export async function createDispatch(
-  payload: DispatchRequest
+  payload: DispatchRequest,
+  signal?: AbortSignal
 ): Promise<SuccessfulResponse> {
   const base = getBaseUrl();
 
   const response = await fetch(`${base}/api/v1/dispatches`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
+    ...(signal ? { signal } : {})
   });
 
   if (!response.ok) {
@@ -112,7 +114,8 @@ export type NotificationDispatchInput = Omit<
 >;
 
 export async function dispatchNotification(
-  payload: NotificationDispatchInput
+  payload: NotificationDispatchInput,
+  signal?: AbortSignal
 ): Promise<SuccessfulResponse> {
   const delegated_token = getAccessTokenCookie();
   if (!delegated_token) {
@@ -126,13 +129,16 @@ export async function dispatchNotification(
     throw new Error('Не удалось определить аккаунт для отправки уведомления.');
   }
 
-  return createDispatch({
-    ...payload,
-    request_id: generateRequestId(),
-    delegated_token,
-    account_id,
-    created_at: new Date().toISOString()
-  });
+  return createDispatch(
+    {
+      ...payload,
+      request_id: generateRequestId(),
+      delegated_token,
+      account_id,
+      created_at: new Date().toISOString()
+    },
+    signal
+  );
 }
 
 /** Генератор UUID для `request_id` (крипто-стойкий, если доступен). */

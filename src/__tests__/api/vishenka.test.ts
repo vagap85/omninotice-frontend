@@ -233,6 +233,41 @@ describe('createDispatch (Vishenka API)', () => {
       requestBody.created_at
     );
   });
+
+  test('dispatchNotification forwards the cancellation signal', async () => {
+    saveAuthCookies({
+      userId: 'user-1',
+      login: 'user@example.com',
+      accountId: 'account-1',
+      accessToken: 'delegated-token'
+    });
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: async () => ({
+        detail: { code: 'OK' },
+        data: [],
+        info: { api_version: '2.8.0' }
+      })
+    });
+    const controller = new AbortController();
+
+    await dispatchNotification(
+      {
+        application_id: 'sigma',
+        channels: ['in_app'],
+        title: 'Тест',
+        body: 'Текст',
+        recipients: ['recipient-1']
+      },
+      controller.signal
+    );
+
+    expect(fetch).toHaveBeenCalledWith(
+      'https://vishenka.test/api/v1/dispatches',
+      expect.objectContaining({ signal: controller.signal })
+    );
+  });
 });
 
 describe('generateRequestId', () => {
