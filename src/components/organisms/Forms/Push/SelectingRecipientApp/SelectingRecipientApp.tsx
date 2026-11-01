@@ -130,7 +130,10 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
     };
   };
 
-  const sendPushNotification = async (payload: PushPayload) => {
+  const sendPushNotification = async (
+    payload: PushPayload,
+    signal: AbortSignal
+  ) => {
     try {
       const app = payload.app as {
         id: string;
@@ -159,25 +162,28 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
 
         localStorage.setItem('onboarding_real_send', 'true');
       } else {
-        const response = await dispatchNotification({
-          application_id: app?.id ?? 'sigma',
-          channels: ['in_app'],
-          title: payload.title,
-          body: payload.text,
-          recipients:
-            payload.recipientsMode === 'individual'
-              ? (payload.selectedUsers?.map((u) => u.id) ?? [])
-              : [ALL_RECIPIENTS_FALLBACK_ID],
-          ...(payload.buttonText.trim() && payload.buttonLink.trim()
-            ? {
-                action: {
-                  title: payload.buttonText,
-                  url: payload.buttonLink,
-                  type: 'button' as const
+        const response = await dispatchNotification(
+          {
+            application_id: app?.id ?? 'sigma',
+            channels: ['in_app'],
+            title: payload.title,
+            body: payload.text,
+            recipients:
+              payload.recipientsMode === 'individual'
+                ? (payload.selectedUsers?.map((u) => u.id) ?? [])
+                : [ALL_RECIPIENTS_FALLBACK_ID],
+            ...(payload.buttonText.trim() && payload.buttonLink.trim()
+              ? {
+                  action: {
+                    title: payload.buttonText,
+                    url: payload.buttonLink,
+                    type: 'button' as const
+                  }
                 }
-              }
-            : {})
-        });
+              : {})
+          },
+          signal
+        );
         console.log('Push отправлен:', response.detail.code);
         localStorage.setItem('onboarding_real_send', 'true');
       }

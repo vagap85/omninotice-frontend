@@ -102,11 +102,14 @@ export default function SelectingBot() {
     });
   };
 
-  const sendNotification = async (payload: NotificationDispatchInput) => {
+  const sendNotification = async (
+    payload: NotificationDispatchInput,
+    signal: AbortSignal
+  ) => {
     try {
-      await dispatchNotification(payload);
+      await dispatchNotification(payload, signal);
     } catch (error) {
-      showDispatchError(error);
+      if (!signal.aborted) showDispatchError(error);
       throw error;
     }
   };

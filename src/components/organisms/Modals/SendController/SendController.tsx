@@ -1,4 +1,5 @@
 import { Box, Text, useToast } from '@chakra-ui/react';
+import { useEffect, useRef } from 'react';
 
 import { SendControllerProps } from '../../types/types';
 import { useSendProgress } from '../hooks/useSendProgress';
@@ -18,18 +19,30 @@ export default function SendController<TPayload>({
   const { status, setStatus, progress, start, finish, fail, reset } =
     useSendProgress();
   const messages = sendMessages[variant];
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const handleClose = () => {
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
     reset();
     onClose();
   };
 
+  useEffect(
+    () => () => {
+      abortControllerRef.current?.abort();
+    },
+    []
+  );
+
   const handleSend = async () => {
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
     setStatus('loading');
     start();
 
     try {
-      await onSend(getPayload());
+      await onSend(getPayload(), abortController.signal);
       finish();
 
       setTimeout(() => {
@@ -61,6 +74,7 @@ export default function SendController<TPayload>({
         });
       }, 300);
     } catch (error) {
+      if (abortController.signal.aborted) return;
       fail();
       console.error(error);
     }
