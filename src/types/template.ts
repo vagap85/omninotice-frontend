@@ -1,3 +1,5 @@
+export type TemplateChannel = 'cherry' | 'email' | 'sms' | 'telegram' | 'max';
+
 export interface TemplateVariable {
   key: string;
   label: string;
@@ -10,8 +12,8 @@ export interface NotificationTemplate {
   title: string;
   body: string;
   buttonText?: string;
-  channel: string;
+  channel: TemplateChannel;
   variables: TemplateVariable[];
-  usageCount?: number;
-  updatedAt?: string;
+  updatedAt: string;
+  usageCount: number;
 }

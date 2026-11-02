@@ -1,7 +1,6 @@
 import { Box, Heading, HStack, Icon, Text } from '@chakra-ui/react';
 import { useState, useMemo, useEffect, useContext } from 'react';
 import { LuCircleAlert } from 'react-icons/lu';
-import { useSearchParams } from 'react-router-dom';
 
 import EditableTextWithVariables from '@/components/molecules/EditableTextWithVariables/EditableTextWithVariables';
 import ImproveTextButton from '@/components/molecules/ImproveTextButton/ImproveTextButton';
@@ -13,35 +12,33 @@ import {
   maxLength
 } from '@/components/molecules/Form/validators/validators';
 import TemplateSelector from '@/components/molecules/TemplateSelector/TemplateSelector';
-import { MOCK_TEMPLATES } from '@/mocks/templates';
 import { NotificationTemplate } from '@/types/template';
 
 interface NotificationContentFieldsProps {
   formId: string;
+  initialData?: NotificationTemplate | null;
+  templates: NotificationTemplate[];
 }
 
 export function NotificationContentFields({
-  formId
+  formId,
+  initialData,
+  templates
 }: NotificationContentFieldsProps) {
-  const [searchParams] = useSearchParams();
-  const initialTemplateId = searchParams.get('templateId') || '';
-  const initialTemplate = MOCK_TEMPLATES.find(
-    (t) => t.id === initialTemplateId
-  );
-
   const registryContext = useContext(FormsRegistryContext);
   const store = registryContext
     ? registryContext.getOrCreateStore(formId)
     : null;
 
-  const [title, setTitle] = useState(initialTemplate?.title || '');
-  const [text, setText] = useState(initialTemplate?.body || '');
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [text, setText] = useState(initialData?.body || '');
   const [variableValues, setVariableValues] = useState<Record<string, string>>(
     {}
   );
   const [selectedTemplate, setSelectedTemplate] =
-    useState<NotificationTemplate | null>(initialTemplate || null);
+    useState<NotificationTemplate | null>(initialData || null);
 
+  // Автоматически вытаскиваем переменные из текста (например, {{имя}})
   const variables = useMemo(() => {
     const matches = text.match(/\{\{([^}]+)\}\}/g);
     if (!matches) return [];
@@ -55,6 +52,7 @@ export function NotificationContentFields({
     );
   }, [variables, variableValues]);
 
+  // Синхронизация значений с глобальным стором формы
   useEffect(() => {
     if (store) {
       store.setValue('title', title);
@@ -86,7 +84,6 @@ export function NotificationContentFields({
       bg="white"
       borderRadius="10px"
       p={6}
-      key={initialTemplateId}
     >
       <Heading
         fontSize="26px"
@@ -99,7 +96,11 @@ export function NotificationContentFields({
       </Heading>
 
       <Box data-tour="template-selector">
-        <TemplateSelector onSelect={handleTemplateSelect} />
+        <TemplateSelector
+          onSelect={handleTemplateSelect}
+          selectedTemplate={selectedTemplate}
+          templates={templates}
+        />
       </Box>
 
       <Box mt={4}>
@@ -130,7 +131,6 @@ export function NotificationContentFields({
               variableValues={variableValues}
               onVariableChange={handleVariableChange}
               onTextChange={setText}
-
               placeholder="Введите текст уведомления"
             />
           </>
@@ -146,6 +146,7 @@ export function NotificationContentFields({
           />
         )}
 
+        {/* Предупреждение о незаполненных переменных */}
         {variables.length > 0 && !allVariablesFilled && (
           <HStack
             mt={2}

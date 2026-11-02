@@ -5,8 +5,7 @@ import {
   Icon,
   Text,
   useDisclosure,
-  VStack,
-  Button
+  VStack
 } from '@chakra-ui/react';
 import { useState, useRef, useEffect } from 'react';
 import {
@@ -16,35 +15,30 @@ import {
   LuSearch,
   LuCircleAlert
 } from 'react-icons/lu';
-import { useSearchParams } from 'react-router-dom';
 
-import { MOCK_TEMPLATES } from '@/mocks/templates';
 import { NotificationTemplate } from '@/types/template';
 
 interface TemplateSelectorProps {
   onSelect: (template: NotificationTemplate | null) => void;
+  selectedTemplate?: NotificationTemplate | null;
+  templates: NotificationTemplate[]; // Принимаем массив шаблонов
 }
 
-export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const initialTemplateId = searchParams.get('templateId') || '';
-  const [selectedId, setSelectedId] = useState(initialTemplateId);
+export function TemplateSelector({
+  onSelect,
+  selectedTemplate,
+  templates
+}: TemplateSelectorProps) {
   const [searchQuery, setSearchQuery] = useState('');
-
   const { isOpen, onOpen, onClose } = useDisclosure();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  const initialTemplate = MOCK_TEMPLATES.find(
-    (t) => t.id === initialTemplateId
-  );
-
-  const isLoadFailed = MOCK_TEMPLATES.length === 0;
+  const selectedId = selectedTemplate?.id || '';
 
   // Фильтрация шаблонов по поиску
-  const filteredTemplates = MOCK_TEMPLATES.filter((template) => {
+  const filteredTemplates = templates.filter((template) => {
     const query = searchQuery.toLowerCase().replace(/\s+/g, '');
-
     if (!query) return true;
 
     const normalizedName = template.name.toLowerCase().replace(/\s+/g, '');
@@ -82,18 +76,14 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
   }, [isOpen]);
 
   const handleSelect = (template: NotificationTemplate) => {
-    setSelectedId(template.id);
     onSelect(template);
-    setSearchParams({ templateId: template.id });
     onClose();
     setSearchQuery('');
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setSelectedId('');
     onSelect(null);
-    setSearchParams({});
     onClose();
   };
 
@@ -106,17 +96,13 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
     }
   };
 
-  const handleRetry = () => {
-    console.log('Повторная загрузка...');
-  };
-
   return (
     <Box mb={4}>
       <Box
         position="relative"
         ref={popoverRef}
       >
-        {/* Триггер - кликабельная область */}
+        {/* Триггер */}
         <Flex
           align="center"
           bg="#F8FAFC"
@@ -142,10 +128,10 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
             color={'#12233F'}
             noOfLines={1}
           >
-            {initialTemplate?.name || 'Выбрать из шаблона'}
+            {selectedTemplate?.name || 'Выбрать из шаблона'}
           </Text>
 
-          {/* Крестик */}
+          {/* Крестик сброса */}
           {selectedId && (
             <Box
               as="button"
@@ -168,7 +154,6 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
             </Box>
           )}
 
-          {/* Стрелка */}
           <Icon
             as={LuChevronDown}
             color="#12233F"
@@ -194,7 +179,8 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
             zIndex={10}
             overflow="hidden"
           >
-            {!isLoadFailed && (
+            {/* Поле поиска (скрываем, если нет шаблонов) */}
+            {templates.length > 0 && (
               <Box
                 borderBottom="1px solid"
                 borderColor="#A1A1AA"
@@ -228,26 +214,22 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
               </Box>
             )}
 
-            {/* Список шаблонов или ошибка */}
+            {/* Список шаблонов */}
             <VStack
               spacing={0}
               align="stretch"
               maxH="285px"
               overflowY="auto"
               css={{
-                '&::-webkit-scrollbar': {
-                  width: '6px'
-                },
-                '&::-webkit-scrollbar-track': {
-                  background: '#F8FAFC'
-                },
+                '&::-webkit-scrollbar': { width: '6px' },
+                '&::-webkit-scrollbar-track': { background: '#F8FAFC' },
                 '&::-webkit-scrollbar-thumb': {
                   background: '#CBD5E1',
                   borderRadius: '3px'
                 }
               }}
             >
-              {isLoadFailed ? (
+              {templates.length === 0 ? (
                 <Box
                   py="24px"
                   textAlign="center"
@@ -256,7 +238,6 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
                     as={LuCircleAlert}
                     w="20px"
                     h="20px"
-                    boxSize="20px"
                     color="#EF4444"
                     mb="8px"
                   />
@@ -265,28 +246,8 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
                     color="#64748B"
                     lineHeight="20px"
                   >
-                    Не удалось загрузить шаблоны.
+                    Шаблоны не загружены.
                   </Text>
-                  <Text
-                    fontSize="sm"
-                    color="#64748B"
-                    mb="10px"
-                  >
-                    Проверьте соединение и повторите.
-                  </Text>
-                  <Button
-                    variant="outline"
-                    borderColor="#3B6EA0"
-                    color="#3B6EA0"
-                    borderRadius="12px"
-                    px="10px"
-                    py="8px"
-                    fontSize="xs"
-                    fontWeight="500"
-                    onClick={handleRetry}
-                  >
-                    Повторить
-                  </Button>
                 </Box>
               ) : filteredTemplates.length === 0 ? (
                 <Box
@@ -297,7 +258,7 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
                     fontSize="sm"
                     color="#A1A1AA"
                   >
-                    Шаблоны не найдены
+                    Ничего не найдено
                   </Text>
                 </Box>
               ) : (
@@ -339,7 +300,7 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
         )}
       </Box>
 
-      {/* Подсказка под шаблоном — только пока шаблон не выбран */}
+      {/* Подсказка под полем */}
       {!selectedId && (
         <Text
           mt="6px"
