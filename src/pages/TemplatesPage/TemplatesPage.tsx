@@ -158,7 +158,7 @@ const TemplatesPage: React.FC = () => {
           align={{ base: 'stretch', md: 'center' }}
           gap={{ base: 4, md: 6 }}
           w="100%"
-          flexWrap={"wrap"}
+          flexWrap={'wrap'}
         >
           <InputGroup
             flex={{ base: 'none', md: '1' }}
@@ -268,7 +268,6 @@ const TemplatesPage: React.FC = () => {
         </Flex>
       </Box>
 
-      {/* 🔀 Логика отображения контента */}
       {isLoading ? (
         <Center py={20}>
           <Spinner
@@ -300,7 +299,9 @@ const TemplatesPage: React.FC = () => {
         </Center>
       ) : (
         <SimpleGrid
-        gridTemplateColumns={"repeat(auto-fit, minmax(max(400px, calc(100vw / 3.84)), 1fr))"}
+          gridTemplateColumns={
+            'repeat(auto-fit, minmax(max(400px, calc(100vw / 3.84)), 1fr))'
+          }
           spacing={6}
         >
           {filteredTemplates

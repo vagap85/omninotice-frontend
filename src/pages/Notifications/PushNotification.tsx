@@ -1,9 +1,17 @@
-import { Box, Flex, Portal, Icon, Text } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import {
+  Box,
+  Flex,
+  Portal,
+  Icon,
+  Text,
+  Spinner,
+  Center
+} from '@chakra-ui/react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { NotificationProvider } from 'omni-notice-sigma-notification-widget';
 import 'omni-notice-sigma-notification-widget/style.css';
-import { LuLightbulb } from 'react-icons/lu'; // Иконка лампочки
+import { LuLightbulb } from 'react-icons/lu';
 
 import { useAuth } from '@/auth/AuthContext';
 import NotificationLayout from '@/components/layouts/NotificationLayout';
@@ -16,6 +24,9 @@ import NotificationContentFields from '@/components/organisms/Forms/Push/Notific
 import { PushNotificationProvider } from '@/components/organisms/Forms/Push/Providers/PushNotificationProvider';
 import SelectingRecipientApp from '@/components/organisms/Forms/Push/SelectingRecipientApp/SelectingRecipientApp';
 import '@/lib/notification-widget/notification-widget.css';
+
+import { getTemplates } from '@/api/templatesApi';
+import { NotificationTemplate } from '@/types/template';
 
 const STORAGE_KEY_TOUR_COMPLETED = 'onboarding_tour_completed';
 const STORAGE_KEY_FIRST_VISIT = 'onboarding_first_visit';
@@ -38,6 +49,35 @@ function PushCreateNotificatonInner({
   const [tourSession, setTourSession] = useState(0);
   const [searchParams] = useSearchParams();
   const templateId = searchParams.get('templateId') || '';
+
+  const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
+
+  const [isFetchingTemplates, setIsFetchingTemplates] = useState<boolean>(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getTemplates()
+      .then((data) => {
+        if (isMounted) setTemplates(data);
+      })
+      .catch((err) => {
+        console.error('Не удалось загрузить шаблоны:', err);
+      })
+      .finally(() => {
+        if (isMounted) setIsFetchingTemplates(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Ищем нужный шаблон для автозаполнения
+  const templateData = useMemo(() => {
+    if (!templateId) return null;
+    return templates.find((t) => t.id === templateId) || null;
+  }, [templates, templateId]);
 
   const [isTourOpen, setIsTourOpen] = useState(() => {
     const firstVisit = localStorage.getItem(STORAGE_KEY_FIRST_VISIT);
@@ -87,10 +127,22 @@ function PushCreateNotificatonInner({
             >
               <IncludeServices />
               <Box data-tour="notification-text">
-                <NotificationContentFields
-                  key={templateId}
-                  formId="pushNotification"
-                />
+                {isFetchingTemplates ? (
+                  <Center py={10}>
+                    <Spinner
+                      color="#346895"
+                      size="lg"
+                      thickness="3px"
+                    />
+                  </Center>
+                ) : (
+                  <NotificationContentFields
+                    key={templateId || 'new'}
+                    formId="pushNotification"
+                    initialData={templateData}
+                    templates={templates}
+                  />
+                )}
               </Box>
 
               <Box data-tour="action-block">
@@ -114,7 +166,7 @@ function PushCreateNotificatonInner({
               justifyContent="center"
               h="48px"
               w="48px"
-              maxW="48px" // Начальная ширина ограничена 48px
+              maxW="48px"
               px={0}
               borderRadius="full"
               bg="#3B6EA0"
@@ -124,16 +176,15 @@ function PushCreateNotificatonInner({
               overflow="hidden"
               whiteSpace="nowrap"
               _hover={{
-                maxW: '400px', // При наведении позволяем кнопке расшириться
-                w: 'max-content', // Кнопка подстроится под длину текста
-                px: 4, // Добавляем отступы по бокам
-                bg: '#2f5a85' // Чуть темнее при наведении
+                maxW: '400px',
+                w: 'max-content',
+                px: 4,
+                bg: '#2f5a85'
               }}
               zIndex={100}
               boxShadow="0 4px 12px rgba(0, 0, 0, 0.15)"
               aria-label="Показать подсказки по сервису"
             >
-              {/* Иконка: видна по умолчанию, скрывается при наведении */}
               <Icon
                 as={LuLightbulb}
                 boxSize="24px"
@@ -141,7 +192,6 @@ function PushCreateNotificatonInner({
                 _groupHover={{ display: 'none' }}
               />
 
-              {/* Текст: скрыт по умолчанию, появляется при наведении */}
               <Text
                 display="none"
                 _groupHover={{ display: 'block' }}
