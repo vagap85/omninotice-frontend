@@ -158,6 +158,7 @@ const TemplatesPage: React.FC = () => {
           align={{ base: 'stretch', md: 'center' }}
           gap={{ base: 4, md: 6 }}
           w="100%"
+          flexWrap={"wrap"}
         >
           <InputGroup
             flex={{ base: 'none', md: '1' }}
@@ -299,7 +300,7 @@ const TemplatesPage: React.FC = () => {
         </Center>
       ) : (
         <SimpleGrid
-          columns={{ base: 1, sm: 2, md: 2, lg: 3 }}
+        gridTemplateColumns={"repeat(auto-fit, minmax(max(400px, calc(100vw / 3.84)), 1fr))"}
           spacing={6}
         >
           {filteredTemplates
