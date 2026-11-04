@@ -22,7 +22,7 @@ export async function getTemplates(
     return cachedTemplates;
   }
 
-  const baseUrl = import.meta.env.VITE_VISHENKA_BASE_URL;
+  const baseUrl = import.meta.env.VITE_VISHENKA_BASE_URL ?? "https://vishenka.skroy.ru";
   const projectId = import.meta.env.VITE_SYNORA_PROJECT_ID;
 
   if (!baseUrl) throw new Error('VITE_VISHENKA_BASE_URL не задан в .env');
