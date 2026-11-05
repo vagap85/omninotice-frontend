@@ -118,23 +118,6 @@ export interface PushNotificationFormValues {
   buttonLink: string;
 }
 
-export type NotificationStatus = 'sent' | 'error';
-
-export interface NotificationLog {
-  event_id: string;
-  application_id: string;
-  channel: string;
-  send_method: string;
-  title: string;
-  body: string;
-  audience_type: string;
-  recipients: string[];
-  account_id: string;
-  created_at: string; // ISO-дата
-  status: NotificationStatus;
-  template_name?: string;
-}
-
 export interface TelegramNotificationCardProps {
   message?: string;
   buttonText?: string;

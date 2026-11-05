@@ -25,7 +25,7 @@ import { PushNotificationProvider } from '@/components/organisms/Forms/Push/Prov
 import SelectingRecipientApp from '@/components/organisms/Forms/Push/SelectingRecipientApp/SelectingRecipientApp';
 import '@/lib/notification-widget/notification-widget.css';
 
-import { getTemplates } from '@/api/templatesApi';
+import { getTemplates } from '@/api/vishenka';
 import { NotificationTemplate } from '@/types/template';
 
 const STORAGE_KEY_TOUR_COMPLETED = 'onboarding_tour_completed';

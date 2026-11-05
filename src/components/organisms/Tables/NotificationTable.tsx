@@ -17,11 +17,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Fragment } from 'react';
 
 import { StatusBadge } from '@/components/atoms/Badge/StatusBadge';
-import { NotificationLog } from '@/components/organisms/types/types';
+import { DispatchLog } from '@/api/vishenka';
 import { formatDate, formatAppName } from '@/utils/formatters';
 
 interface NotificationsTableProps {
-  data: NotificationLog[];
+  data: DispatchLog[];
   expandedId?: string | null;
   onRowClick?: (id: string) => void;
 }

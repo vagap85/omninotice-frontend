@@ -16,7 +16,7 @@ import {
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { getTemplates } from '@/api/templatesApi';
+import { getTemplates } from '@/api/vishenka';
 import { ROUTES } from '@/routing/routes';
 import cherryIcon from '@/assets/icons/cherry.svg';
 import mailIcon from '@/assets/icons/mail.svg';

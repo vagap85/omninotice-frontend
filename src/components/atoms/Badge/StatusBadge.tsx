@@ -1,9 +1,7 @@
 import { Badge } from '@chakra-ui/react';
 
-import { NotificationStatus } from '@/components/organisms/types/types';
-
 interface StatusBadgeProps {
-  status: NotificationStatus;
+  status: string;
 }
 
 export const StatusBadge = ({ status }: StatusBadgeProps) => {

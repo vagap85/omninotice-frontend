@@ -6,22 +6,23 @@ import {
   InputGroup,
   InputLeftElement,
   HStack,
-  Button
+  Button,
+  Spinner,
+  Center
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FiInbox } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { getDispatchLogs, DispatchLog } from '@/api/vishenka';
 import CustomButton from '@/components/atoms/Button/CustomButton';
 import CustomInput from '@/components/atoms/Input/CustomInput';
 import { FilterMenu } from '@/components/molecules/FilterMenu/FilterMenu';
 import { Pagination } from '@/components/organisms/Pagination/Pagination';
 import { NotificationsTable } from '@/components/organisms/Tables/NotificationTable';
-import { MOCK_DATA } from '@/mocks/notificationMocks';
 
 const ITEMS_PER_PAGE = 6;
 
-// Варианты анимаций
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
@@ -38,7 +39,13 @@ const fadeScale = {
 
 export default function NotificationHistoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Состояния данных (используем DispatchLog вместо NotificationLog)
+  const [logs, setLogs] = useState<DispatchLog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,9 +54,39 @@ export default function NotificationHistoryPage() {
   const [selectedMethod, setSelectedMethod] = useState('Способ отправки');
   const [selectedPeriod, setSelectedPeriod] = useState('Период');
 
+  // Функция загрузки данных
+  const loadLogs = useCallback(async (page: number) => {
+    setIsLoading(true);
+    setIsError(false);
+    try {
+      const response = await getDispatchLogs(page, ITEMS_PER_PAGE);
+      setLogs(response.data);
+
+      // Если API возвращает общее количество, используем его.
+      if (response.info?.total) {
+        setTotalPages(Math.ceil(response.info.total / ITEMS_PER_PAGE));
+      } else {
+        setTotalPages(
+          response.data.length === ITEMS_PER_PAGE ? page + 1 : page
+        );
+      }
+    } catch (error) {
+      console.error('Ошибка при загрузке логов:', error);
+      setIsError(true);
+      setLogs([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Загружаем при монтировании и смене страницы
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadLogs(currentPage);
+  }, [currentPage, loadLogs]);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    setCurrentPage(1);
     setExpandedId(null);
   };
 
@@ -57,7 +94,6 @@ export default function NotificationHistoryPage() {
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
     (value: string) => {
       setter(value);
-      setCurrentPage(1);
       setExpandedId(null);
     };
 
@@ -65,9 +101,10 @@ export default function NotificationHistoryPage() {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
-  const handleRetry = () => setIsError(false);
+  const handleRetry = () => loadLogs(currentPage);
 
-  const filteredData = MOCK_DATA.filter((item) => {
+  // Фильтрация (применяется к загруженной странице)
+  const filteredData = logs.filter((item) => {
     if (
       searchQuery &&
       !item.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -95,15 +132,8 @@ export default function NotificationHistoryPage() {
     return true;
   });
 
-  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentData = filteredData.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE
-  );
-
-  // Оставляем только раскрытую строку и следующую за ней
-  let displayData = currentData;
+  // Логика раскрытия строки
+  let displayData = filteredData;
   if (expandedId) {
     const expandedIndex = filteredData.findIndex(
       (item) => item.event_id === expandedId
@@ -122,12 +152,10 @@ export default function NotificationHistoryPage() {
     setSelectedStatus('Все статусы');
     setSelectedMethod('Способ отправки');
     setSelectedPeriod('Период');
-    setCurrentPage(1);
     setExpandedId(null);
   };
 
-  // Ключ для анимации при смене страницы (чтобы таблица плавно обновлялась)
-  const tableKey = `table-page-${currentPage}`;
+  const tableKey = `table-page-${currentPage}-${isLoading}`;
 
   return (
     <Box
@@ -135,6 +163,7 @@ export default function NotificationHistoryPage() {
       bg="#ECF2F8"
       p="32px 40px 64px"
     >
+      {/* Заголовок и кнопка */}
       <Flex
         justify="space-between"
         align="center"
@@ -164,6 +193,7 @@ export default function NotificationHistoryPage() {
         </CustomButton>
       </Flex>
 
+      {/* Фильтры */}
       <Flex
         justify="space-between"
         align="center"
@@ -255,7 +285,6 @@ export default function NotificationHistoryPage() {
             h="44px"
             borderRadius="10px"
             border="1px solid transparent"
-            transition="background-color 0.2s ease, color 0.2s ease"
             _hover={{ color: '#2D547B' }}
             _active={{ bg: '#D4E1EE' }}
             _focusVisible={{ outline: 'none', borderColor: '#3B6EA0' }}
@@ -266,9 +295,29 @@ export default function NotificationHistoryPage() {
         </HStack>
       </Flex>
 
-      {/* AnimatePresence для плавных переходов между состояниями */}
+      {/* Состояния и Таблица */}
       <AnimatePresence mode="wait">
-        {isError ? (
+        {isLoading ? (
+          <motion.div
+            key="loading-state"
+            initial={fadeInUp.initial}
+            animate={fadeInUp.animate}
+            exit={fadeInUp.exit}
+            transition={fadeInUp.transition}
+          >
+            <Center
+              py={20}
+              bg="#FFFFFF"
+              borderRadius="20px"
+            >
+              <Spinner
+                color="#346895"
+                size="xl"
+                thickness="3px"
+              />
+            </Center>
+          </motion.div>
+        ) : isError ? (
           <motion.div
             key="error-state"
             initial={fadeInUp.initial}
@@ -323,7 +372,7 @@ export default function NotificationHistoryPage() {
               </CustomButton>
             </Flex>
           </motion.div>
-        ) : filteredData.length > 0 ? (
+        ) : displayData.length > 0 ? (
           <motion.div
             key={tableKey}
             initial={fadeScale.initial}
