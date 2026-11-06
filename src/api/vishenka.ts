@@ -220,7 +220,6 @@ export async function getTemplates(
   return data;
 }
 
-/** Сбросить кеш шаблонов (например, после создания/редактирования). */
 export function invalidateTemplatesCache(): void {
   cachedTemplates = null;
 }
