@@ -1,59 +1,51 @@
-import { ReactNode, useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
+import type { ConnectedApp } from '@/api/vishenka';
+import type { SelectedApp } from '../types/types';
 
-import { SelectingRecipientAppContext } from '../Contexts/SelectingRecipientAppContext';
-import type {
-  RecipientsMode,
-  SelectedApp,
-  SelectedAppIcon
-} from '../types/types';
+import {
+  SelectingRecipientAppContext,
+  type RecipientsMode,
+  type SelectingRecipientAppContextValue
+} from '../Contexts/SelectingRecipientAppContext';
 
-export default function SelectingRecipientAppProvider({
-  children
-}: {
+import { DEFAULT_TEST_APP } from '../constants/defaultTestApp';
+
+const EMPTY_APPS: ConnectedApp[] = [];
+
+interface ProviderProps {
   children: ReactNode;
-}) {
-  const [selectedApp, setSelectedAppState] = useState<SelectedApp | null>(null);
-  const [recipientsMode, setRecipientsModeState] =
-    useState<RecipientsMode>('all');
+  connectedApps?: ConnectedApp[];
+}
+
+export default function SelectingRecipientAppProviderTest({
+  children,
+  connectedApps = EMPTY_APPS
+}: ProviderProps) {
+  const [selectedApp, setSelectedApp] = useState<SelectedApp | null>(null);
+  const [recipientsMode, setRecipientsMode] = useState<RecipientsMode>('all');
   const [appError, setAppError] = useState<string | null>(null);
   const [recipientsError, setRecipientsError] = useState<string | null>(null);
 
-  const setSelectedApp = useCallback((app: SelectedApp | null) => {
-    setAppError(null); // выбрали приложение — ошибка больше не актуальна
-    setSelectedAppState(app);
-  }, []);
+  const availableApps = useMemo<ConnectedApp[]>(() => {
+    if (connectedApps.length > 0) {
+      return connectedApps.filter((app) => app.platform !== 'OmniNoticeTest');
+    }
+    return [DEFAULT_TEST_APP];
+  }, [connectedApps]);
 
-  const setRecipientsMode = useCallback((mode: RecipientsMode) => {
-    setRecipientsError(null); // сменили режим — тоже сбрасываем
-    setRecipientsModeState(mode);
-  }, []);
-
-  const setSelectedIcon = useCallback((icon: SelectedAppIcon) => {
-    setSelectedAppState((prev) => (prev ? { ...prev, icon } : prev));
-  }, []);
-
-  const value = useMemo(
-    () => ({
-      selectedApp,
-      setSelectedApp,
-      setSelectedIcon,
-      recipientsMode,
-      setRecipientsMode,
-      appError,
-      setAppError,
-      recipientsError,
-      setRecipientsError
-    }),
-    [
-      selectedApp,
-      setSelectedApp,
-      setSelectedIcon,
-      recipientsMode,
-      setRecipientsMode,
-      appError,
-      recipientsError
-    ]
-  );
+  const value: SelectingRecipientAppContextValue = {
+    selectedApp,
+    setSelectedApp,
+    recipientsMode,
+    setRecipientsMode,
+    appError,
+    setAppError,
+    recipientsError,
+    setRecipientsError,
+    connectedApps,
+    availableApps
+  };
 
   return (
     <SelectingRecipientAppContext.Provider value={value}>
