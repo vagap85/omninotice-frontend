@@ -41,6 +41,8 @@ vi.mock('@/api/userCenter', () => ({
 vi.mock('@/assets/background.jpg', () => ({ default: 'bg.jpg' }));
 vi.mock('@/assets/logo.svg', () => ({ default: 'logo.svg' }));
 
+// ===== НИКАКИХ МОКОВ СТРАНИЦ! =====
+
 describe('AuthRegisterPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -49,29 +51,35 @@ describe('AuthRegisterPage', () => {
 
   test('рендерит форму регистрации', async () => {
     renderWithProviders(<AuthPages mode="register" />);
+    
+    // Ждем появления реального поля ввода (Suspense загрузит компонент)
     expect(
-      await screen.findByPlaceholderText(/example@omninotice/i)
+      await screen.findByPlaceholderText(/example@omninotice/i, {}, { timeout: 4000 })
     ).toBeInTheDocument();
-    expect(await screen.findByText('Создать аккаунт')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Создать аккаунт', {}, { timeout: 4000 })
+    ).toBeInTheDocument();
   });
 
   test('есть 3 поля: логин, пароль, подтверждение', async () => {
     renderWithProviders(<AuthPages mode="register" />);
+    
     expect(
-      await screen.findByPlaceholderText(/example@omninotice/i)
+      await screen.findByPlaceholderText(/example@omninotice/i, {}, { timeout: 4000 })
     ).toBeInTheDocument();
     expect(
-      await screen.findByPlaceholderText(/введите пароль/i)
+      await screen.findByPlaceholderText(/введите пароль/i, {}, { timeout: 4000 })
     ).toBeInTheDocument();
     expect(
-      await screen.findByPlaceholderText(/повторите пароль/i)
+      await screen.findByPlaceholderText(/повторите пароль/i, {}, { timeout: 4000 })
     ).toBeInTheDocument();
   });
 
   test('есть ссылка "У меня уже есть аккаунт"', async () => {
     renderWithProviders(<AuthPages mode="register" />);
+    
     expect(
-      await screen.findByText(/У меня уже есть аккаунт/i)
+      await screen.findByText(/У меня уже есть аккаунт/i, {}, { timeout: 4000 })
     ).toBeInTheDocument();
   });
 
@@ -79,7 +87,7 @@ describe('AuthRegisterPage', () => {
     const user = userEvent.setup();
     renderWithProviders(<AuthPages mode="register" />);
 
-    await user.click(await screen.findByText(/У меня уже есть аккаунт/i));
+    await user.click(await screen.findByText(/У меня уже есть аккаунт/i, {}, { timeout: 4000 }));
 
     expect(mockNavigate).toHaveBeenCalledWith('/login');
   });
@@ -88,6 +96,8 @@ describe('AuthRegisterPage', () => {
     const user = userEvent.setup();
     renderWithProviders(<AuthPages mode="register" />);
 
+    // Ждем загрузки формы
+    await screen.findByPlaceholderText(/example@omninotice/i, {}, { timeout: 4000 });
     await user.click(screen.getByText('На главную'));
 
     expect(mockNavigate).toHaveBeenCalledWith('/');
@@ -112,17 +122,18 @@ describe('AuthRegisterPage', () => {
     renderWithProviders(<AuthPages mode="register" />);
 
     await user.type(
-      await screen.findByPlaceholderText(/example@omninotice/i),
+      await screen.findByPlaceholderText(/example@omninotice/i, {}, { timeout: 4000 }),
       'new@mail.com'
     );
     await user.type(
-      await screen.findByPlaceholderText(/введите пароль/i),
+      await screen.findByPlaceholderText(/введите пароль/i, {}, { timeout: 4000 }),
       'password123'
     );
     await user.type(
-      await screen.findByPlaceholderText(/повторите пароль/i),
+      await screen.findByPlaceholderText(/повторите пароль/i, {}, { timeout: 4000 }),
       'password123'
     );
+    
     await user.click(await screen.findByText('Создать аккаунт'));
 
     await waitFor(() => {
@@ -150,17 +161,18 @@ describe('AuthRegisterPage', () => {
     renderWithProviders(<AuthPages mode="register" />);
 
     await user.type(
-      await screen.findByPlaceholderText(/example@omninotice/i),
+      await screen.findByPlaceholderText(/example@omninotice/i, {}, { timeout: 4000 }),
       'taken@mail.com'
     );
     await user.type(
-      await screen.findByPlaceholderText(/введите пароль/i),
+      await screen.findByPlaceholderText(/введите пароль/i, {}, { timeout: 4000 }),
       'password123'
     );
     await user.type(
-      await screen.findByPlaceholderText(/повторите пароль/i),
+      await screen.findByPlaceholderText(/повторите пароль/i, {}, { timeout: 4000 }),
       'password123'
     );
+    
     await user.click(await screen.findByText('Создать аккаунт'));
 
     await waitFor(() => {
