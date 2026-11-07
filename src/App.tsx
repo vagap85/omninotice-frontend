@@ -1,12 +1,11 @@
 import { Flex } from '@chakra-ui/react';
 import { useEffect, lazy, Suspense, ComponentType } from 'react';
-import { Route, Routes, Navigate, useParams } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 
 import SpinnerLoader from './components/atoms/Loaders/SpinnerLoader/SpinnerLoader';
 import SidebarLayout from './components/layouts/SidebarLayout';
 import { registerClearMailingDraftBeforeUnload } from './mailingDraftStorage';
 import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage';
-import { OverviewPage } from './pages/OverviewPage/OverviewPage';
 import AuthPages from './pages/Auth/AuthPages';
 import TemplatesPage from './pages/TemplatesPage/TemplatesPage';
 import ProtectedRoute from './routing/ProtectedRoute';
@@ -59,11 +58,6 @@ const LinksLandingPage = lazyWithMinDelay(
 const ProfilePage = lazyWithMinDelay(
   () => import('@/pages/ProfilePage/ProfilePage')
 );
-
-function DashboardLinkRedirect() {
-  const { id } = useParams();
-  return <Navigate to={`/links/${id}`} replace />;
-}
 
 function App() {
   useEffect(() => registerClearMailingDraftBeforeUnload(), []);
@@ -118,14 +112,6 @@ function App() {
               element={<TelegramBotConnection />}
             />
             <Route
-              path={ROUTES.overview}
-              element={<OverviewPage />}
-            />
-            <Route
-              path={ROUTES.dashboard}
-              element={<Navigate to={ROUTES.overview} replace />}
-            />
-            <Route
               path="/dashboard/profile"
               element={
                 <Navigate
@@ -150,15 +136,6 @@ function App() {
           <Route
             path={ROUTES.campaigns}
             element={<CampaignsPage />}
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <Navigate
-                to={ROUTES.overview}
-                replace
-              />
-            }
           />
           <Route
             path="/dashboard/profile"

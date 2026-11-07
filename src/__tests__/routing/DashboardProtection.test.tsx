@@ -33,10 +33,6 @@ vi.mock('@/pages/ProfilePage/ProfilePage', () => ({
   default: () => <div data-testid="profile-page">Profile Page</div>
 }));
 
-vi.mock('@/pages/OverviewPage/OverviewPage', () => ({
-  OverviewPage: () => <div data-testid="overview-page">Overview Page</div>
-}));
-
 function renderApp(initialPath: string) {
   return render(
     <ChakraProvider>
@@ -69,16 +65,6 @@ describe('Dashboard and Overview route protection', () => {
     expect(screen.queryByTestId('overview-page')).not.toBeInTheDocument();
   });
 
-  test('неавторизованный пользователь при переходе на /overview перенаправляется на /login', async () => {
-    mockIsAuthorized = false;
-    renderApp('/overview');
-
-    await waitFor(() => {
-      expect(screen.getByTestId('login-page')).toBeInTheDocument();
-    });
-    expect(screen.queryByTestId('overview-page')).not.toBeInTheDocument();
-  });
-
   test('неавторизованный пользователь при переходе на /dashboard/profile перенаправляется на /login', async () => {
     mockIsAuthorized = false;
     renderApp('/dashboard/profile');
@@ -87,25 +73,5 @@ describe('Dashboard and Overview route protection', () => {
       expect(screen.getByTestId('login-page')).toBeInTheDocument();
     });
     expect(screen.queryByTestId('profile-page')).not.toBeInTheDocument();
-  });
-
-  test('авторизованный пользователь получает доступ к /overview', async () => {
-    mockIsAuthorized = true;
-    renderApp('/overview');
-
-    await waitFor(() => {
-      expect(screen.getByTestId('overview-page')).toBeInTheDocument();
-    });
-    expect(screen.queryByTestId('login-page')).not.toBeInTheDocument();
-  });
-
-  test('авторизованный пользователь при переходе на /dashboard перенаправляется на /overview', async () => {
-    mockIsAuthorized = true;
-    renderApp('/dashboard');
-
-    await waitFor(() => {
-      expect(screen.getByTestId('overview-page')).toBeInTheDocument();
-    });
-    expect(screen.queryByTestId('login-page')).not.toBeInTheDocument();
   });
 });
