@@ -75,6 +75,8 @@ export interface SelectIconModalProps {
   isOpen: boolean;
   onClose: () => void;
   icons: SelectedAppIcon[];
+  draftIcon: SelectedAppIcon | null;
+  onDraftIconChange: (icon: SelectedAppIcon) => void;
 }
 
 type ValidationError = { title: string; description: string };

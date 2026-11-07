@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import { getAccessTokenCookie, getAccountIdCookie } from '@/auth/authCookies';
+import type { IconProps } from '@/components/atoms/types/types';
 import type { NotificationTemplate } from '@/types/template';
 
 /* ────────────────────────────── BASE URL ────────────────────────────── */
@@ -61,9 +62,9 @@ export interface DispatchRequest {
   created_at: string;
   action?: DispatchAction;
   picture?: {
-    main: string;
+    main?: string;
     icon: string;
-    emoji: string;
+    emoji?: string;
   };
 }
 
@@ -242,7 +243,8 @@ export interface ConnectedAppIcon {
 
 export interface ConnectedAppStandartIcon {
   id: string;
-  Icon: ComponentType;
+  Icon?: ComponentType<IconProps>;
+  path?: string;
   title: string;
   description: string;
 }

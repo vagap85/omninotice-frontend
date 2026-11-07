@@ -1,27 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import BellRingIcon from '@/components/atoms/Icons/collections/Sigma/BellRingIcon';
 import DropdownSelect from '@/components/molecules/DropdownSelect/DropdownSelect';
 import type { ConnectedApp } from '@/api/vishenka';
 
 import { useSelectingRecipientApp } from '../hooks/useSelectingRecipientApp';
 import { mapToSelectedApp } from '../utils/mapToSelectedApp';
 import type { AppSelectProps, SelectingApp } from '../types/types';
+import { DEFAULT_ICON_COLOR } from '../constants/iconColors';
 
 const DEFAULT_ICON_META = {
   id: 'Omni Notice',
-  Icon: BellRingIcon,
+  path: 'collections/bell-ring-icon.svg',
   title: 'Стандартная иконка Omni Notice',
-  description: 'Если не выбрать другую, получатель увидит эту'
+  description: 'Если не выбрать другую, получатель увидит эту',
 };
-
-const DEFAULT_ICON_COLOR = '#487BFE';
-const DEFAULT_BG_ICON_COLOR = '#D1DEFF';
 
 function mapToSelectingApp(app: ConnectedApp): SelectingApp {
   const standartIcon = app.standartIcon ?? {
-    ...DEFAULT_ICON_META,
-    Icon: app.icon?.Icon ?? BellRingIcon
+    ...DEFAULT_ICON_META
   };
 
   return {
@@ -31,7 +27,7 @@ function mapToSelectingApp(app: ConnectedApp): SelectingApp {
     isActive: app.isActive ?? true,
     platform: app.platform ?? '',
     iconColor: app.iconColor ?? DEFAULT_ICON_COLOR,
-    bgIconColor: app.bgIconColor ?? DEFAULT_BG_ICON_COLOR,
+    bgIconColor: app.bgIconColor,
     standartIcon
   };
 }
@@ -65,7 +61,6 @@ export default function AppSelect({
       platform: app.platform,
       count: app.count,
       isActive: app.isActive,
-      icon: app.standartIcon,
       standartIcon: app.standartIcon,
       iconColor: app.iconColor,
       bgIconColor: app.bgIconColor

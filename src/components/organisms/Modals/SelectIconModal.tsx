@@ -7,28 +7,21 @@ import {
   ModalOverlay,
   Text
 } from '@chakra-ui/react';
-import { useState } from 'react';
 
 import { useSelectingRecipientApp } from '../Forms/Push/SelectingRecipientApp/hooks/useSelectingRecipientApp';
-import { SelectedAppIcon } from '../Forms/Push/SelectingRecipientApp/types/types';
-import { SelectIconModalProps } from '../types/types';
+import CollectionIcon from '../Forms/Push/SelectingRecipientApp/utils/CollectionIcon';
+import { getIconBackgroundColor } from '../Forms/Push/SelectingRecipientApp/utils/iconBackgroundColor';
+import type { SelectIconModalProps } from '../types/types';
 
 export default function SelectIconModal({
   isOpen,
   onClose,
-  icons
+  icons,
+  draftIcon,
+  onDraftIconChange
 }: SelectIconModalProps) {
   const { selectedApp, setSelectedIcon } = useSelectingRecipientApp();
-  const [draftIcon, setDraftIcon] = useState<SelectedAppIcon | null>(null);
-  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const filteredIcons = icons.filter((icon) => icon.id !== '0');
-
-  if (isOpen !== prevIsOpen) {
-    setPrevIsOpen(isOpen);
-    if (isOpen) {
-      setDraftIcon(selectedApp?.icon ?? icons[0] ?? null);
-    }
-  }
 
   const handleApply = () => {
     if (draftIcon) {
@@ -98,7 +91,7 @@ export default function SelectIconModal({
                   gap={1}
                   key={title}
                   alignItems="center"
-                  onClick={() => setDraftIcon(icon)}
+                  onClick={() => onDraftIconChange(icon)}
                   cursor="pointer"
                   bg={isSelected ? '#E2EBF3' : '#F8FAFC'}
                   border={'1px solid #E2EBF3'}
@@ -114,10 +107,25 @@ export default function SelectIconModal({
                     padding={2}
                     h="38px"
                     w="38px"
-                    bg={selectedApp?.bgIconColor}
+                    bg={
+                      selectedApp
+                        ? getIconBackgroundColor(
+                            selectedApp.iconColor,
+                            selectedApp.bgIconColor
+                          )
+                        : undefined
+                    }
                     borderRadius={6}
                   >
-                    <Icon color={selectedApp?.iconColor} />
+                    {icon.path ? (
+                      <CollectionIcon
+                        icon={icon}
+                        size={15}
+                        color={selectedApp?.iconColor}
+                      />
+                    ) : Icon ? (
+                      <Icon color={selectedApp?.iconColor} />
+                    ) : null}
                   </Flex>
                   <Text
                     color="#12233F"

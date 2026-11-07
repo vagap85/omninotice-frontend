@@ -1,10 +1,10 @@
-import BellRingIcon from '@/components/atoms/Icons/collections/Sigma/BellRingIcon';
 import type { ConnectedApp } from '@/api/vishenka';
+import { DEFAULT_ICON_COLOR } from '../constants/iconColors';
 import type { SelectedApp } from '../types/types';
 
 const DEFAULT_ICON_META = {
   id: 'Omni Notice',
-  Icon: BellRingIcon,
+  path: 'collections/bell-ring-icon.svg',
   title: 'Стандартная иконка Omni Notice',
   description: 'Если не выбрать другую, получатель увидит эту'
 };
@@ -17,8 +17,7 @@ const DEFAULT_DESCRIPTION = 'Если не выбрать другую, полу
  */
 export function mapToSelectedApp(app: ConnectedApp): SelectedApp {
   const standartIcon = app.standartIcon ?? {
-    ...DEFAULT_ICON_META,
-    Icon: app.icon?.Icon ?? BellRingIcon
+    ...DEFAULT_ICON_META
   };
 
   return {
@@ -28,10 +27,10 @@ export function mapToSelectedApp(app: ConnectedApp): SelectedApp {
     description: app.description ?? DEFAULT_DESCRIPTION,
     icon: standartIcon,
     standartIcon,
-    iconColor: app.iconColor ?? '#487BFE',
-    bgIconColor: app.bgIconColor ?? '#D1DEFF',
+    iconColor: app.iconColor ?? DEFAULT_ICON_COLOR,
+    bgIconColor: app.bgIconColor,
     count: app.count ?? 0,
     platform: app.platform ?? '',
     isActive: app.isActive ?? true
-  } as SelectedApp;
+  };
 }
