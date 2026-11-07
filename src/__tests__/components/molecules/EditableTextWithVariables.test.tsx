@@ -32,6 +32,11 @@ describe('EditableTextWithVariables', () => {
     firstTextPart.innerText = 'A much longer text';
     fireEvent.input(firstTextPart);
     expect(screen.getByText('19/3')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Превышено количество знаков. Уберите лишние, чтобы отправить.'
+      )
+    ).toBeInTheDocument();
     expect(onTextInput).toHaveBeenCalledWith('A much longer text{{name}} rest');
     fireEvent.blur(firstTextPart);
 

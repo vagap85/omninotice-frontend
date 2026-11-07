@@ -125,10 +125,12 @@ function EditableTextWithVariables({
         whiteSpace="pre-wrap"
         wordBreak="break-word"
         cursor="text"
-        _hover={{ borderColor: '#CBD5E1' }}
+        _hover={{
+          borderColor: isOverLimit ? 'error.500' : '#CBD5E1'
+        }}
         transition="border-color 0.2s"
         border="1px solid"
-        borderColor={isOverLimit ? 'red.500' : '#E2E8F0'}
+        borderColor={isOverLimit ? 'error.500' : '#E2E8F0'}
         minH="155px"
       >
         <Box
@@ -136,7 +138,7 @@ function EditableTextWithVariables({
           top="10px"
           right="11px"
           fontSize="md"
-          color={isOverLimit ? 'red.500' : '#A1A1AA'}
+          color={isOverLimit ? 'error.500' : '#A1A1AA'}
           fontWeight="normal"
           userSelect="none"
           pointerEvents="none"
@@ -183,14 +185,14 @@ function EditableTextWithVariables({
                 mx="8px"
                 h="24px"
                 border="1px dashed"
-                borderColor={isOverLimit ? '#EF4444' : '#3B6EA0'}
+                borderColor={isOverLimit ? 'error.500' : '#3B6EA0'}
                 borderRadius="6px"
                 color="#3B6EA0"
                 fontWeight="normal"
                 _focus={{
-                  borderColor: isOverLimit ? '#EF4444' : '#3B6EA0',
+                  borderColor: isOverLimit ? 'error.500' : '#3B6EA0',
                   boxShadow: isOverLimit
-                    ? '0 0 0 1px #EF4444'
+                    ? '0 0 0 1px var(--chakra-colors-error-500)'
                     : '0 0 0 1px #3B6EA0',
                   bg: 'white'
                 }}
@@ -209,7 +211,7 @@ function EditableTextWithVariables({
       </Box>
       {isOverLimit && (
         <Text
-          color="red.500"
+          color="error.500"
           fontSize="xs"
           mt={2}
         >

@@ -48,7 +48,7 @@ describe('softMaxLength form fields', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it('shows an over-limit textarea value without validation error', () => {
+  it('shows the length error for over-limit textarea values', () => {
     renderWithProviders(
       <FormsRegistryProvider>
         <FormProvider formId="soft-limit-area">
@@ -57,7 +57,6 @@ describe('softMaxLength form fields', () => {
             label="Body"
             maxLength={3}
             softMaxLength
-            validators={[maxLength(3)]}
             initialValue=""
           />
         </FormProvider>

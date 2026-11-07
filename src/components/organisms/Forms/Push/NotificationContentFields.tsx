@@ -204,6 +204,8 @@ export function NotificationContentFields({
           initialValue={title}
           maxLength={50}
           softMaxLength
+          maxLengthMessage="Превышен лимит символов"
+          pr={'4rem'}
         />
       </Box>
 
@@ -228,6 +230,7 @@ export function NotificationContentFields({
               }}
               onTextInput={(nextText) => store?.setValue('text', nextText)}
               placeholder="Введите текст уведомления"
+              maxLength={200}
             />
           </>
         ) : (
@@ -238,6 +241,7 @@ export function NotificationContentFields({
             minH="155px"
             maxLength={200}
             softMaxLength
+            maxLengthMessage="Превышен лимит символов"
             validators={[required(), maxLength(200)]}
             initialValue={text}
           />
