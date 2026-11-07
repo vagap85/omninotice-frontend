@@ -1,8 +1,12 @@
+import type { ComponentType } from 'react';
 import { getAccessTokenCookie, getAccountIdCookie } from '@/auth/authCookies';
 import type { NotificationTemplate } from '@/types/template';
+
 /* ────────────────────────────── BASE URL ────────────────────────────── */
 
 const DEFAULT_BASE_URL = 'https://vishenka.skroy.ru';
+const CONNECTED_APPS_URL =
+  'https://cfg.basis.skroy.ru/account/my/config/connected_apps';
 
 const getBaseUrl = (): string => {
   const url = import.meta.env.VITE_VISHENKA_BASE_URL;
@@ -11,6 +15,14 @@ const getBaseUrl = (): string => {
     return DEFAULT_BASE_URL;
   }
   return url.replace(/\/$/, '');
+};
+
+const getProjectId = (): string => {
+  const projectId = import.meta.env.VITE_SYNORA_PROJECT_ID;
+  if (!projectId) {
+    throw new Error('VITE_SYNORA_PROJECT_ID не задан в .env');
+  }
+  return projectId;
 };
 
 /* ────────────────────────────── ОШИБКИ ────────────────────────────── */
@@ -94,7 +106,7 @@ export interface SuccessfulResponse {
   info: ResponseInfo;
 }
 
-//!УБРАТЬ НА ПРОДАКШЕНЕ
+//! УБРАТЬ НА ПРОДАКШЕНЕ
 //! ЭТО USERID ТЕСТОВОГО ПОЛЬЗОВАТЕЛЯ КОМАНДЫ ФОКУСА
 export const ALL_RECIPIENTS_FALLBACK_ID =
   '9c4e2f5a-1115-4b7e-83fd-8eb64e4383b2';
@@ -178,14 +190,9 @@ export async function getTemplates(
   }
 
   const baseUrl = getBaseUrl();
-  const projectId = import.meta.env.VITE_SYNORA_PROJECT_ID;
-
-  if (!projectId) {
-    throw new Error('VITE_SYNORA_PROJECT_ID не задан в .env');
-  }
+  const projectId = getProjectId();
 
   const token = getAccessTokenCookie();
-
   if (!token) {
     throw new Error('Токен авторизации не найден. Пожалуйста, авторизуйтесь.');
   }
@@ -222,6 +229,84 @@ export async function getTemplates(
 
 export function invalidateTemplatesCache(): void {
   cachedTemplates = null;
+}
+
+/* ────────────────────────────── CONNECTED APPS ────────────────────────────── */
+
+export interface ConnectedAppIcon {
+  Icon: ComponentType;
+  id?: string;
+  title?: string;
+  description?: string;
+}
+
+export interface ConnectedAppStandartIcon {
+  id: string;
+  Icon: ComponentType;
+  title: string;
+  description: string;
+}
+
+export interface ConnectedApp {
+  id: string;
+  name: string;
+  platform?: string;
+  count?: number;
+  icon?: ConnectedAppIcon;
+
+  title?: string;
+  description?: string;
+  standartIcon?: ConnectedAppStandartIcon;
+  iconColor?: string;
+  bgIconColor?: string;
+  isActive?: boolean;
+}
+
+interface ConnectedAppsResponse {
+  connected_apps?: ConnectedApp[];
+}
+
+let cachedConnectedApps: ConnectedApp[] | null = null;
+
+export async function getConnectedApps(
+  forceRefresh = false
+): Promise<ConnectedApp[]> {
+  if (cachedConnectedApps && !forceRefresh) {
+    return cachedConnectedApps;
+  }
+
+  const token = getAccessTokenCookie();
+  if (!token) {
+    throw new Error('Токен авторизации не найден.');
+  }
+
+  const projectId = getProjectId();
+
+  const response = await fetch(CONNECTED_APPS_URL, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Project-ID': projectId,
+      'Content-Type': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Не удалось загрузить подключенные приложения: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const json = (await response.json()) as ConnectedAppsResponse;
+  const apps = json.connected_apps ?? [];
+
+  cachedConnectedApps = apps;
+
+  return apps;
+}
+
+export function invalidateConnectedAppsCache(): void {
+  cachedConnectedApps = null;
 }
 
 /* ────────────────────────────── DISPATCH LOGS ────────────────────────────── */
@@ -302,7 +387,6 @@ export async function getDispatchLogs(
 
   const json = await response.json();
 
-  // Бэкенд может не возвращать некоторые поля (например, recipients).
   const mappedData: DispatchLog[] = (
     Array.isArray(json.data) ? json.data : []
   ).map((item: RawDispatchLog) => ({

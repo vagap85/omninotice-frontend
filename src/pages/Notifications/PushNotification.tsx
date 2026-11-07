@@ -25,7 +25,7 @@ import { PushNotificationProvider } from '@/components/organisms/Forms/Push/Prov
 import SelectingRecipientApp from '@/components/organisms/Forms/Push/SelectingRecipientApp/SelectingRecipientApp';
 import '@/lib/notification-widget/notification-widget.css';
 
-import { getTemplates } from '@/api/vishenka';
+import { getTemplates, getConnectedApps, ConnectedApp } from '@/api/vishenka';
 import { NotificationTemplate } from '@/types/template';
 
 const STORAGE_KEY_TOUR_COMPLETED = 'onboarding_tour_completed';
@@ -51,9 +51,18 @@ function PushCreateNotificatonInner({
   const templateId = searchParams.get('templateId') || '';
 
   const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
-
   const [isFetchingTemplates, setIsFetchingTemplates] = useState<boolean>(true);
 
+  const [connectedApps, setConnectedApps] = useState<ConnectedApp[]>([]);
+  const [isFetchingApps, setIsFetchingApps] = useState<boolean>(true);
+
+  const [isTourOpen, setIsTourOpen] = useState(() => {
+    const firstVisit = localStorage.getItem(STORAGE_KEY_FIRST_VISIT);
+    const tourCompleted = localStorage.getItem(STORAGE_KEY_TOUR_COMPLETED);
+    return firstVisit === null && tourCompleted !== 'true';
+  });
+
+  // Загрузка шаблонов
   useEffect(() => {
     let isMounted = true;
 
@@ -73,17 +82,33 @@ function PushCreateNotificatonInner({
     };
   }, []);
 
-  // Ищем нужный шаблон для автозаполнения
-  const templateData = useMemo(() => {
-    if (!templateId) return null;
-    return templates.find((t) => t.id === templateId) || null;
-  }, [templates, templateId]);
+  // Загрузка подключенных приложений
+  useEffect(() => {
+    let isMounted = true;
 
-  const [isTourOpen, setIsTourOpen] = useState(() => {
-    const firstVisit = localStorage.getItem(STORAGE_KEY_FIRST_VISIT);
-    const tourCompleted = localStorage.getItem(STORAGE_KEY_TOUR_COMPLETED);
-    return firstVisit === null && tourCompleted !== 'true';
-  });
+    getConnectedApps()
+      .then((apps) => {
+        if (isMounted) {
+          setConnectedApps(apps);
+          console.log(apps);
+
+          if (apps.length > 0) {
+            setIsTourOpen(false);
+            localStorage.setItem(STORAGE_KEY_TOUR_COMPLETED, 'true');
+          }
+        }
+      })
+      .catch((err) => {
+        console.error('Не удалось загрузить подключенные приложения:', err);
+      })
+      .finally(() => {
+        if (isMounted) setIsFetchingApps(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const firstVisit = localStorage.getItem(STORAGE_KEY_FIRST_VISIT);
@@ -93,6 +118,11 @@ function PushCreateNotificatonInner({
       localStorage.setItem(STORAGE_KEY_FIRST_VISIT, 'true');
     }
   }, []);
+
+  const templateData = useMemo(() => {
+    if (!templateId) return null;
+    return templates.find((t) => t.id === templateId) || null;
+  }, [templates, templateId]);
 
   const handleCompleteTour = () => {
     localStorage.setItem(STORAGE_KEY_TOUR_COMPLETED, 'true');
@@ -104,6 +134,20 @@ function PushCreateNotificatonInner({
     setIsTourOpen(true);
   };
 
+  if (isFetchingApps) {
+    return (
+      <Center h="100vh">
+        <Spinner
+          color="#346895"
+          size="xl"
+          thickness="4px"
+        />
+      </Center>
+    );
+  }
+
+  const hasConnectedApps = connectedApps.length > 0;
+
   return (
     <NotificationProvider
       settings={{
@@ -114,7 +158,12 @@ function PushCreateNotificatonInner({
       <FormProvider formId="pushNotification">
         <PushNotificationProvider>
           <NotificationLayout
-            sidebar={<SelectingRecipientApp isAuthorized={isAuthorized} />}
+            sidebar={
+              <SelectingRecipientApp
+                isAuthorized={isAuthorized}
+                connectedApps={connectedApps}
+              />
+            }
           >
             <Flex
               as="form"
@@ -125,7 +174,9 @@ function PushCreateNotificatonInner({
               maxW="900px"
               mx="auto"
             >
-              <IncludeServices />
+              {/* Скрываем, если есть подключенные приложения */}
+              {!hasConnectedApps && <IncludeServices />}
+
               <Box data-tour="notification-text">
                 {isFetchingTemplates ? (
                   <Center py={10}>
@@ -152,7 +203,8 @@ function PushCreateNotificatonInner({
           </NotificationLayout>
         </PushNotificationProvider>
 
-        {!isTourOpen && (
+        {/* Скрываем кнопку вызова тура, если есть приложения */}
+        {!isTourOpen && !hasConnectedApps && (
           <Portal>
             <Box
               as="button"
@@ -204,11 +256,14 @@ function PushCreateNotificatonInner({
           </Portal>
         )}
 
-        <OnboardingTour
-          key={tourSession}
-          isOpen={isTourOpen}
-          onComplete={handleCompleteTour}
-        />
+        {/* Скрываем сам тур, если есть приложения */}
+        {!hasConnectedApps && (
+          <OnboardingTour
+            key={tourSession}
+            isOpen={isTourOpen}
+            onComplete={handleCompleteTour}
+          />
+        )}
       </FormProvider>
     </NotificationProvider>
   );

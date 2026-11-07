@@ -6,7 +6,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   dispatchNotification,
   DispatchError,
-  ALL_RECIPIENTS_FALLBACK_ID
+  ALL_RECIPIENTS_FALLBACK_ID,
+  type ConnectedApp
 } from '@/api/vishenka';
 import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
@@ -31,6 +32,7 @@ import { ROUTES } from '@/routing/routes';
 
 interface PanelContentProps {
   isAuthorized: boolean;
+  connectedApps: ConnectedApp[];
 }
 
 // Функция для замены {{var}} на значения
@@ -44,9 +46,12 @@ const interpolateText = (text: string, vars: Record<string, string>) => {
   return result;
 };
 
-function SelectingRecipientApp({ isAuthorized }: PanelContentProps) {
+function SelectingRecipientApp({
+  isAuthorized,
+  connectedApps
+}: PanelContentProps) {
   return (
-    <SelectingRecipientAppProviderTest>
+    <SelectingRecipientAppProviderTest connectedApps={connectedApps}>
       <SelectedUsersProvider>
         <PanelContentInner isAuthorized={isAuthorized} />
       </SelectedUsersProvider>
@@ -54,7 +59,7 @@ function SelectingRecipientApp({ isAuthorized }: PanelContentProps) {
   );
 }
 
-function PanelContentInner({ isAuthorized }: PanelContentProps) {
+function PanelContentInner({ isAuthorized }: { isAuthorized: boolean }) {
   const navigate = useNavigate();
   const location = useLocation();
   const registry = useFormsRegistry();
@@ -110,7 +115,6 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
       recipientsValid = false;
     }
 
-    // Добавляем проверку контента
     if (!isContentValid) {
       appValid = false;
     }
@@ -124,7 +128,6 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
       PushNotificationFormValues & { variableValues?: Record<string, string> }
     >();
 
-    // Интерполируем текст перед отправкой
     const finalText = interpolateText(
       contentValues.text || '',
       contentValues.variableValues || {}
@@ -146,16 +149,14 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
     signal: AbortSignal
   ) => {
     try {
-      const app = payload.app as {
-        id: string;
-        platform?: string;
-        icon?: {
-          Icon: ComponentType;
-        };
-      };
-      console.log(app);
+      const app = payload.app as
+        (ConnectedApp & { icon?: { Icon?: ComponentType } }) | null;
 
-      if (app?.platform === 'OmniNoticeTest') {
+      if (!app) {
+        throw new Error('Приложение не выбрано');
+      }
+
+      if (app.platform === 'OmniNoticeTest') {
         const IconComponent = app.icon?.Icon;
 
         add({
@@ -163,7 +164,7 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
           title: payload.title,
           description: payload.text,
           picture: {
-            icon: IconComponent ? IconComponent : <BellRingIcon />
+            icon: IconComponent ? <IconComponent /> : <BellRingIcon />
           },
           action: {
             title: payload.buttonText,
@@ -175,7 +176,7 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
       } else {
         const response = await dispatchNotification(
           {
-            application_id: app?.id ?? 'sigma',
+            application_id: app.id ?? 'sigma',
             channels: ['in_app'],
             title: payload.title,
             body: payload.text,
