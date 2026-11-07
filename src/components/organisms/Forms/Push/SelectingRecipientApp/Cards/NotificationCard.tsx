@@ -4,6 +4,8 @@ import CloseIcon from '@/components/atoms/Icons/CloseIcon';
 import { usePushNotification } from '@/components/organisms/Forms/Push/Contexts/PushNotificationContext';
 
 import type { SelectedApp } from '../types/types';
+import CollectionIcon from '../utils/CollectionIcon';
+import { getIconBackgroundColor } from '../utils/iconBackgroundColor';
 
 export default function NotificationCard({
   selectedApp
@@ -41,7 +43,10 @@ export default function NotificationCard({
           w={14}
           h={14}
           borderRadius={'xl'}
-          bg={selectedApp.bgIconColor}
+          bg={getIconBackgroundColor(
+            selectedApp.iconColor,
+            selectedApp.bgIconColor
+          )}
           flexShrink={0}
         >
           <Box
@@ -50,7 +55,15 @@ export default function NotificationCard({
             w={6}
             h={6}
           >
-            <SelectedIcon color={selectedApp.iconColor} />
+            {selectedApp.icon.path ? (
+              <CollectionIcon
+                icon={selectedApp.icon}
+                size={15}
+                color={selectedApp.iconColor}
+              />
+            ) : SelectedIcon ? (
+              <SelectedIcon color={selectedApp.iconColor} />
+            ) : null}
           </Box>
         </Box>
         <Box

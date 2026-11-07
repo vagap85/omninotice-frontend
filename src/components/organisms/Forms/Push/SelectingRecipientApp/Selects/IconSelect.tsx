@@ -1,86 +1,76 @@
 import { Box, Button, Flex, Text, useDisclosure } from '@chakra-ui/react';
-
-/** === ИКОНКИ === */
-import AboutIcon from '@/components/atoms/Icons/collections/Sigma/AboutIcon';
-import BellRingIcon from '@/components/atoms/Icons/collections/Sigma/BellRingIcon';
-import CalendarDateIcon from '@/components/atoms/Icons/collections/Sigma/CalendarDateIcon';
-import CheckIcon from '@/components/atoms/Icons/collections/Sigma/CheckIcon';
-import EnvelopeIcon from '@/components/atoms/Icons/collections/Sigma/EnvelopeIcon';
-import FolderClosedIcon from '@/components/atoms/Icons/collections/Sigma/FolderClosedIcon';
-import InformationIcon from '@/components/atoms/Icons/collections/Sigma/InformationIcon';
-import PartyIcon from '@/components/atoms/Icons/collections/Sigma/PartyIcon';
-import PieChartIcon from '@/components/atoms/Icons/collections/Sigma/PieChartIcon';
-import SettingsIcon from '@/components/atoms/Icons/collections/Sigma/SettingsIcon';
-import UserIcon from '@/components/atoms/Icons/collections/Sigma/UserIcon';
+import { useState } from 'react';
 
 import SelectIconModal from '../../../../Modals/SelectIconModal';
 import { useSelectingRecipientApp } from '../hooks/useSelectingRecipientApp';
 import type { SelectedAppIcon } from '../types/types';
+import CollectionIcon from '../utils/CollectionIcon';
+import { getIconBackgroundColor } from '../utils/iconBackgroundColor';
 
 const COLLECTION_ICONS: SelectedAppIcon[] = [
   {
     id: '0',
-    Icon: BellRingIcon,
+    path: 'collections/bell-ring-icon.svg',
     title: 'Стандартная',
     description: 'Если не выбрать другую, получатель увидит эту'
   },
   {
     id: '1',
-    Icon: CalendarDateIcon,
+    path: 'collections/calendar-date-icon.svg',
     title: 'Дата и срок',
     description: 'Отпуск, встреча, дедлайн, начало и конец периода'
   },
   {
     id: '2',
-    Icon: CheckIcon,
+    path: 'collections/check-icon.svg',
     title: 'Готово',
     description: 'Согласовано, завершено, заявка одобрена'
   },
   {
     id: '3',
-    Icon: InformationIcon,
+    path: 'collections/information-icon.svg',
     title: 'Важное',
     description: 'Требует действия или внимания в срок'
   },
   {
     id: '4',
-    Icon: AboutIcon,
+    path: 'collections/about-icon.svg',
     title: 'Справка',
     description: 'Регламент, инструкция, изменение правил'
   },
   {
     id: '5',
-    Icon: UserIcon,
+    path: 'collections/user-icon.svg',
     title: 'Сотрудник',
     description: 'Новый человек, назначение, изменение роли'
   },
   {
     id: '6',
-    Icon: FolderClosedIcon,
+    path: 'collections/folder-closed-icon.svg',
     title: 'Проект',
     description: 'Команда, доступ, подключение к проекту'
   },
   {
     id: '7',
-    Icon: PieChartIcon,
+    path: 'collections/pie-chart-icon.svg',
     title: 'Отчет',
     description: 'Результаты опроса, аналитика, показатели'
   },
   {
     id: '8',
-    Icon: EnvelopeIcon,
+    path: 'collections/envelope-icon.svg',
     title: 'Сообщение',
     description: 'Личное обращение, приглашение, ответ'
   },
   {
     id: '9',
-    Icon: SettingsIcon,
+    path: 'collections/settings-icon.svg',
     title: 'Система',
     description: 'Обновления, работы, техническое'
   },
   {
     id: '10',
-    Icon: PartyIcon,
+    path: 'collections/party-icon.svg',
     title: 'Праздники',
     description: 'Поздравление, новость, анонс'
   }
@@ -89,11 +79,16 @@ const COLLECTION_ICONS: SelectedAppIcon[] = [
 export default function IconSelect() {
   const { selectedApp, setSelectedIcon } = useSelectingRecipientApp();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [draftIcon, setDraftIcon] = useState<SelectedAppIcon | null>(null);
 
   const SelectedIcon = selectedApp?.icon.Icon;
   const isCustomIcon = selectedApp
     ? selectedApp.icon.id !== selectedApp.standartIcon.id
     : false;
+  const openIconModal = () => {
+    setDraftIcon(selectedApp?.icon ?? COLLECTION_ICONS[0] ?? null);
+    onOpen();
+  };
 
   return (
     <Box
@@ -136,7 +131,10 @@ export default function IconSelect() {
                 w={12}
                 h={12}
                 borderRadius={'xl'}
-                bg={selectedApp.bgIconColor}
+                bg={getIconBackgroundColor(
+                  selectedApp.iconColor,
+                  selectedApp.bgIconColor
+                )}
                 flexShrink={0}
               >
                 <Box
@@ -145,9 +143,15 @@ export default function IconSelect() {
                   w={6}
                   h={6}
                 >
-                  {SelectedIcon && (
+                  {selectedApp.icon.path ? (
+                    <CollectionIcon
+                      icon={selectedApp.icon}
+                      size={15}
+                      color={selectedApp.iconColor}
+                    />
+                  ) : SelectedIcon ? (
                     <SelectedIcon color={selectedApp.iconColor} />
-                  )}
+                  ) : null}
                 </Box>
               </Box>
               <Box>
@@ -177,10 +181,12 @@ export default function IconSelect() {
                 fontWeight={500}
                 fontSize={'xs'}
                 whiteSpace={'normal'}
-                h={'auto'}
+                h={'unset'}
+                minH={'unset'}
+                lineHeight={'1em'}
                 py={2}
                 px={2.5}
-                onClick={onOpen}
+                onClick={openIconModal}
               >
                 {isCustomIcon ? 'Заменить' : 'Выбрать из коллекции'}
               </Button>
@@ -193,7 +199,9 @@ export default function IconSelect() {
                   fontWeight={500}
                   fontSize={'xs'}
                   whiteSpace={'normal'}
-                  h={'auto'}
+                  h={'unset'}
+                  minH={'unset'}
+                  lineHeight={'1em'}
                   py={2}
                   px={2.5}
                   onClick={() => setSelectedIcon(selectedApp.standartIcon)}
@@ -206,6 +214,8 @@ export default function IconSelect() {
               isOpen={isOpen}
               onClose={onClose}
               icons={COLLECTION_ICONS}
+              draftIcon={draftIcon}
+              onDraftIconChange={setDraftIcon}
             />
           </>
         ) : (

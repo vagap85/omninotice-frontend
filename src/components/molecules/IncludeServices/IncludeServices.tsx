@@ -1,4 +1,4 @@
-import { Box, HStack, Image, Text } from '@chakra-ui/react';
+import { Box, HStack, Image, Link, Text } from '@chakra-ui/react';
 import React from 'react';
 
 import cherryIcon from '@/assets/icons/cherry.svg';
@@ -59,7 +59,7 @@ export const IncludeServices: React.FC = () => {
         letterSpacing="0"
         color="#12233F"
       >
-        Свяжитесь с нами s@eitica.ru
+        Свяжитесь с нами <Link href="mainto:s@eitica.ru">s@eitica.ru</Link>
       </Text>
     </Box>
   );

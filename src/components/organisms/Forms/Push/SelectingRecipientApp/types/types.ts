@@ -1,22 +1,25 @@
-import type { ComponentType } from 'react';
-
 import { User } from '@/api/types';
+import type { ComponentType } from 'react';
 import type { IconProps } from '@/components/atoms/types/types';
 
 export interface SelectedApp {
+  id: string;
+  name: string;
   title: string;
   icon: SelectedAppIcon; // текущая выбранная иконка
   standartIcon: SelectedAppIcon; // иконка по умолчанию для этого приложения
   iconColor: string;
-  bgIconColor: string;
+  bgIconColor?: string;
   description: string;
   count: number;
   platform: string;
+  isActive: boolean;
 }
 
 export interface SelectedAppIcon {
   id: string;
-  Icon: ComponentType<IconProps>;
+  path?: string;
+  Icon?: ComponentType<IconProps>;
   title: string;
   description: string;
 }
@@ -41,7 +44,7 @@ export interface SelectingApp {
   isActive: boolean;
   platform: string;
   iconColor: string;
-  bgIconColor: string;
+  bgIconColor?: string;
   standartIcon: SelectedAppIcon;
 }
 

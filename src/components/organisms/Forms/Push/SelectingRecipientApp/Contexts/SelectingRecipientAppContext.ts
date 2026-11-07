@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 import type { ConnectedApp } from '@/api/vishenka';
-import type { SelectedApp } from '../types/types';
+import type { SelectedApp, SelectedAppIcon } from '../types/types';
 
 export type RecipientsMode = 'all' | 'individual';
 
@@ -8,6 +8,7 @@ export interface SelectingRecipientAppContextValue {
   /** UI-готовая форма выбранного приложения (все поля заполнены). */
   selectedApp: SelectedApp | null;
   setSelectedApp: (app: SelectedApp | null) => void;
+  setSelectedIcon: (icon: SelectedAppIcon) => void;
 
   recipientsMode: RecipientsMode;
   setRecipientsMode: (mode: RecipientsMode) => void;

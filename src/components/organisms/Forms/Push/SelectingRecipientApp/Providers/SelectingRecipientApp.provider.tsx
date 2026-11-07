@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { ConnectedApp } from '@/api/vishenka';
-import type { SelectedApp } from '../types/types';
+import type { SelectedApp, SelectedAppIcon } from '../types/types';
 
 import {
   SelectingRecipientAppContext,
@@ -26,6 +26,11 @@ export default function SelectingRecipientAppProviderTest({
   const [recipientsMode, setRecipientsMode] = useState<RecipientsMode>('all');
   const [appError, setAppError] = useState<string | null>(null);
   const [recipientsError, setRecipientsError] = useState<string | null>(null);
+  const setSelectedIcon = (icon: SelectedAppIcon) => {
+    setSelectedApp((currentApp) =>
+      currentApp ? { ...currentApp, icon } : currentApp
+    );
+  };
 
   const availableApps = useMemo<ConnectedApp[]>(() => {
     if (connectedApps.length > 0) {
@@ -37,6 +42,7 @@ export default function SelectingRecipientAppProviderTest({
   const value: SelectingRecipientAppContextValue = {
     selectedApp,
     setSelectedApp,
+    setSelectedIcon,
     recipientsMode,
     setRecipientsMode,
     appError,

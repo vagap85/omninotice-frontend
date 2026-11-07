@@ -1,7 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons/ArrowForward';
 import { Flex, useDisclosure } from '@chakra-ui/react';
 import { memo } from 'react';
-import type { ComponentType } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   dispatchNotification,
@@ -9,6 +8,8 @@ import {
   ALL_RECIPIENTS_FALLBACK_ID,
   type ConnectedApp
 } from '@/api/vishenka';
+import CollectionIcon from './utils/CollectionIcon';
+import { getCollectionIconUrl } from './utils/collectionIconUrl';
 import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
 import { useFormValues } from '@/components/molecules/Form/hooks/useFormValues';
@@ -20,13 +21,14 @@ import type {
 } from '@/components/organisms/types/types';
 import { sanitizeSubmitValue } from '@/utils/sanitizeSubmitValue';
 import { countMeaningfulLength } from '@/utils/meaningfulLength';
+import type { SelectedApp } from './types/types';
+import { getIconBackgroundColor } from './utils/iconBackgroundColor';
 
 import AllSelectBoxes from './AllSelectBoxes';
 import { useSelectedUsers } from './hooks/useSelectedUsers';
 import { useSelectingRecipientApp } from './hooks/useSelectingRecipientApp';
 import { SelectedUsersProvider } from './Providers/SelectedUsers.provider';
 import SelectingRecipientAppProviderTest from './Providers/SelectingRecipientApp.provider';
-import BellRingIcon from '@/components/atoms/Icons/collections/Sigma/BellRingIcon';
 import { useNotification } from 'omni-notice-sigma-notification-widget';
 import { ROUTES } from '@/routing/routes';
 
@@ -149,22 +151,39 @@ function PanelContentInner({ isAuthorized }: { isAuthorized: boolean }) {
     signal: AbortSignal
   ) => {
     try {
-      const app = payload.app as
-        (ConnectedApp & { icon?: { Icon?: ComponentType } }) | null;
+      const app = payload.app as SelectedApp | null;
 
       if (!app) {
         throw new Error('Приложение не выбрано');
       }
 
       if (app.platform === 'OmniNoticeTest') {
-        const IconComponent = app.icon?.Icon;
-
         add({
           status: 'info',
           title: payload.title,
           description: payload.text,
           picture: {
-            icon: IconComponent ? <IconComponent /> : <BellRingIcon />
+            icon: (
+              <span
+                style={{
+                  display: 'grid',
+                  placeItems: 'center',
+                  width: 38,
+                  height: 38,
+                  borderRadius: 6,
+                  backgroundColor: getIconBackgroundColor(
+                    app.iconColor,
+                    app.bgIconColor
+                  )
+                }}
+              >
+                <CollectionIcon
+                  icon={app.icon}
+                  size={15}
+                  color={app.iconColor}
+                />
+              </span>
+            )
           },
           action: {
             title: payload.buttonText,
@@ -174,12 +193,16 @@ function PanelContentInner({ isAuthorized }: { isAuthorized: boolean }) {
 
         localStorage.setItem('onboarding_real_send', 'true');
       } else {
+        const iconUrl = getCollectionIconUrl(app.icon);
         const response = await dispatchNotification(
           {
             application_id: app.id ?? 'sigma',
             channels: ['in_app'],
             title: payload.title,
             body: payload.text,
+            picture: {
+              icon: iconUrl
+            },
             recipients:
               payload.recipientsMode === 'individual'
                 ? (payload.selectedUsers?.map((u) => u.id) ?? [])
