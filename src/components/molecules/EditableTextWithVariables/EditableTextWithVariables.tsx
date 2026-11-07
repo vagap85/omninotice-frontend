@@ -1,11 +1,14 @@
-import { Box, Input } from '@chakra-ui/react';
-import { useRef } from 'react';
+import { Box, Input, Text } from '@chakra-ui/react';
+import { useState } from 'react';
+
+import { countMeaningfulLength } from '@/utils/meaningfulLength';
 
 interface EditableTextWithVariablesProps {
   text: string;
   variableValues: Record<string, string>;
   onVariableChange: (variable: string, value: string) => void;
   onTextChange: (text: string) => void;
+  onTextInput?: (text: string) => void;
   placeholder?: string;
   minH?: string;
   maxLength?: number;
@@ -16,21 +19,14 @@ function EditableTextWithVariables({
   variableValues,
   onVariableChange,
   onTextChange,
+  onTextInput,
   placeholder,
   maxLength = 200
 }: EditableTextWithVariablesProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Подсчет длины текста С УЧЕТОМ значений переменных
-  const currentLength = text.replace(
-    /\{\{([^}]+)\}\}/g,
-    (_, variableName) => {
-      const value = variableValues[variableName] || '';
-      return value;
-    }
-  ).length;
-
-  const isOverLimit = currentLength > maxLength;
+  const [editingPart, setEditingPart] = useState<{
+    key: string;
+    value: string;
+  } | null>(null);
 
   // Парсим текст на части: обычный текст и переменные
   const parseText = (text: string) => {
@@ -71,182 +67,158 @@ function EditableTextWithVariables({
   };
 
   const parts = parseText(text);
+  const getTextWithDraft = (key: string, value: string) =>
+    parts
+      .map((part) => {
+        if (part.type === 'variable') return `{{${part.content}}}`;
+        return part.key === key ? value : part.content;
+      })
+      .join('');
+  const currentText = editingPart
+    ? getTextWithDraft(editingPart.key, editingPart.value)
+    : text;
+  const currentLength = countMeaningfulLength(
+    currentText.replace(/\{\{([^}]+)\}\}/g, (_, variableName: string) => {
+      return variableValues[variableName] || '';
+    })
+  );
+  const isOverLimit = currentLength > maxLength;
 
   // Обработчик изменения переменной
   const handleVariableInput = (
     variable: string,
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const newValue = e.target.value;
-    const currentValue = variableValues[variable] || '';
-
-    const newLength = currentLength - currentValue.length + newValue.length;
-
-    if (newLength <= maxLength) {
-      onVariableChange(variable, newValue);
-    }
+    onVariableChange(variable, e.target.value);
   };
 
   // Обработчик изменения обычного текста
   const handleTextBlur = (e: React.FocusEvent<HTMLSpanElement>) => {
-    const newText = e.target.innerText;
-    let fullText = '';
-
-    parts.forEach((part) => {
-      if (part.type === 'text') {
-        if (part.key === `text-${e.target.dataset.index}`) {
-          fullText += newText;
-        } else {
-          fullText += part.content;
-        }
-      } else {
-        fullText += `{{${part.content}}}`;
-      }
-    });
-
-    const finalLength = fullText.replace(
-      /\{\{([^}]+)\}\}/g,
-      (_, variableName) => {
-        const value = variableValues[variableName] || '';
-        return value;
-      }
-    ).length;
-
-    if (finalLength <= maxLength) {
-      onTextChange(fullText);
-    } else {
-      e.target.innerText = text;
-    }
+    const changedPartKey = `text-${e.currentTarget.dataset.index}`;
+    const fullText = getTextWithDraft(
+      changedPartKey,
+      e.currentTarget.innerText
+    );
+    onTextChange(fullText);
+    onTextInput?.(fullText);
+    setEditingPart(null);
   };
 
-  // Предотвращаем ввод, если превышен лимит
   const handleTextInput = (e: React.FormEvent<HTMLSpanElement>) => {
-    const target = e.target as HTMLSpanElement;
-    const newText = target.innerText;
-
-    let fullText = '';
-    parts.forEach((part) => {
-      if (part.type === 'text') {
-        if (part.key === `text-${target.dataset.index}`) {
-          fullText += newText;
-        } else {
-          fullText += part.content;
-        }
-      } else {
-        fullText += `{{${part.content}}}`;
-      }
-    });
-
-    const newLength = fullText.replace(
-      /\{\{([^}]+)\}\}/g,
-      (_, variableName) => {
-        const value = variableValues[variableName] || '';
-        return value;
-      }
-    ).length;
-
-    if (newLength > maxLength) {
-      e.preventDefault();
-      return false;
-    }
+    const key = `text-${e.currentTarget.dataset.index}`;
+    const value = e.currentTarget.innerText;
+    setEditingPart({ key, value });
+    onTextInput?.(getTextWithDraft(key, value));
   };
 
   return (
-    <Box
-      ref={containerRef}
-      position="relative"
-      p="10px"
-      pr="57px"
-      bg="#F8FAFC"
-      borderRadius="8px"
-      fontSize="md"
-      lineHeight="24px"
-      color="#12233F"
-      whiteSpace="pre-wrap"
-      wordBreak="break-word"
-      cursor="text"
-      _hover={{ borderColor: '#CBD5E1' }}
-      transition="border-color 0.2s"
-      border="1px solid"
-      borderColor={isOverLimit ? 'red.300' : '#E2E8F0'}
-      minH="155px"
-    >
+    <>
       <Box
-        position="absolute"
-        top="10px"
-        right="11px"
+        position="relative"
+        p="10px"
+        pr="57px"
+        bg="#F8FAFC"
+        borderRadius="8px"
         fontSize="md"
-        color="#A1A1AA"
-        fontWeight="normal"
-        userSelect="none"
-        pointerEvents="none"
+        lineHeight="24px"
+        color="#12233F"
+        whiteSpace="pre-wrap"
+        wordBreak="break-word"
+        cursor="text"
+        _hover={{
+          borderColor: isOverLimit ? 'error.500' : '#CBD5E1'
+        }}
+        transition="border-color 0.2s"
+        border="1px solid"
+        borderColor={isOverLimit ? 'error.500' : '#E2E8F0'}
+        minH="155px"
       >
-        {currentLength}/{maxLength}
+        <Box
+          position="absolute"
+          top="10px"
+          right="11px"
+          fontSize="md"
+          color={isOverLimit ? 'error.500' : '#A1A1AA'}
+          fontWeight="normal"
+          userSelect="none"
+          pointerEvents="none"
+        >
+          {currentLength}/{maxLength}
+        </Box>
+
+        {parts.length === 0 && placeholder && (
+          <Box color="#A1A1AA">{placeholder}</Box>
+        )}
+
+        {parts.map((part) => {
+          if (part.type === 'text') {
+            return (
+              <span
+                key={part.key}
+                contentEditable
+                suppressContentEditableWarning
+                data-index={part.key.replace('text-', '')}
+                onBlur={handleTextBlur}
+                onInput={handleTextInput}
+                style={{
+                  outline: 'none',
+                  whiteSpace: 'pre-wrap'
+                }}
+              >
+                {part.content}
+              </span>
+            );
+          } else {
+            return (
+              <Input
+                key={part.key}
+                value={variableValues[part.content] || ''}
+                onChange={(e) => handleVariableInput(part.content, e)}
+                placeholder={`{{${part.content}}}`}
+                display="inline-block"
+                minW="20px"
+                width="auto"
+                fontSize="sm"
+                px="8px"
+                py="2px"
+                bg="transparent"
+                mx="8px"
+                h="24px"
+                border="1px dashed"
+                borderColor={isOverLimit ? 'error.500' : '#3B6EA0'}
+                borderRadius="6px"
+                color="#3B6EA0"
+                fontWeight="normal"
+                _focus={{
+                  borderColor: isOverLimit ? 'error.500' : '#3B6EA0',
+                  boxShadow: isOverLimit
+                    ? '0 0 0 1px var(--chakra-colors-error-500)'
+                    : '0 0 0 1px #3B6EA0',
+                  bg: 'white'
+                }}
+                _placeholder={{
+                  color: '#3B6EA0',
+                  textAlign: 'center'
+                }}
+                style={{
+                  verticalAlign: 'middle',
+                  display: 'inline-block'
+                }}
+              />
+            );
+          }
+        })}
       </Box>
-
-      {parts.length === 0 && placeholder && (
-        <Box color="#A1A1AA">{placeholder}</Box>
+      {isOverLimit && (
+        <Text
+          color="error.500"
+          fontSize="xs"
+          mt={2}
+        >
+          Превышено количество знаков. Уберите лишние, чтобы отправить.
+        </Text>
       )}
-
-      {parts.map((part) => {
-        if (part.type === 'text') {
-          return (
-            <span
-              key={part.key}
-              contentEditable
-              suppressContentEditableWarning
-              data-index={part.key.replace('text-', '')}
-              onBlur={handleTextBlur}
-              onInput={handleTextInput}
-              style={{
-                outline: 'none',
-                whiteSpace: 'pre-wrap'
-              }}
-            >
-              {part.content}
-            </span>
-          );
-        } else {
-          return (
-            <Input
-              key={part.key}
-              value={variableValues[part.content] || ''}
-              onChange={(e) => handleVariableInput(part.content, e)}
-              placeholder={`{{${part.content}}}`}
-              display="inline-block"
-              minW="20px"
-              width="auto"
-              fontSize="sm"
-              px="8px"
-              py="2px"
-              bg="transparent"
-              mx="8px"
-              h="24px"
-              border="1px dashed"
-              borderColor={isOverLimit ? '#EF4444' : '#3B6EA0'}
-              borderRadius="6px"
-              color="#3B6EA0"
-              fontWeight="normal"
-              _focus={{
-                borderColor: isOverLimit ? '#EF4444' : '#3B6EA0',
-                boxShadow: isOverLimit
-                  ? '0 0 0 1px #EF4444'
-                  : '0 0 0 1px #3B6EA0',
-                bg: 'white'
-              }}
-              _placeholder={{
-                color: '#3B6EA0',
-                textAlign: 'center'
-              }}
-              style={{
-                verticalAlign: 'middle',
-                display: 'inline-block'
-              }}
-            />
-          );
-        }
-      })}
-    </Box>
+    </>
   );
 }
 

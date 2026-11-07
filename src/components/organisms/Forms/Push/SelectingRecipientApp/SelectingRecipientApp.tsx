@@ -18,6 +18,7 @@ import type {
   PushNotificationFormValues
 } from '@/components/organisms/types/types';
 import { sanitizeSubmitValue } from '@/utils/sanitizeSubmitValue';
+import { countMeaningfulLength } from '@/utils/meaningfulLength';
 
 import AllSelectBoxes from './AllSelectBoxes';
 import { useSelectedUsers } from './hooks/useSelectedUsers';
@@ -79,8 +80,18 @@ function PanelContentInner({ isAuthorized }: PanelContentProps) {
   const allVariablesFilled = variables.every((variable) =>
     formValues.variableValues?.[variable.slice(2, -2)]?.trim()
   );
+  const resolvedContentText = contentText.replace(
+    /\{\{([^}]+)\}\}/g,
+    (_, variable: string) => formValues.variableValues?.[variable] ?? ''
+  );
+  const isContentWithinLimits =
+    countMeaningfulLength(formValues.title || '') <= 50 &&
+    countMeaningfulLength(resolvedContentText) <= 200;
   const isContentValid = Boolean(
-    formValues.title?.trim() && contentText.trim() && allVariablesFilled
+    formValues.title?.trim() &&
+    contentText.trim() &&
+    allVariablesFilled &&
+    isContentWithinLimits
   );
 
   const validateExtraFields = (): boolean => {

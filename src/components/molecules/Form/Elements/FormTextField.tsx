@@ -8,7 +8,10 @@ import {
 import { memo, type ReactNode } from 'react';
 
 import CustomInput from '@/components/atoms/Input/CustomInput';
-import { truncateByMeaningfulLength } from '@/utils/meaningfulLength';
+import {
+  countMeaningfulLength,
+  truncateByMeaningfulLength
+} from '@/utils/meaningfulLength';
 
 import { FormTextFieldProps } from '../../types/form';
 import { useFormField } from '../hooks/useFormField';
@@ -26,20 +29,30 @@ function FormTextFieldBase({
   validators,
   subTitlte,
   maxLength,
+  softMaxLength = false,
+  maxLengthMessage = 'Превышено количество знаков. Уберите лишние, чтобы отправить.',
   rightElement,
   ...rest
 }: FormTextFieldWithRightElementProps) {
-  const allValidators = maxLength
-    ? [...(validators ?? []), maxLengthValidator(maxLength)]
-    : validators;
+  const allValidators =
+    maxLength && !softMaxLength
+      ? [...(validators ?? []), maxLengthValidator(maxLength)]
+      : validators;
 
   const { value, error, onChange, onBlur } = useFormField<string>(name, {
     initialValue,
     validators: allValidators
   });
+  const lengthError =
+    softMaxLength &&
+    maxLength !== undefined &&
+    countMeaningfulLength(value) > maxLength
+      ? maxLengthMessage
+      : undefined;
+  const displayedError = error ?? lengthError;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (maxLength !== undefined) {
+    if (maxLength !== undefined && !softMaxLength) {
       const truncated = truncateByMeaningfulLength(e.target.value, maxLength);
       if (truncated !== e.target.value) {
         e.target.value = truncated;
@@ -52,20 +65,23 @@ function FormTextFieldBase({
     rest.showCounter !== false && typeof maxLength === 'number';
   const input = (
     <CustomInput
-      borderColor={error ? 'red.500' : 'inherit'}
-      _hover={{ borderColor: error ? 'red.500' : '#3182ce' }}
-      _focusVisible={{ borderColor: error ? 'red.500' : '#3182ce' }}
+      borderColor={displayedError ? 'red.500' : 'inherit'}
+      _hover={{ borderColor: displayedError ? 'red.500' : '#3182ce' }}
+      _focusVisible={{
+        borderColor: displayedError ? 'red.500' : '#3182ce'
+      }}
       {...rest}
       pr={rightElement ? (hasCounter ? '120px' : '48px') : rest.pr}
       value={value}
       onChange={handleChange}
       onBlur={onBlur}
       maxLength={maxLength}
+      softMaxLength={softMaxLength}
     />
   );
 
   return (
-    <FormControl isInvalid={Boolean(error)}>
+    <FormControl isInvalid={Boolean(displayedError)}>
       {label && (
         <FormLabel
           fontSize={labelFontSize}
@@ -94,7 +110,7 @@ function FormTextFieldBase({
       ) : (
         input
       )}
-      {!error && subTitlte && (
+      {!displayedError && subTitlte && (
         <Text
           mt={2}
           color="gray.600"
@@ -103,13 +119,13 @@ function FormTextFieldBase({
           {subTitlte}
         </Text>
       )}
-      {error && (
+      {displayedError && (
         <FormErrorMessage
           mt={2}
           color="red.500"
           fontSize="xs"
         >
-          {error}
+          {displayedError}
         </FormErrorMessage>
       )}
     </FormControl>

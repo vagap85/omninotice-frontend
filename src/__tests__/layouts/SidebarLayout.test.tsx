@@ -45,16 +45,6 @@ describe('SidebarLayout', () => {
     mockIsAuthorized = false;
   });
 
-  test('рендерит Sidebar', () => {
-    renderLayout('/overview');
-    expect(screen.getByTestId('sidebar')).toBeInTheDocument();
-  });
-
-  test('рендерит PageHeader', () => {
-    renderLayout('/overview');
-    expect(screen.getByTestId('page-header')).toBeInTheDocument();
-  });
-
   test('показывает заголовок для /create/email', () => {
     renderLayout('/create/email');
     expect(screen.getByTestId('page-header')).toHaveTextContent(
@@ -67,11 +57,6 @@ describe('SidebarLayout', () => {
     expect(screen.getByTestId('page-header')).toHaveTextContent(
       /Создание рассылки push-уведомлений/i
     );
-  });
-
-  test('показывает заголовок для /overview', () => {
-    renderLayout('/overview');
-    expect(screen.getByTestId('page-header')).toHaveTextContent(/Обзор/i);
   });
 
   test('показывает заголовок для /links как на /create/email', () => {

@@ -2,7 +2,6 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 import { BsGrid, BsPlusLg } from 'react-icons/bs';
 import { FiFileText, FiLink, FiMail } from 'react-icons/fi';
 import { GoHistory } from 'react-icons/go';
-import { LuSquareUser } from 'react-icons/lu';
 
 import {
   SidebarMenuEntry,
@@ -69,16 +68,6 @@ export const sidebarMenuItems: SidebarMenuItemProps[] = [
     ),
     text: 'Обзор',
     as: 'a',
-    href: ROUTES.overview
-  },
-  {
-    leftIcon: (
-      <LuSquareUser
-        size={MENU_ICON_SIZE}
-        strokeWidth={1}
-      />
-    ),
-    text: 'Контакты',
     disabled: true
   },
   {

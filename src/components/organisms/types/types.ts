@@ -59,12 +59,16 @@ interface TextVariant {
   body: string;
 }
 
+type TextVariantField = keyof TextVariant;
+
 export interface ImproveTextModalProps {
   isOpen: boolean;
   onClose: () => void;
-  originalVariant: TextVariant;
-  improvedVariant: TextVariant;
+  firstVariant: TextVariant;
+  secondVariant: TextVariant;
   onApply: (variant: TextVariant) => void;
+  heading?: string;
+  fields?: Array<{ key: TextVariantField; label: string }>;
 }
 
 export interface SelectIconModalProps {

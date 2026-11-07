@@ -7,6 +7,7 @@ import {
 import { memo, useId } from 'react';
 
 import CustomTextarea from '@/components/atoms/TextArea/CustomTextArea';
+import { countMeaningfulLength } from '@/utils/meaningfulLength';
 
 import type {
   FormTextAreaFieldControlProps,
@@ -23,13 +24,15 @@ function FormTextAreaFieldBase<T = string>({
   validators,
   subTitlte,
   maxLength,
+  softMaxLength = false,
+  maxLengthMessage = 'Превышено количество знаков. Уберите лишние, чтобы отправить.',
   renderControl,
   ...rest
 }: FormTextAreaFieldProps<T>) {
   const id = useId();
   const labelId = `${id}-label`;
   const allValidators: Validator<T>[] = [...(validators ?? [])];
-  if (maxLength) {
+  if (maxLength && !softMaxLength) {
     const validateMaxLength = maxLengthValidator(maxLength);
     allValidators.push((value, allValues) =>
       typeof value === 'string'
@@ -43,23 +46,33 @@ function FormTextAreaFieldBase<T = string>({
     validators: allValidators
     // validateOnChange больше не нужен — immediate-логика теперь в самих валидаторах
   });
+  const lengthError =
+    softMaxLength &&
+    maxLength !== undefined &&
+    typeof value === 'string' &&
+    countMeaningfulLength(value) > maxLength
+      ? maxLengthMessage
+      : undefined;
+  const displayedError = error ?? lengthError;
 
   const fieldControlProps: FormTextAreaFieldControlProps<T> = {
     value,
-    error,
+    error: displayedError,
     onChange: (nextValue) => onChange(nextValue),
     onBlur,
     labelId,
     controlProps: {
       ...rest,
-      borderColor: error ? 'red.500' : 'inherit',
-      _hover: { borderColor: error ? 'red.500' : '#3182ce' },
-      _focusVisible: { borderColor: error ? 'red.500' : '#3182ce' }
+      borderColor: displayedError ? 'red.500' : 'inherit',
+      _hover: { borderColor: displayedError ? 'red.500' : '#3182ce' },
+      _focusVisible: {
+        borderColor: displayedError ? 'red.500' : '#3182ce'
+      }
     }
   };
 
   return (
-    <FormControl isInvalid={Boolean(error)}>
+    <FormControl isInvalid={Boolean(displayedError)}>
       {label && (
         <FormLabel
           id={labelId}
@@ -73,10 +86,13 @@ function FormTextAreaFieldBase<T = string>({
         renderControl(fieldControlProps)
       ) : typeof value === 'string' ? (
         <CustomTextarea
-          borderColor={error ? 'red.500' : 'inherit'}
-          _hover={{ borderColor: error ? 'red.500' : '#3182ce' }}
-          _focusVisible={{ borderColor: error ? 'red.500' : '#3182ce' }}
+          borderColor={displayedError ? 'red.500' : 'inherit'}
+          _hover={{ borderColor: displayedError ? 'red.500' : '#3182ce' }}
+          _focusVisible={{
+            borderColor: displayedError ? 'red.500' : '#3182ce'
+          }}
           maxLength={maxLength}
+          softMaxLength={softMaxLength}
           value={value}
           onChange={(event) => onChange(event)}
           onBlur={onBlur}
@@ -89,7 +105,7 @@ function FormTextAreaFieldBase<T = string>({
           );
         })()
       )}
-      {!error && subTitlte && (
+      {!displayedError && subTitlte && (
         <Text
           mt={2}
           color="gray.600"
@@ -98,13 +114,13 @@ function FormTextAreaFieldBase<T = string>({
           {subTitlte}
         </Text>
       )}
-      {error && (
+      {displayedError && (
         <FormErrorMessage
           mt={2}
           color="red.500"
           fontSize="xs"
         >
-          {error}
+          {displayedError}
         </FormErrorMessage>
       )}
     </FormControl>
