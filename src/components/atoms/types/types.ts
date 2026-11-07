@@ -15,8 +15,10 @@ export interface CustomButtonProps extends ButtonProps {
 
 export interface CustomTextareaProps extends TextareaProps {
   showCounter?: boolean;
+  softMaxLength?: boolean;
 }
 
 export interface CustomInputProps extends InputProps {
   showCounter?: boolean;
+  softMaxLength?: boolean;
 }

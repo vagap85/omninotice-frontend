@@ -23,13 +23,14 @@ function FormTextAreaFieldBase<T = string>({
   validators,
   subTitlte,
   maxLength,
+  softMaxLength = false,
   renderControl,
   ...rest
 }: FormTextAreaFieldProps<T>) {
   const id = useId();
   const labelId = `${id}-label`;
   const allValidators: Validator<T>[] = [...(validators ?? [])];
-  if (maxLength) {
+  if (maxLength && !softMaxLength) {
     const validateMaxLength = maxLengthValidator(maxLength);
     allValidators.push((value, allValues) =>
       typeof value === 'string'
@@ -77,6 +78,7 @@ function FormTextAreaFieldBase<T = string>({
           _hover={{ borderColor: error ? 'red.500' : '#3182ce' }}
           _focusVisible={{ borderColor: error ? 'red.500' : '#3182ce' }}
           maxLength={maxLength}
+          softMaxLength={softMaxLength}
           value={value}
           onChange={(event) => onChange(event)}
           onBlur={onBlur}

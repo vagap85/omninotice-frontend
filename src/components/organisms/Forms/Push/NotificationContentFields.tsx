@@ -1,15 +1,17 @@
-import { Box, Heading, HStack, Icon, Text } from '@chakra-ui/react';
+import { Box, Heading, HStack, Icon, Text, useToast } from '@chakra-ui/react';
 import { useState, useMemo, useEffect, useContext } from 'react';
 import { LuCircleAlert } from 'react-icons/lu';
 
+import { improveText } from '@/api/improveText';
 import EditableTextWithVariables from '@/components/molecules/EditableTextWithVariables/EditableTextWithVariables';
 import ImproveTextButton from '@/components/molecules/ImproveTextButton/ImproveTextButton';
 import { FormTextAreaField } from '@/components/molecules/Form/Elements/FormTextAreaField';
 import { FormTextField } from '@/components/molecules/Form/Elements/FormTextField';
 import { FormsRegistryContext } from '@/components/molecules/Form/FormContext';
+import ImproveTextModal from '@/components/organisms/Modals/ImproveTextModal';
 import {
-  required,
-  maxLength
+  maxLength,
+  required
 } from '@/components/molecules/Form/validators/validators';
 import TemplateSelector from '@/components/molecules/TemplateSelector/TemplateSelector';
 import { NotificationTemplate } from '@/types/template';
@@ -19,6 +21,13 @@ interface NotificationContentFieldsProps {
   initialData?: NotificationTemplate | null;
   templates: NotificationTemplate[];
 }
+
+type TextVariant = {
+  id: number;
+  title: string;
+  preheader: string;
+  body: string;
+};
 
 export function NotificationContentFields({
   formId,
@@ -37,6 +46,12 @@ export function NotificationContentFields({
   );
   const [selectedTemplate, setSelectedTemplate] =
     useState<NotificationTemplate | null>(initialData || null);
+  const toast = useToast();
+  const [isImproving, setIsImproving] = useState(false);
+  const [variants, setVariants] = useState<{
+    first: TextVariant;
+    second: TextVariant;
+  } | null>(null);
 
   // Автоматически вытаскиваем переменные из текста (например, {{имя}})
   const variables = useMemo(() => {
@@ -78,6 +93,68 @@ export function NotificationContentFields({
     setVariableValues((prev) => ({ ...prev, [variable]: value }));
   };
 
+  const handleImproveText = async () => {
+    const currentValues = store?.getValues<{ title?: string; text?: string }>();
+    const currentTitle = currentValues?.title ?? title;
+    const currentText = currentValues?.text ?? text;
+    const textToImprove = [currentTitle, currentText]
+      .filter((value) => value?.trim())
+      .join('\n\n');
+
+    if (!textToImprove) {
+      toast({
+        title: 'Нет текста для улучшения',
+        description: 'Сначала заполните заголовок или текст уведомления.',
+        status: 'warning',
+        duration: 4000,
+        isClosable: true
+      });
+      return;
+    }
+
+    setIsImproving(true);
+    try {
+      const response = await improveText(textToImprove);
+      setVariants({
+        first: {
+          id: 1,
+          title: response.answerFirst.title,
+          preheader: response.answerFirst.description,
+          body: response.answerFirst.text
+        },
+        second: {
+          id: 2,
+          title: response.answerSecond.title,
+          preheader: response.answerSecond.description,
+          body: response.answerSecond.text
+        }
+      });
+    } catch (error) {
+      toast({
+        title: 'Не удалось улучшить текст',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Произошла неизвестная ошибка.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true
+      });
+    } finally {
+      setIsImproving(false);
+    }
+  };
+
+  const handleApplyVariant = (variant: TextVariant) => {
+    setTitle(variant.title);
+    setText(variant.body);
+    setVariableValues({});
+    store?.setValue('title', variant.title);
+    store?.setValue('text', variant.body);
+    store?.setValue('variableValues', {});
+    setVariants(null);
+  };
+
   return (
     <Box
       as="fieldset"
@@ -85,6 +162,20 @@ export function NotificationContentFields({
       borderRadius="10px"
       p={6}
     >
+      {variants && (
+        <ImproveTextModal
+          isOpen
+          onClose={() => setVariants(null)}
+          firstVariant={variants.first}
+          secondVariant={variants.second}
+          onApply={handleApplyVariant}
+          heading="Варианты улучшения уведомления"
+          fields={[
+            { key: 'title', label: 'Заголовок уведомления' },
+            { key: 'body', label: 'Текст уведомления' }
+          ]}
+        />
+      )}
       <Heading
         fontSize="26px"
         lineHeight="32px"
@@ -109,9 +200,10 @@ export function NotificationContentFields({
           label="Заголовок уведомления"
           placeholder="Например, Вам назначена задача"
           subTitlte="Отображается первой строкой в ленте уведомлений более крупно и заметно"
-          validators={[required()]}
+          validators={[required(), maxLength(50)]}
           initialValue={title}
           maxLength={50}
+          softMaxLength
         />
       </Box>
 
@@ -130,7 +222,11 @@ export function NotificationContentFields({
               text={text}
               variableValues={variableValues}
               onVariableChange={handleVariableChange}
-              onTextChange={setText}
+              onTextChange={(nextText) => {
+                setText(nextText);
+                store?.setValue('text', nextText);
+              }}
+              onTextInput={(nextText) => store?.setValue('text', nextText)}
               placeholder="Введите текст уведомления"
             />
           </>
@@ -141,6 +237,7 @@ export function NotificationContentFields({
             placeholder="Введите текст уведомления"
             minH="155px"
             maxLength={200}
+            softMaxLength
             validators={[required(), maxLength(200)]}
             initialValue={text}
           />
@@ -169,7 +266,10 @@ export function NotificationContentFields({
         justify="flex-end"
         mt={6}
       >
-        <ImproveTextButton isDisabled />
+        <ImproveTextButton
+          onClick={handleImproveText}
+          isLoading={isImproving}
+        />
       </HStack>
     </Box>
   );

@@ -11,7 +11,10 @@ import { countMeaningfulLength } from '@/utils/meaningfulLength';
 import type { CustomTextareaProps } from '../types/types';
 
 const CustomTextarea = forwardRef<HTMLTextAreaElement, CustomTextareaProps>(
-  ({ value, maxLength, showCounter = true, ...rest }, ref) => {
+  (
+    { value, maxLength, showCounter = true, softMaxLength = false, ...rest },
+    ref
+  ) => {
     const currentLength =
       typeof value === 'string' ? countMeaningfulLength(value) : 0;
     const isOverLimit =
@@ -24,6 +27,7 @@ const CustomTextarea = forwardRef<HTMLTextAreaElement, CustomTextareaProps>(
           ref={ref}
           variant="custom"
           value={value}
+          maxLength={softMaxLength ? undefined : maxLength}
           pr={hasCounter ? '70px' : undefined}
           borderColor={isOverLimit ? 'error.500' : 'gray.200'}
           _hover={{ borderColor: isOverLimit ? 'error.500' : '#3182ce' }}

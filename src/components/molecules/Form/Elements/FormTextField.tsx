@@ -26,12 +26,14 @@ function FormTextFieldBase({
   validators,
   subTitlte,
   maxLength,
+  softMaxLength = false,
   rightElement,
   ...rest
 }: FormTextFieldWithRightElementProps) {
-  const allValidators = maxLength
-    ? [...(validators ?? []), maxLengthValidator(maxLength)]
-    : validators;
+  const allValidators =
+    maxLength && !softMaxLength
+      ? [...(validators ?? []), maxLengthValidator(maxLength)]
+      : validators;
 
   const { value, error, onChange, onBlur } = useFormField<string>(name, {
     initialValue,
@@ -39,7 +41,7 @@ function FormTextFieldBase({
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (maxLength !== undefined) {
+    if (maxLength !== undefined && !softMaxLength) {
       const truncated = truncateByMeaningfulLength(e.target.value, maxLength);
       if (truncated !== e.target.value) {
         e.target.value = truncated;
@@ -61,6 +63,7 @@ function FormTextFieldBase({
       onChange={handleChange}
       onBlur={onBlur}
       maxLength={maxLength}
+      softMaxLength={softMaxLength}
     />
   );
 

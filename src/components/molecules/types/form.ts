@@ -70,6 +70,7 @@ export interface FormTextAreaFieldProps<T = string> extends Omit<
   initialValue?: T;
   validators?: Validator<T>[];
   subTitlte?: string;
+  softMaxLength?: boolean;
   validateOnChange?: boolean;
   maxLengthMessage?: string;
   renderControl?: (props: FormTextAreaFieldControlProps<T>) => ReactNode;
@@ -85,6 +86,7 @@ export interface FormTextFieldProps extends Omit<
   initialValue?: string;
   validators?: Validator<string>[];
   subTitlte?: string;
+  softMaxLength?: boolean;
   validateOnChange?: boolean;
   maxLengthMessage?: string;
 }

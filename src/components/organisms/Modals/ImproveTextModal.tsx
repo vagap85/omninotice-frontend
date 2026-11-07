@@ -21,12 +21,18 @@ import { ImproveTextModalProps } from '../types/types';
 export default function ImproveTextModal({
   isOpen,
   onClose,
-  originalVariant,
-  improvedVariant,
-  onApply
+  firstVariant,
+  secondVariant,
+  onApply,
+  heading = 'Варианты по улучшению рассылки',
+  fields = [
+    { key: 'title', label: 'Тема письма' },
+    { key: 'preheader', label: 'Предзаголовок' },
+    { key: 'body', label: 'Текст письма' }
+  ]
 }: ImproveTextModalProps) {
   const [selectedVariantId, setSelectedVariantId] = useState<number>(
-    originalVariant.id
+    firstVariant.id
   );
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
 
@@ -35,15 +41,15 @@ export default function ImproveTextModal({
   if (isOpen !== prevIsOpen) {
     setPrevIsOpen(isOpen);
     if (isOpen) {
-      setSelectedVariantId(originalVariant.id);
+      setSelectedVariantId(firstVariant.id);
     }
   }
 
-  const variants = [originalVariant, improvedVariant];
+  const variants = [firstVariant, secondVariant];
 
   const selectedVariant =
     variants.find((variant) => variant.id === selectedVariantId) ||
-    originalVariant;
+    firstVariant;
 
   return (
     <Modal
@@ -63,7 +69,7 @@ export default function ImproveTextModal({
           fontSize="lg"
           fontWeight="600"
         >
-          Варианты по улучшению рассылки
+          {heading}
         </ModalHeader>
 
         <ModalCloseButton />
@@ -137,54 +143,24 @@ export default function ImproveTextModal({
                     align="stretch"
                     spacing={5}
                   >
-                    <Box>
-                      <Text
-                        color="gray.400"
-                        fontSize="md"
-                        mb={1}
-                      >
-                        Тема письма
-                      </Text>
-                      <Text
-                        fontSize="md"
-                        color="black"
-                      >
-                        {variant.title}
-                      </Text>
-                    </Box>
-
-                    <Box>
-                      <Text
-                        color="gray.400"
-                        fontSize="md"
-                        mb={1}
-                      >
-                        Предзаголовок
-                      </Text>
-                      <Text
-                        fontSize="md"
-                        color="black"
-                      >
-                        {variant.preheader}
-                      </Text>
-                    </Box>
-
-                    <Box>
-                      <Text
-                        color="gray.400"
-                        fontSize="md"
-                        mb={1}
-                      >
-                        Текст письма
-                      </Text>
-                      <Text
-                        fontSize="md"
-                        whiteSpace="pre-line"
-                        color="black"
-                      >
-                        {variant.body}
-                      </Text>
-                    </Box>
+                    {fields.map(({ key, label }) => (
+                      <Box key={key}>
+                        <Text
+                          color="gray.400"
+                          fontSize="md"
+                          mb={1}
+                        >
+                          {label}
+                        </Text>
+                        <Text
+                          fontSize="md"
+                          whiteSpace="pre-line"
+                          color="black"
+                        >
+                          {variant[key]}
+                        </Text>
+                      </Box>
+                    ))}
                   </VStack>
                 </Box>
               );

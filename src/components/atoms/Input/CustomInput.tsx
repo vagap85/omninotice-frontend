@@ -6,7 +6,10 @@ import { countMeaningfulLength } from '@/utils/meaningfulLength';
 import { CustomInputProps } from '../types/types';
 
 const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
-  ({ value, maxLength, showCounter = true, ...rest }, ref) => {
+  (
+    { value, maxLength, showCounter = true, softMaxLength = false, ...rest },
+    ref
+  ) => {
     const currentLength =
       typeof value === 'string' ? countMeaningfulLength(value) : 0;
     const isOverLimit =
@@ -19,6 +22,7 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
           ref={ref}
           variant="custom"
           value={value}
+          maxLength={softMaxLength ? undefined : maxLength}
           pr={hasCounter ? '72px' : undefined}
           borderColor={isOverLimit ? 'error.500' : 'gray.200'}
           _hover={{ borderColor: isOverLimit ? 'error.500' : '#3182ce' }}
