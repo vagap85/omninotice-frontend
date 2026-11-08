@@ -31,7 +31,7 @@ export const FormattingToolbar = memo(function FormattingToolbar({
     useState<ActiveFormats>(EMPTY_ACTIVE_FORMATS);
 
   useEffect(() => {
-    if (!editor?.isInitialized) return;
+    if (!editor) return;
 
     const updateActiveFormats = () => {
       const nextFormats = getActiveFormats(editor);
@@ -45,11 +45,13 @@ export const FormattingToolbar = memo(function FormattingToolbar({
       );
     };
 
-    updateActiveFormats();
+    editor.on('create', updateActiveFormats);
     editor.on('selectionUpdate', updateActiveFormats);
     editor.on('transaction', updateActiveFormats);
+    updateActiveFormats();
 
     return () => {
+      editor.off('create', updateActiveFormats);
       editor.off('selectionUpdate', updateActiveFormats);
       editor.off('transaction', updateActiveFormats);
     };
