@@ -7,12 +7,17 @@ import {
   Spinner,
   Center
 } from '@chakra-ui/react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { NotificationProvider } from 'omni-notice-sigma-notification-widget';
 import 'omni-notice-sigma-notification-widget/style.css';
 import { LuLightbulb } from 'react-icons/lu';
 
+import {
+  getTemplates,
+  getConnectedApps,
+  type ConnectedApp
+} from '@/api/vishenka';
 import { useAuth } from '@/auth/AuthContext';
 import NotificationLayout from '@/components/layouts/NotificationLayout';
 import { FormProvider } from '@/components/molecules/Form/Providers/FormProvider';
@@ -25,11 +30,11 @@ import { PushNotificationProvider } from '@/components/organisms/Forms/Push/Prov
 import SelectingRecipientApp from '@/components/organisms/Forms/Push/SelectingRecipientApp/SelectingRecipientApp';
 import '@/lib/notification-widget/notification-widget.css';
 
-import { getTemplates, getConnectedApps, ConnectedApp } from '@/api/vishenka';
-import { NotificationTemplate } from '@/types/template';
+import type { NotificationTemplate } from '@/types/template';
 
 const STORAGE_KEY_TOUR_COMPLETED = 'onboarding_tour_completed';
 const STORAGE_KEY_FIRST_VISIT = 'onboarding_first_visit';
+type TemplatesState = NotificationTemplate[] | { date: string };
 
 export default function PushNotification() {
   const { isAuthorized } = useAuth();
@@ -50,8 +55,9 @@ function PushCreateNotificatonInner({
   const [searchParams] = useSearchParams();
   const templateId = searchParams.get('templateId') || '';
 
-  const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
+  const [templates, setTemplates] = useState<TemplatesState>([]);
   const [isFetchingTemplates, setIsFetchingTemplates] = useState<boolean>(true);
+  const [templatesError, setTemplatesError] = useState(false);
 
   const [connectedApps, setConnectedApps] = useState<ConnectedApp[]>([]);
   const [isFetchingApps, setIsFetchingApps] = useState<boolean>(true);
@@ -71,7 +77,10 @@ function PushCreateNotificatonInner({
         if (isMounted) setTemplates(data);
       })
       .catch((err) => {
-        console.error('Не удалось загрузить шаблоны:', err);
+        if (isMounted) {
+          setTemplatesError(true);
+          console.error('Не удалось загрузить шаблоны:', err);
+        }
       })
       .finally(() => {
         if (isMounted) setIsFetchingTemplates(false);
@@ -119,11 +128,6 @@ function PushCreateNotificatonInner({
     }
   }, []);
 
-  const templateData = useMemo(() => {
-    if (!templateId) return null;
-    return templates.find((t) => t.id === templateId) || null;
-  }, [templates, templateId]);
-
   const handleCompleteTour = () => {
     localStorage.setItem(STORAGE_KEY_TOUR_COMPLETED, 'true');
     setIsTourOpen(false);
@@ -147,6 +151,8 @@ function PushCreateNotificatonInner({
   }
 
   const hasConnectedApps = connectedApps.length > 0;
+  const availableTemplates = Array.isArray(templates) ? templates : [];
+  const hasTemplatesError = templatesError || !Array.isArray(templates);
 
   return (
     <NotificationProvider
@@ -178,22 +184,18 @@ function PushCreateNotificatonInner({
               {!hasConnectedApps && <IncludeServices />}
 
               <Box data-tour="notification-text">
-                {isFetchingTemplates ? (
-                  <Center py={10}>
-                    <Spinner
-                      color="#346895"
-                      size="lg"
-                      thickness="3px"
-                    />
-                  </Center>
-                ) : (
-                  <NotificationContentFields
-                    key={templateId || 'new'}
-                    formId="pushNotification"
-                    initialData={templateData}
-                    templates={templates}
-                  />
-                )}
+                <NotificationContentFields
+                  key={templateId || 'new'}
+                  formId="pushNotification"
+                  initialData={
+                    availableTemplates.find(
+                      (template) => template.id === templateId
+                    ) ?? null
+                  }
+                  templates={availableTemplates}
+                  templatesLoading={isFetchingTemplates}
+                  templatesError={hasTemplatesError}
+                />
               </Box>
 
               <Box data-tour="action-block">
