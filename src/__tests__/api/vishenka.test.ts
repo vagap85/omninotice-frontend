@@ -13,6 +13,8 @@ import {
   dispatchNotification,
   DispatchError,
   generateRequestId,
+  getTemplates,
+  invalidateTemplatesCache,
   type DispatchRequest
 } from '@/api/vishenka';
 import { clearAuthCookies, saveAuthCookies } from '@/auth/authCookies';
@@ -281,5 +283,80 @@ describe('generateRequestId', () => {
   test('генерирует уникальные ID', () => {
     const ids = new Set(Array.from({ length: 100 }, () => generateRequestId()));
     expect(ids.size).toBe(100);
+  });
+});
+
+describe('getTemplates', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn());
+    vi.stubEnv('VITE_VISHENKA_BASE_URL', 'https://vishenka.test');
+    vi.stubEnv('VITE_SYNORA_PROJECT_ID', 'project-1');
+    saveAuthCookies({
+      userId: 'user-1',
+      login: 'user@example.com',
+      accountId: 'account-1',
+      accessToken: 'delegated-token'
+    });
+    invalidateTemplatesCache();
+  });
+
+  afterEach(() => {
+    clearAuthCookies();
+    invalidateTemplatesCache();
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  test('throws TemplatesError for a successful response with an invalid schema', async () => {
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        detail: { code: 'OK', message: 'Шаблоны получены' },
+        data: [
+          {
+            id: 'welcome_template',
+            title: 'Добро пожаловать, {{name}}!',
+            body: 'Ваш аккаунт в проекте {{project}} успешно активирован.',
+            buttonText: 'Перейти в профиль'
+          },
+          {
+            id: 'alert_template',
+            title: 'Важное уведомление: {{event}}',
+            body: 'Здравствуйте, {{name}}! Проверьте статус задачи в системе.',
+            buttonText: 'Открыть'
+          }
+        ],
+        info: { count: 2 }
+      })
+    });
+
+    await expect(getTemplates()).rejects.toMatchObject({
+      name: 'TemplatesError',
+      status: 200,
+      code: 'INVALID_RESPONSE'
+    });
+  });
+
+  test('returns templates with the expected schema', async () => {
+    const templates = [
+      {
+        id: 'welcome_template',
+        name: 'Welcome',
+        title: 'Добро пожаловать, {{name}}!',
+        body: 'Ваш аккаунт активирован.',
+        channel: 'cherry',
+        variables: [{ key: 'name', label: 'Имя' }],
+        updatedAt: '2026-11-08T00:00:00.000Z',
+        usageCount: 0
+      }
+    ];
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ data: templates })
+    });
+
+    await expect(getTemplates()).resolves.toEqual(templates);
   });
 });

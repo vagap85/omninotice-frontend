@@ -41,7 +41,8 @@ export class DispatchError extends Error {
 export class TemplatesError extends Error {
   constructor(
     public status: number,
-    message: string
+    message: string,
+    public code: 'HTTP_ERROR' | 'INVALID_RESPONSE' = 'HTTP_ERROR'
   ) {
     super(message);
     this.name = 'TemplatesError';
@@ -183,6 +184,46 @@ export async function dispatchNotification(
 
 let cachedTemplates: NotificationTemplate[] | null = null;
 
+const TEMPLATE_CHANNELS = new Set([
+  'cherry',
+  'email',
+  'sms',
+  'telegram',
+  'max'
+]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isNotificationTemplate(value: unknown): value is NotificationTemplate {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.id === 'string' &&
+    typeof value.name === 'string' &&
+    typeof value.title === 'string' &&
+    typeof value.body === 'string' &&
+    typeof value.channel === 'string' &&
+    TEMPLATE_CHANNELS.has(value.channel) &&
+    Array.isArray(value.variables) &&
+    value.variables.every(
+      (variable) =>
+        isRecord(variable) &&
+        typeof variable.key === 'string' &&
+        typeof variable.label === 'string' &&
+        (variable.isAutoFilled === undefined ||
+          typeof variable.isAutoFilled === 'boolean')
+    ) &&
+    typeof value.updatedAt === 'string' &&
+    typeof value.usageCount === 'number' &&
+    Number.isFinite(value.usageCount) &&
+    (value.buttonText === undefined || typeof value.buttonText === 'string')
+  );
+}
+
 export async function getTemplates(
   forceRefresh = false
 ): Promise<NotificationTemplate[]> {
@@ -220,8 +261,20 @@ export async function getTemplates(
     );
   }
 
-  const json = await response.json();
-  const data = (json.data || []) as NotificationTemplate[];
+  const json: unknown = await response.json();
+  if (
+    !isRecord(json) ||
+    !Array.isArray(json.data) ||
+    !json.data.every(isNotificationTemplate)
+  ) {
+    throw new TemplatesError(
+      response.status,
+      'Ответ сервера содержит шаблоны в неверном формате. Пожалуйста, войдите в аккаунт повторно.',
+      'INVALID_RESPONSE'
+    );
+  }
+
+  const data = json.data;
 
   cachedTemplates = data;
 

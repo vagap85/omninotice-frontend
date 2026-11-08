@@ -1,7 +1,20 @@
-import { Box, Heading, HStack, Icon, Text, useToast } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  HStack,
+  Icon,
+  Spinner,
+  Text,
+  useToast
+} from '@chakra-ui/react';
 import { useState, useMemo, useEffect, useContext } from 'react';
 import { LuCircleAlert } from 'react-icons/lu';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useNavigate } from 'react-router-dom';
 
+import { useAuth } from '@/auth/AuthContext';
 import { improveText } from '@/api/improveText';
 import EditableTextWithVariables from '@/components/molecules/EditableTextWithVariables/EditableTextWithVariables';
 import ImproveTextButton from '@/components/molecules/ImproveTextButton/ImproveTextButton';
@@ -15,11 +28,14 @@ import {
 } from '@/components/molecules/Form/validators/validators';
 import TemplateSelector from '@/components/molecules/TemplateSelector/TemplateSelector';
 import { NotificationTemplate } from '@/types/template';
+import { ROUTES } from '@/routing/routes';
 
 interface NotificationContentFieldsProps {
   formId: string;
   initialData?: NotificationTemplate | null;
   templates: NotificationTemplate[];
+  templatesLoading?: boolean;
+  templatesError?: boolean;
 }
 
 type TextVariant = {
@@ -32,8 +48,12 @@ type TextVariant = {
 export function NotificationContentFields({
   formId,
   initialData,
-  templates
+  templates,
+  templatesLoading = false,
+  templatesError = false
 }: NotificationContentFieldsProps) {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const registryContext = useContext(FormsRegistryContext);
   const store = registryContext
     ? registryContext.getOrCreateStore(formId)
@@ -185,13 +205,52 @@ export function NotificationContentFields({
       >
         Текст уведомления
       </Heading>
-
       <Box data-tour="template-selector">
-        <TemplateSelector
-          onSelect={handleTemplateSelect}
-          selectedTemplate={selectedTemplate}
-          templates={templates}
-        />
+        {templatesError ? (
+          <TemplateSelectorError
+            onLogin={() => {
+              logout();
+              navigate(ROUTES.login);
+            }}
+          />
+        ) : templatesLoading ? (
+          <Flex
+            align="center"
+            gap={2}
+            py={2}
+          >
+            <Spinner
+              color="#346895"
+              size="sm"
+            />
+            <Text
+              color="#64748B"
+              fontSize="sm"
+            >
+              Загружаем шаблоны…
+            </Text>
+          </Flex>
+        ) : (
+          <ErrorBoundary
+            FallbackComponent={() => (
+              <TemplateSelectorError
+                onLogin={() => {
+                  logout();
+                  navigate(ROUTES.login);
+                }}
+              />
+            )}
+            onError={(error, info) =>
+              console.error('Ошибка отображения шаблонов:', error, info)
+            }
+          >
+            <TemplateSelector
+              onSelect={handleTemplateSelect}
+              selectedTemplate={selectedTemplate}
+              templates={templates}
+            />
+          </ErrorBoundary>
+        )}
       </Box>
 
       <Box mt={4}>
@@ -276,6 +335,45 @@ export function NotificationContentFields({
         />
       </HStack>
     </Box>
+  );
+}
+
+function TemplateSelectorError({ onLogin }: { onLogin: () => void }) {
+  return (
+    <Flex
+      align="center"
+      gap={2}
+      p={3}
+      bg="#FEF2F2"
+      borderRadius="md"
+    >
+      <Icon
+        as={LuCircleAlert}
+        boxSize={6}
+        color="#EF4444"
+        flexShrink={0}
+      />
+      <Flex
+        align="center"
+        flexWrap="wrap"
+        gap={2}
+      >
+        <Text color="#12233F">
+          Не удалось загрузить шаблоны. Пожалуйста, войдите в аккаунт повторно.
+        </Text>
+        <Button
+          variant="ghost"
+          color="#3B6EA0"
+          onClick={onLogin}
+          minH="unset"
+          h="unset"
+          p={0}
+          _hover={{ bg: 'transparent' }}
+        >
+          Перезайти
+        </Button>
+      </Flex>
+    </Flex>
   );
 }
 

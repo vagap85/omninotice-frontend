@@ -11,12 +11,16 @@ import {
   InputLeftElement,
   SimpleGrid,
   Spinner,
-  Text
+  Text,
+  VStack,
+  Icon
 } from '@chakra-ui/react';
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ErrorBoundary, useErrorBoundary } from 'react-error-boundary';
 
-import { getTemplates } from '@/api/vishenka';
+import { getTemplates, TemplatesError } from '@/api/vishenka';
+import { useAuth } from '@/auth/AuthContext';
 import { ROUTES } from '@/routing/routes';
 import cherryIcon from '@/assets/icons/cherry.svg';
 import mailIcon from '@/assets/icons/mail.svg';
@@ -27,6 +31,7 @@ import telegramIcon from '@/assets/icons/telegram.svg';
 import { ErrorState } from '@/components/molecules/ErrorState/ErrorState';
 import { TemplateCard } from '@/components/molecules/TemplateCard/TemplateCard';
 import { NotificationTemplate } from '@/types/template';
+import { LuCircleAlert } from 'react-icons/lu';
 
 type ChannelTab = 'cherry' | 'email' | 'sms' | 'telegram' | 'max';
 
@@ -58,8 +63,58 @@ const CHANNEL_TABS: TabItem[] = [
   { id: 'max', label: 'Max', icon: maxIcon, iconSize: 20, isDisabled: true }
 ];
 
-const TemplatesPage: React.FC = () => {
+const TemplatesErrorFallback: React.FC = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogin = () => {
+    logout();
+    navigate(ROUTES.login);
+  };
+
+  return (
+    <Center
+      minH="60vh"
+      px={6}
+    >
+      <VStack
+        spacing={4}
+        bg="white"
+        borderRadius="20px"
+        p={10}
+        textAlign="center"
+        boxShadow="0 1px 3px rgba(30, 41, 59, 0.08)"
+      >
+        <Icon
+          as={LuCircleAlert}
+          boxSize={10}
+          color="#EF4444"
+          flexShrink={0}
+        />
+        <Heading
+          as="h1"
+          color="#12233F"
+          fontSize="xl"
+        >
+          При загрузке шаблонов произошла ошибка
+        </Heading>
+        <Text color="#52525B">Пожалуйста, войдите в аккаунт повторно</Text>
+        <Button
+          bg="#3B6EA0"
+          color="white"
+          onClick={handleLogin}
+          _hover={{ bg: '#2f5a85' }}
+        >
+          Перезайти
+        </Button>
+      </VStack>
+    </Center>
+  );
+};
+
+const TemplatesPageContent: React.FC = () => {
+  const navigate = useNavigate();
+  const { showBoundary } = useErrorBoundary();
   const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
@@ -75,13 +130,18 @@ const TemplatesPage: React.FC = () => {
       setTemplates(data);
       setError(false);
     } catch (err) {
+      if (err instanceof TemplatesError && err.code === 'INVALID_RESPONSE') {
+        showBoundary(err);
+        return;
+      }
+
       console.error('Ошибка загрузки шаблонов:', err);
       setError(true);
       setTemplates([]);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [showBoundary]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -318,5 +378,16 @@ const TemplatesPage: React.FC = () => {
     </Container>
   );
 };
+
+const TemplatesPage: React.FC = () => (
+  <ErrorBoundary
+    FallbackComponent={TemplatesErrorFallback}
+    onError={(error, info) =>
+      console.error('Ошибка отображения шаблонов:', error, info)
+    }
+  >
+    <TemplatesPageContent />
+  </ErrorBoundary>
+);
 
 export default TemplatesPage;
