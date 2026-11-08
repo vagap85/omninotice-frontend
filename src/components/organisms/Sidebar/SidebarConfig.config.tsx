@@ -1,7 +1,6 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { BsGrid, BsPlusLg } from 'react-icons/bs';
+import { BsPlusLg } from 'react-icons/bs';
 import { FiFileText, FiLink, FiMail } from 'react-icons/fi';
-import { GoHistory } from 'react-icons/go';
 
 import {
   SidebarMenuEntry,
@@ -61,17 +60,6 @@ export const mailingMenuEntries = createMenuEntries;
 export const sidebarMenuItems: SidebarMenuItemProps[] = [
   {
     leftIcon: (
-      <BsGrid
-        size={MENU_ICON_SIZE}
-        strokeWidth={0}
-      />
-    ),
-    text: 'Обзор',
-    as: 'a',
-    disabled: true
-  },
-  {
-    leftIcon: (
       <FiMail
         size={MENU_ICON_SIZE}
         strokeWidth={1}
@@ -86,17 +74,6 @@ export const sidebarMenuItems: SidebarMenuItemProps[] = [
     ),
     submenuItems: mailingMenuEntries,
     submenuType: 'inside'
-  },
-  {
-    leftIcon: (
-      <GoHistory
-        size={MENU_ICON_SIZE}
-        strokeWidth={0}
-      />
-    ),
-    text: 'История',
-    as: 'a',
-    disabled: true
   },
   {
     leftIcon: (
