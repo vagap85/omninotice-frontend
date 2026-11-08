@@ -8,7 +8,7 @@ export const sendMessages: Record<SendVariant, SendMessages> = {
       `Отправить ${count} ${pluralize(count, ['письмо', 'письма', 'писем'])}?`,
     successMessage: (count) => ({
       title: 'Рассылка успешно отправлена',
-      description: `Мы отправили письма на ${count} электронных адресов`
+      description: `Мы отправили ${pluralize(count, ['письмо', 'письма', 'письма'])} на ${count} ${pluralize(count, ['электронный адрес', 'электронных адреса', 'электронных адресов'])}`
     })
   },
   push: {
@@ -16,7 +16,7 @@ export const sendMessages: Record<SendVariant, SendMessages> = {
       `Отправить уведомление ${count} ${pluralize(count, ['получателю', 'получателям', 'получателям'])}?`,
     successMessage: (count) => ({
       title: 'Рассылка успешно отправлена',
-      description: `Уведомление отправлено ${count} получателям`
+      description: `Уведомление отправлено ${count} ${pluralize(count, ['получателю', 'получателям', 'получателям'])}`
     })
   },
   telegram: {
