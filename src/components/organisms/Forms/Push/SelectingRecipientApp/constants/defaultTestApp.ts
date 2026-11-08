@@ -7,10 +7,7 @@ import { DEFAULT_ICON_COLOR } from './iconColors';
  * Используется, если у пользователя нет ни одного подключённого сервиса.
  */
 export const DEFAULT_TEST_APP: ConnectedApp = {
-  id: 'sigma',
-  name: 'Omni Notice (Test)',
-  platform: 'OmniNoticeTest',
-  count: 1,
-  isActive: true,
-  iconColor: DEFAULT_ICON_COLOR
+  project_id: 'sigma',
+  title: 'Omni Notice (Test)',
+  color: DEFAULT_ICON_COLOR
 };

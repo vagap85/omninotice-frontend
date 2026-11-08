@@ -8,8 +8,6 @@ import {
   ALL_RECIPIENTS_FALLBACK_ID,
   type ConnectedApp
 } from '@/api/vishenka';
-import CollectionIcon from './utils/CollectionIcon';
-import { getCollectionIconUrl } from './utils/collectionIconUrl';
 import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
 import { useFormValues } from '@/components/molecules/Form/hooks/useFormValues';
@@ -22,7 +20,6 @@ import type {
 import { sanitizeSubmitValue } from '@/utils/sanitizeSubmitValue';
 import { countMeaningfulLength } from '@/utils/meaningfulLength';
 import type { SelectedApp } from './types/types';
-import { getIconBackgroundColor } from './utils/iconBackgroundColor';
 
 import AllSelectBoxes from './AllSelectBoxes';
 import { useSelectedUsers } from './hooks/useSelectedUsers';
@@ -37,7 +34,6 @@ interface PanelContentProps {
   connectedApps: ConnectedApp[];
 }
 
-// Функция для замены {{var}} на значения
 const interpolateText = (text: string, vars: Record<string, string>) => {
   if (!text) return '';
   let result = text;
@@ -75,25 +71,30 @@ function PanelContentInner({ isAuthorized }: { isAuthorized: boolean }) {
     navigate(ROUTES.login, { state: { from: location } });
 
   const recipientsCount =
-    recipientsMode === 'all' ? (selectedApp?.count ?? 0) : selectedUsers.length;
+    recipientsMode === 'all' ? undefined : selectedUsers.length;
 
   const formValues = useFormValues<
     PushNotificationFormValues & {
       variableValues?: Record<string, string>;
     }
   >('pushNotification');
+
   const contentText = formValues.text || '';
   const variables = contentText.match(/\{\{([^}]+)\}\}/g) || [];
+
   const allVariablesFilled = variables.every((variable) =>
     formValues.variableValues?.[variable.slice(2, -2)]?.trim()
   );
+
   const resolvedContentText = contentText.replace(
     /\{\{([^}]+)\}\}/g,
     (_, variable: string) => formValues.variableValues?.[variable] ?? ''
   );
+
   const isContentWithinLimits =
     countMeaningfulLength(formValues.title || '') <= 50 &&
     countMeaningfulLength(resolvedContentText) <= 200;
+
   const isContentValid = Boolean(
     formValues.title?.trim() &&
     contentText.trim() &&
@@ -157,7 +158,8 @@ function PanelContentInner({ isAuthorized }: { isAuthorized: boolean }) {
         throw new Error('Приложение не выбрано');
       }
 
-      if (app.platform === 'OmniNoticeTest') {
+      // Проверка на тестовое приложение (заменили platform на title)
+      if (app.title === 'OmniNoticeTest') {
         add({
           status: 'info',
           title: payload.title,
@@ -171,18 +173,9 @@ function PanelContentInner({ isAuthorized }: { isAuthorized: boolean }) {
                   width: 38,
                   height: 38,
                   borderRadius: 6,
-                  backgroundColor: getIconBackgroundColor(
-                    app.iconColor,
-                    app.bgIconColor
-                  )
+                  backgroundColor: app.color ?? '#3B6EA0'
                 }}
-              >
-                <CollectionIcon
-                  icon={app.icon}
-                  size={15}
-                  color={app.iconColor}
-                />
-              </span>
+              />
             )
           },
           action: {
@@ -193,16 +186,12 @@ function PanelContentInner({ isAuthorized }: { isAuthorized: boolean }) {
 
         localStorage.setItem('onboarding_real_send', 'true');
       } else {
-        const iconUrl = getCollectionIconUrl(app.icon);
         const response = await dispatchNotification(
           {
-            application_id: app.id ?? 'sigma',
+            application_id: app.project_id, // Заменили app.id на app.project_id
             channels: ['in_app'],
             title: payload.title,
             body: payload.text,
-            picture: {
-              icon: iconUrl
-            },
             recipients:
               payload.recipientsMode === 'individual'
                 ? (payload.selectedUsers?.map((u) => u.id) ?? [])

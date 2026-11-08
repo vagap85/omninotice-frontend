@@ -16,18 +16,18 @@ export default function UsersSelect({ value, onChange }: UsersSelectProps) {
     setRecipientsError
   } = useSelectingRecipientApp();
   const { selectedUsers, removeUser, addUser } = useSelectedUsers();
-
+  console.log(selectedApp);
   const selectedValue = value !== undefined ? value : recipientsMode;
 
   const handleChange = (next: RecipientsMode) => {
     if (value === undefined) setRecipientsMode(next);
     onChange?.(next);
-    setRecipientsError(null); // при смене режима прошлая ошибка уже не актуальна
+    setRecipientsError(null);
   };
 
   const handleAddUser = (user: Parameters<typeof addUser>[0]) => {
     addUser(user);
-    setRecipientsError(null); // как только выбрали хотя бы одного — ошибка снимается сама
+    setRecipientsError(null);
   };
 
   return (
@@ -48,15 +48,16 @@ export default function UsersSelect({ value, onChange }: UsersSelectProps) {
         isDisabled={selectedApp == null}
       />
 
-      {selectedValue == 'individual' && selectedApp && (
+      {selectedValue === 'individual' && selectedApp && (
         <SearchInput
-          platform={selectedApp.platform}
+          key={selectedApp.project_id}
+          projectId={selectedApp.project_id}
           onSelectUser={handleAddUser}
           error={recipientsError ? true : false}
         />
       )}
 
-      {selectedUsers && selectedValue == 'individual' && (
+      {selectedUsers && selectedValue === 'individual' && (
         <Flex
           flexWrap={'wrap'}
           gap={1}
@@ -116,12 +117,13 @@ export default function UsersSelect({ value, onChange }: UsersSelectProps) {
           fontSize="md"
           color="#008F6D"
           fontWeight="medium"
-          lineHeight={'24px'}
+          lineHeight="24px"
         >
-          Добавлено получателей:{' '}
-          {selectedValue == 'all'
-            ? selectedApp?.count
-            : (selectedUsers.length ?? 'Ошибка получения данных')}
+          {selectedValue === 'all'
+            ? 'Выбраны все пользователи'
+            : selectedUsers
+              ? `Добавлено получателей: ${selectedUsers.length}`
+              : 'Ошибка получения данных'}
         </Text>
       )}
     </Flex>

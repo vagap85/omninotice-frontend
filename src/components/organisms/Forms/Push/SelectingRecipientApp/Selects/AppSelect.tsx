@@ -6,29 +6,12 @@ import type { ConnectedApp } from '@/api/vishenka';
 import { useSelectingRecipientApp } from '../hooks/useSelectingRecipientApp';
 import { mapToSelectedApp } from '../utils/mapToSelectedApp';
 import type { AppSelectProps, SelectingApp } from '../types/types';
-import { DEFAULT_ICON_COLOR } from '../constants/iconColors';
-
-const DEFAULT_ICON_META = {
-  id: 'Omni Notice',
-  path: 'collections/bell-ring-icon.svg',
-  title: 'Стандартная иконка Omni Notice',
-  description: 'Если не выбрать другую, получатель увидит эту',
-};
 
 function mapToSelectingApp(app: ConnectedApp): SelectingApp {
-  const standartIcon = app.standartIcon ?? {
-    ...DEFAULT_ICON_META
-  };
-
   return {
-    id: app.id,
-    name: app.name,
-    count: app.count ?? 0,
-    isActive: app.isActive ?? true,
-    platform: app.platform ?? '',
-    iconColor: app.iconColor ?? DEFAULT_ICON_COLOR,
-    bgIconColor: app.bgIconColor,
-    standartIcon
+    project_id: app.project_id,
+    title: app.title,
+    color: app.color
   };
 }
 
@@ -51,22 +34,10 @@ export default function AppSelect({
   const selected = value !== undefined ? value : internalSelected;
 
   const handleSelect = (app: SelectingApp): void => {
-    if (!app.isActive) return;
     if (value === undefined) setInternalSelected(app);
 
-    // Конвертируем в ConnectedApp и передаём в общий маппер
-    const connectedLike: ConnectedApp = {
-      id: app.id,
-      name: app.name,
-      platform: app.platform,
-      count: app.count,
-      isActive: app.isActive,
-      standartIcon: app.standartIcon,
-      iconColor: app.iconColor,
-      bgIconColor: app.bgIconColor
-    };
-
-    setSelectedApp(mapToSelectedApp(connectedLike));
+    // Передаем выбранное приложение в стейт
+    setSelectedApp(mapToSelectedApp(app as unknown as ConnectedApp));
     onChange?.(app);
   };
 
@@ -80,8 +51,9 @@ export default function AppSelect({
       const detail = (event as CustomEvent<{ targetSelector?: string }>).detail;
       if (detail?.targetSelector !== '[data-tour="app-select"]') return;
 
-      const testApp = apps.find((app) => app.platform === 'OmniNoticeTest');
-      if (testApp && testApp.isActive) handleSelectRef.current(testApp);
+      // Ищем тестовое приложение по title (так как platform убрали)
+      const testApp = apps.find((app) => app.title === 'OmniNoticeTest');
+      if (testApp) handleSelectRef.current(testApp);
     };
 
     window.addEventListener('onboarding:tour-step-change', onTourStepChange);
@@ -96,18 +68,16 @@ export default function AppSelect({
     <DropdownSelect
       label="Приложение"
       placeholder="Выберите приложение"
-      value={selected?.id ?? null}
+      value={selected?.project_id ?? null}
       options={apps.map((app) => ({
-        id: app.id,
-        label: app.name,
-        count: app.count,
-        isActive: app.isActive
+        id: app.project_id,
+        label: app.title
       }))}
-      error={appError ? 'Выбор приложение обязателен' : null}
+      error={appError ? 'Выбор приложения обязателен' : null}
       helperText="В этом списке отображаются все доступные вам приложения. Уведомление появится в выбранном приложении"
       dataTour="app-select"
       onSelect={(option) => {
-        const app = apps.find((item) => item.id === option.id);
+        const app = apps.find((item) => item.project_id === option.id);
         if (app) handleSelect(app);
       }}
     />

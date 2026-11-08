@@ -97,14 +97,14 @@ export interface SendControllerProps<TPayload> {
   variant: SendVariant;
   isOpen: boolean;
   onClose: () => void;
-  recipientsCount: number;
+  recipientsCount?: number;
   getPayload: () => TPayload;
   onSend: (payload: TPayload, signal: AbortSignal) => Promise<void>;
 }
 
 export type SendMessages = {
-  confirmMessage: (count: number) => string;
-  successMessage: (count: number) => { title: string; description: string };
+  confirmMessage: (count?: number) => string;
+  successMessage: (count?: number) => { title: string; description: string };
 };
 
 export interface PushPayload {
