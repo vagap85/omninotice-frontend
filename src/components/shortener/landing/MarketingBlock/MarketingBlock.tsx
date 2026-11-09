@@ -89,7 +89,7 @@ export function MarketingBlock() {
               <div className="marketing-block__content">
                 <h3 className="marketing-block__card-title">Короткие ссылки</h3>
                 <p className="marketing-block__card-description">
-                  Легко делитесь ссылками в мессенджерах, соцсетях и письмах.
+                  Легко делитесь ссылками в&nbsp;мессенджерах, соцсетях и&nbsp;письмах.
                 </p>
               </div>
             </div>
@@ -104,7 +104,7 @@ export function MarketingBlock() {
                   Аналитика переходов
                 </h3>
                 <p className="marketing-block__card-description">
-                  Смотрите, сколько людей переходят по ссылкам, и откуда.
+                  Смотрите, сколько людей переходят по&nbsp;ссылкам, и&nbsp;откуда.
                 </p>
               </div>
             </div>
@@ -119,8 +119,7 @@ export function MarketingBlock() {
                   Удобное управление с регистрацией
                 </h3>
                 <p className="marketing-block__card-description">
-                  Редактируйте ссылки, добавляйте UTM-метки и сохраняйте их в
-                  личном кабинете.
+                  Редактируйте ссылки, добавляйте UTM-метки и&nbsp;сохраняйте их в&nbsp;личном кабинете.
                 </p>
               </div>
             </div>
@@ -135,7 +134,7 @@ export function MarketingBlock() {
                   Безопасность и надежность
                 </h3>
                 <p className="marketing-block__card-description">
-                  Проверяем ссылки на вирусы и фишинг.
+                  Проверяем ссылки на&nbsp;вирусы и&nbsp;фишинг.
                 </p>
               </div>
             </div>
