@@ -1,8 +1,8 @@
 export const formattingOptions = [
   { label: 'Жирный', format: 'bold', icon: <strong>В</strong> },
   { label: 'Курсив', format: 'italic', icon: <i>/</i> },
-  { label: 'Подчёркнутый', format: 'underline', icon: <u>U</u> },
-  { label: 'Зачёркнутый', format: 'strike', icon: <s>T</s> },
+  { label: 'Подчеркнутый', format: 'underline', icon: <u>U</u> },
+  { label: 'Зачеркнутый', format: 'strike', icon: <s>T</s> },
   { label: 'Моноширинный', format: 'code', icon: <span>M</span> }
 ] as const;
 
