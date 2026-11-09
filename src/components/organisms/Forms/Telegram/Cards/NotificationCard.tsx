@@ -38,11 +38,11 @@ export default function TelegrNotificationCard() {
         justifyContent={'center'}
         borderRadius={'6px 6px 15px 15px'}
         bg={'#2563EB'}
-        color={"white"}
+        color={'white'}
         p={3}
-        fontSize={"14px"}
-        fontWeight={"medium"}
-        lineHeight={"1em"}
+        fontSize={'14px'}
+        fontWeight={'medium'}
+        lineHeight={'1em'}
       >
         {button}
       </Flex>

@@ -110,8 +110,7 @@ export default function SelectIconModal({
                     bg={
                       selectedApp
                         ? getIconBackgroundColor(
-                            selectedApp.iconColor,
-                            selectedApp.bgIconColor
+                            selectedApp.color
                           )
                         : undefined
                     }
@@ -121,10 +120,10 @@ export default function SelectIconModal({
                       <CollectionIcon
                         icon={icon}
                         size={15}
-                        color={selectedApp?.iconColor}
+                        color={selectedApp?.color}
                       />
                     ) : Icon ? (
-                      <Icon color={selectedApp?.iconColor} />
+                      <Icon color={selectedApp?.color} />
                     ) : null}
                   </Flex>
                   <Text

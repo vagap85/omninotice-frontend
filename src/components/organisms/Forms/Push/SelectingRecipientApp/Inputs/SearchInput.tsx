@@ -5,12 +5,13 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  Text
+  Text,
+  Spinner
 } from '@chakra-ui/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 
-import { fetchGetUsers } from '@/api/fetches';
-import type { User } from '@/api/types';
+import { getProjectUsers, type ProjectUser } from '@/api/vishenka';
+import type { User } from '@/api/types'; // Импортируем тип для избавления от any
 import CloseIcon from '@/components/atoms/Icons/CloseIcon';
 import SearchIcon from '@/components/atoms/Icons/SearchIcon';
 
@@ -18,61 +19,43 @@ import { useSelectedUsers } from '../hooks/useSelectedUsers';
 import type { SearchInputProps } from '../types/types';
 
 const MIN_QUERY_LENGTH = 3;
-const DEBOUNCE_DELAY = 300;
 
 export default function SearchInput({
-  platform,
+  projectId,
   onSelectUser,
   error
 }: SearchInputProps) {
   const { selectedUsers, addUser } = useSelectedUsers();
-
   const [value, setValue] = useState<string>('');
-  const [usersInSearch, setUsersInSearch] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [allUsers, setAllUsers] = useState<ProjectUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
-  const abortControllerRef = useRef<AbortController | null>(null);
 
   const queryTooShort = value.trim().length < MIN_QUERY_LENGTH;
 
+  // Загружаем пользователей при монтировании
   useEffect(() => {
-    if (queryTooShort) {
-      abortControllerRef.current?.abort();
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      return;
-    }
+    let isMounted = true;
+    const controller = new AbortController();
 
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-
-    debounceRef.current = setTimeout(async () => {
-      abortControllerRef.current?.abort();
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
-
-      setIsLoading(true);
-      try {
-        const response = await fetchGetUsers(value, platform, {
-          signal: controller.signal
-        });
-        setUsersInSearch(response?.users ?? []);
-        setHasSearched(true);
-      } catch (error) {
-        if ((error as Error).name !== 'AbortError') {
-          console.error('Ошибка поиска пользователей:', error);
-          setUsersInSearch([]);
-          setHasSearched(true);
+    getProjectUsers(projectId, controller.signal)
+      .then((users) => {
+        if (isMounted) setAllUsers(users);
+      })
+      .catch((err) => {
+        if (isMounted && err.name !== 'AbortError') {
+          console.error('Ошибка загрузки пользователей:', err);
         }
-      } finally {
-        setIsLoading(false);
-      }
-    }, DEBOUNCE_DELAY);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
 
     return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
+      isMounted = false;
+      controller.abort();
     };
-  }, [value, platform, queryTooShort]);
+  }, [projectId]);
 
   const handleClear = () => {
     const input = inputRef.current;
@@ -94,26 +77,39 @@ export default function SearchInput({
     setValue(input.value);
   };
 
-  const handleSelectUser = (user: User) => {
-    addUser(user);
-    onSelectUser?.(user); // сообщаем наружу, что пользователь выбран
+  const handleSelectUser = (user: ProjectUser) => {
+    // Используем unknown as User вместо any
+    const userAsUser = user as unknown as User;
+    addUser(userAsUser);
+    onSelectUser?.(userAsUser);
     handleClear();
   };
 
-  // не показываем в выпадающем списке тех, кто уже выбран
-  const visibleResults = queryTooShort
-    ? []
-    : usersInSearch.filter(
-        (user) => !selectedUsers.some((selected) => selected.id === user.id)
+  // Локальная фильтрация пользователей
+  const visibleResults = useMemo(() => {
+    if (queryTooShort) return [];
+
+    const query = value.toLowerCase().trim();
+
+    return allUsers.filter((user) => {
+      // Исключаем уже выбранных
+      if (selectedUsers.some((selected) => selected.id === user.id)) {
+        return false;
+      }
+      // Ищем по логину (full_name) или ID
+      return (
+        user.full_name.toLowerCase().includes(query) ||
+        user.id.toLowerCase().includes(query)
       );
+    });
+  }, [allUsers, value, queryTooShort, selectedUsers]);
 
   const showResults = !isLoading && !queryTooShort && visibleResults.length > 0;
 
-  let statusText = 'Начните вводить фамилию или имя';
-
-  if (!queryTooShort && isLoading) {
-    statusText = 'Ищем...';
-  } else if (!queryTooShort && hasSearched && visibleResults.length === 0) {
+  let statusText = 'Начните вводить логин или ID';
+  if (isLoading) {
+    statusText = 'Загрузка базы пользователей...';
+  } else if (!queryTooShort && visibleResults.length === 0) {
     statusText = 'Никого не нашли';
   }
 
@@ -144,8 +140,8 @@ export default function SearchInput({
           ref={inputRef}
           id="search"
           type="search"
-          placeholder="Введите фамилию или имя"
-          aria-label="Поиск по фамилии или имени"
+          placeholder="Введите логин или ID"
+          aria-label="Поиск по логину или ID"
           border="none"
           pr={8}
           outlineColor={error ? 'red.500' : 'none'}
@@ -164,6 +160,7 @@ export default function SearchInput({
           color={'#12233F'}
           value={value}
           onChange={handleChange}
+          disabled={isLoading} // Блокируем ввод, пока грузится база
         />
 
         <InputRightElement
@@ -212,6 +209,7 @@ export default function SearchInput({
           borderRadius={8}
           boxShadow="0 4px 12px rgba(0,0,0,0.08)"
           overflowY="auto"
+          maxH="200px"
         >
           {visibleResults.map((user) => (
             <Flex
@@ -220,6 +218,7 @@ export default function SearchInput({
               borderRadius={10}
               _hover={{ bg: '#F8FAFC', cursor: 'pointer' }}
               onClick={() => handleSelectUser(user)}
+              direction="column"
             >
               <Text
                 fontSize="md"
@@ -229,17 +228,33 @@ export default function SearchInput({
               >
                 {user.full_name}
               </Text>
+              <Text
+                fontSize="xs"
+                color="#94A3B8"
+              >
+                ID: {user.id}
+              </Text>
             </Flex>
           ))}
         </Flex>
       )}
+
       {!showResults && (
         <Text
           fontSize="xs"
           lineHeight="16px"
           color="#52525B"
           minH="16px"
+          display="flex"
+          alignItems="center"
+          gap={1}
         >
+          {isLoading && (
+            <Spinner
+              size="xs"
+              color="#346895"
+            />
+          )}
           {statusText}
         </Text>
       )}

@@ -157,7 +157,6 @@ function PushCreateNotificatonInner({
   return (
     <NotificationProvider
       settings={{
-        autoCloseMs: 0,
         borderBottom: true
       }}
     >

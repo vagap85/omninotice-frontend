@@ -8,6 +8,7 @@ export interface SelectingRecipientAppContextValue {
   /** UI-готовая форма выбранного приложения (все поля заполнены). */
   selectedApp: SelectedApp | null;
   setSelectedApp: (app: SelectedApp | null) => void;
+  selectedIcon: SelectedAppIcon;
   setSelectedIcon: (icon: SelectedAppIcon) => void;
 
   recipientsMode: RecipientsMode;

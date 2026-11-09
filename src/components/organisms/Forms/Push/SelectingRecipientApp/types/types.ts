@@ -3,17 +3,9 @@ import type { ComponentType } from 'react';
 import type { IconProps } from '@/components/atoms/types/types';
 
 export interface SelectedApp {
-  id: string;
-  name: string;
+  project_id: string;
+  color: string;
   title: string;
-  icon: SelectedAppIcon; // текущая выбранная иконка
-  standartIcon: SelectedAppIcon; // иконка по умолчанию для этого приложения
-  iconColor: string;
-  bgIconColor?: string;
-  description: string;
-  count: number;
-  platform: string;
-  isActive: boolean;
 }
 
 export interface SelectedAppIcon {
@@ -27,6 +19,7 @@ export interface SelectedAppIcon {
 export interface SelectingRecipientAppContextValue {
   selectedApp: SelectedApp | null;
   setSelectedApp: (app: SelectedApp | null) => void;
+  selectedIcon: SelectedAppIcon;
   setSelectedIcon: (icon: SelectedAppIcon) => void;
   recipientsMode: RecipientsMode;
   setRecipientsMode: (mode: RecipientsMode) => void;
@@ -38,14 +31,9 @@ export interface SelectingRecipientAppContextValue {
 }
 
 export interface SelectingApp {
-  id: string;
-  name: string;
-  count: number;
-  isActive: boolean;
-  platform: string;
-  iconColor: string;
-  bgIconColor?: string;
-  standartIcon: SelectedAppIcon;
+  project_id: string;
+  color: string;
+  title: string;
 }
 
 export interface AppSelectProps {
@@ -62,7 +50,7 @@ export interface UsersSelectProps {
 }
 
 export interface SearchInputProps {
-  platform: string;
+  projectId: string;
   onSelectUser?: (user: User) => void;
   error: boolean;
 }

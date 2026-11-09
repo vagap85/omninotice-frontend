@@ -1,13 +1,12 @@
 import type { ComponentType } from 'react';
 import { getAccessTokenCookie, getAccountIdCookie } from '@/auth/authCookies';
-import type { IconProps } from '@/components/atoms/types/types';
 import type { NotificationTemplate } from '@/types/template';
 
 /* ────────────────────────────── BASE URL ────────────────────────────── */
 
 const DEFAULT_BASE_URL = 'https://vishenka.skroy.ru';
-const CONNECTED_APPS_URL =
-  'https://cfg.basis.skroy.ru/account/my/config/connected_apps';
+const CFG_BASE_URL = 'https://cfg.basis.skroy.ru';
+const USERS_BASE_URL = 'https://api.users.skroy.ru';
 
 const getBaseUrl = (): string => {
   const url = import.meta.env.VITE_VISHENKA_BASE_URL;
@@ -52,13 +51,13 @@ export class TemplatesError extends Error {
 /* ────────────────────────────── DISPATCH ────────────────────────────── */
 
 export interface DispatchRequest {
-  request_id: string; // UUID, генерирует фронт
+  request_id: string;
   delegated_token: string;
   account_id: string;
-  application_id: string; // "sigma", "raida", ...
+  application_id: string;
   channels: Array<'in_app' | 'tg'>;
-  title: string; // 1-200
-  body: string; // 1-4000
+  title: string;
+  body: string;
   recipients: string[];
   created_at: string;
   action?: DispatchAction;
@@ -109,16 +108,13 @@ export interface SuccessfulResponse {
 }
 
 //! УБРАТЬ НА ПРОДАКШЕНЕ
-//! ЭТО USERID ТЕСТОВОГО ПОЛЬЗОВАТЕЛЯ КОМАНДЫ ФОКУСА
 export const ALL_RECIPIENTS_FALLBACK_ID =
   '9c4e2f5a-1115-4b7e-83fd-8eb64e4383b2';
 
-/** Генератор UUID для `request_id` (крипто-стойкий, если доступен). */
 export function generateRequestId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
   }
-  // Fallback для старых браузеров
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
@@ -131,7 +127,6 @@ export async function createDispatch(
   signal?: AbortSignal
 ): Promise<SuccessfulResponse> {
   const base = getBaseUrl();
-
   const response = await fetch(`${base}/api/v1/dispatches`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -275,9 +270,7 @@ export async function getTemplates(
   }
 
   const data = json.data;
-
   cachedTemplates = data;
-
   return data;
 }
 
@@ -294,31 +287,21 @@ export interface ConnectedAppIcon {
   description?: string;
 }
 
-export interface ConnectedAppStandartIcon {
-  id: string;
-  Icon?: ComponentType<IconProps>;
-  path?: string;
-  title: string;
-  description: string;
-}
-
 export interface ConnectedApp {
-  id: string;
-  name: string;
-  platform?: string;
-  count?: number;
-  icon?: ConnectedAppIcon;
-
-  title?: string;
-  description?: string;
-  standartIcon?: ConnectedAppStandartIcon;
-  iconColor?: string;
-  bgIconColor?: string;
-  isActive?: boolean;
+  project_id: string;
+  color: string;
+  title: string;
 }
 
-interface ConnectedAppsResponse {
-  connected_apps?: ConnectedApp[];
+interface ConnectedAppsResponseRaw {
+  data?: Array<{
+    settings?: Record<
+      string,
+      {
+        connected_apps?: ConnectedApp[];
+      }
+    >;
+  }>;
 }
 
 let cachedConnectedApps: ConnectedApp[] | null = null;
@@ -335,9 +318,15 @@ export async function getConnectedApps(
     throw new Error('Токен авторизации не найден.');
   }
 
-  const projectId = getProjectId();
+  const account_id = getAccountIdCookie();
+  if (!account_id) {
+    throw new Error('Не удалось определить аккаунт (account_id не найден).');
+  }
 
-  const response = await fetch(CONNECTED_APPS_URL, {
+  const projectId = getProjectId();
+  const url = `${CFG_BASE_URL}/account/${account_id}/settings/connected_apps`;
+
+  const response = await fetch(url, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -352,16 +341,85 @@ export async function getConnectedApps(
     );
   }
 
-  const json = (await response.json()) as ConnectedAppsResponse;
-  const apps = json.connected_apps ?? [];
+  const json = (await response.json()) as ConnectedAppsResponseRaw;
+  const apps: ConnectedApp[] = [];
+
+  if (json.data && Array.isArray(json.data)) {
+    json.data.forEach((item) => {
+      if (item.settings) {
+        Object.values(item.settings).forEach((setting) => {
+          if (Array.isArray(setting?.connected_apps)) {
+            apps.push(...setting.connected_apps);
+          }
+        });
+      }
+    });
+  }
 
   cachedConnectedApps = apps;
-
   return apps;
 }
 
 export function invalidateConnectedAppsCache(): void {
   cachedConnectedApps = null;
+}
+
+/* ────────────────────────────── USERS ────────────────────────────── */
+
+export interface RawProjectUser {
+  user_id: string;
+  user_type: string;
+  registration_date: string;
+  login: string;
+  profile_id: string;
+  flags?: Record<string, boolean>;
+  [key: string]: unknown;
+}
+
+export interface ProjectUser {
+  id: string;
+  full_name: string;
+  login: string;
+  [key: string]: unknown;
+}
+
+export async function getProjectUsers(
+  projectId: string,
+  signal?: AbortSignal
+): Promise<ProjectUser[]> {
+  const token = getAccessTokenCookie();
+  if (!token) {
+    throw new Error('Токен авторизации не найден.');
+  }
+
+  const url = new URL(`${USERS_BASE_URL}/users`);
+  url.searchParams.append('page', '1');
+  url.searchParams.append('per_page', '100');
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Project-ID': projectId,
+      'Content-Type': 'application/json'
+    },
+    ...(signal ? { signal } : {})
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Не удалось загрузить пользователей: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const json = await response.json();
+  const rawUsers: RawProjectUser[] = Array.isArray(json.data) ? json.data : [];
+
+  return rawUsers.map((user) => ({
+    ...user,
+    id: user.user_id,
+    full_name: user.login // Используем логин как отображаемое имя
+  }));
 }
 
 /* ────────────────────────────── DISPATCH LOGS ────────────────────────────── */
@@ -451,7 +509,6 @@ export async function getDispatchLogs(
     created_at: item.created_at ?? new Date().toISOString(),
     status: item.status ?? 'error',
     send_method: item.send_method ?? 'manual',
-
     channel: item.channel ?? 'popup',
     body: item.body ?? '',
     audience_type: item.audience_type ?? 'all',

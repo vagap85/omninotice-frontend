@@ -7,7 +7,7 @@ import IconSelect from './Selects/IconSelect';
 import UsersSelectTest from './Selects/UsersSelect';
 
 export default function AllSelectBoxes() {
-  const { selectedApp } = useSelectingRecipientApp();
+  const { selectedApp, selectedIcon } = useSelectingRecipientApp();
 
   return (
     <Box
@@ -36,7 +36,10 @@ export default function AllSelectBoxes() {
             >
               Как получатель увидит уведомление
             </Text>
-            <NotificationCard selectedApp={selectedApp} />
+            <NotificationCard
+              selectedApp={selectedApp}
+              selectedIcon={selectedIcon}
+            />
           </Flex>
         </Box>
       )}
