@@ -15,9 +15,9 @@ import {
   generateRequestId,
   getTemplates,
   invalidateTemplatesCache,
-  type DispatchRequest
 } from '@/api/vishenka';
 import { clearAuthCookies, saveAuthCookies } from '@/auth/authCookies';
+import { DispatchRequest } from '@/api/types';
 
 describe('createDispatch (Vishenka API)', () => {
   beforeEach(() => {

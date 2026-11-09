@@ -1,12 +1,18 @@
-import type { ComponentType } from 'react';
 import { getAccessTokenCookie, getAccountIdCookie } from '@/auth/authCookies';
 import type { NotificationTemplate } from '@/types/template';
+import type {
+  ConnectedApp,
+  ConnectedAppsResponseRaw,
+  DispatchLog,
+  DispatchRequest,
+  RawDispatchLog,
+  SuccessfulResponse
+} from './types';
 
 /* ────────────────────────────── BASE URL ────────────────────────────── */
 
 const DEFAULT_BASE_URL = 'https://vishenka.skroy.ru';
 const CFG_BASE_URL = 'https://cfg.basis.skroy.ru';
-const USERS_BASE_URL = 'https://api.users.skroy.ru';
 
 const getBaseUrl = (): string => {
   const url = import.meta.env.VITE_VISHENKA_BASE_URL;
@@ -49,67 +55,6 @@ export class TemplatesError extends Error {
 }
 
 /* ────────────────────────────── DISPATCH ────────────────────────────── */
-
-export interface DispatchRequest {
-  request_id: string;
-  delegated_token: string;
-  account_id: string;
-  application_id: string;
-  channels: Array<'in_app' | 'tg'>;
-  title: string;
-  body: string;
-  recipients: string[];
-  created_at: string;
-  action?: DispatchAction;
-  picture?: {
-    main?: string;
-    icon: string;
-    emoji?: string;
-  };
-}
-
-export type DispatchAction =
-  | {
-      title: string;
-      url: string;
-      type: 'button';
-    }
-  | {
-      name: string;
-      url: string;
-    };
-
-export interface ResponseDetail {
-  code: 'OK' | 'ALREADY_APPLIED' | null;
-  message: string | null;
-}
-
-export interface DispatchData {
-  request_id: string;
-  status: 'accepted' | 'replayed' | 'failed';
-  already_applied: boolean;
-  author_user_id: string;
-  created_at: string;
-}
-
-export interface ResponseInfo {
-  api_version: string;
-  count?: number;
-  total?: number;
-  page?: number;
-  page_size?: number;
-  [key: string]: unknown;
-}
-
-export interface SuccessfulResponse {
-  detail: ResponseDetail;
-  data: DispatchData[];
-  info: ResponseInfo;
-}
-
-//! УБРАТЬ НА ПРОДАКШЕНЕ
-export const ALL_RECIPIENTS_FALLBACK_ID =
-  '9c4e2f5a-1115-4b7e-83fd-8eb64e4383b2';
 
 export function generateRequestId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -280,30 +225,6 @@ export function invalidateTemplatesCache(): void {
 
 /* ────────────────────────────── CONNECTED APPS ────────────────────────────── */
 
-export interface ConnectedAppIcon {
-  Icon: ComponentType;
-  id?: string;
-  title?: string;
-  description?: string;
-}
-
-export interface ConnectedApp {
-  project_id: string;
-  color: string;
-  title: string;
-}
-
-interface ConnectedAppsResponseRaw {
-  data?: Array<{
-    settings?: Record<
-      string,
-      {
-        connected_apps?: ConnectedApp[];
-      }
-    >;
-  }>;
-}
-
 let cachedConnectedApps: ConnectedApp[] | null = null;
 
 export async function getConnectedApps(
@@ -364,96 +285,7 @@ export function invalidateConnectedAppsCache(): void {
   cachedConnectedApps = null;
 }
 
-/* ────────────────────────────── USERS ────────────────────────────── */
-
-export interface RawProjectUser {
-  user_id: string;
-  user_type: string;
-  registration_date: string;
-  login: string;
-  profile_id: string;
-  flags?: Record<string, boolean>;
-  [key: string]: unknown;
-}
-
-export interface ProjectUser {
-  id: string;
-  full_name: string;
-  login: string;
-  [key: string]: unknown;
-}
-
-export async function getProjectUsers(
-  projectId: string,
-  signal?: AbortSignal
-): Promise<ProjectUser[]> {
-  const token = getAccessTokenCookie();
-  if (!token) {
-    throw new Error('Токен авторизации не найден.');
-  }
-
-  const url = new URL(`${USERS_BASE_URL}/users`);
-  url.searchParams.append('page', '1');
-  url.searchParams.append('per_page', '100');
-
-  const response = await fetch(url.toString(), {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Project-ID': projectId,
-      'Content-Type': 'application/json'
-    },
-    ...(signal ? { signal } : {})
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Не удалось загрузить пользователей: ${response.status} ${response.statusText}`
-    );
-  }
-
-  const json = await response.json();
-  const rawUsers: RawProjectUser[] = Array.isArray(json.data) ? json.data : [];
-
-  return rawUsers.map((user) => ({
-    ...user,
-    id: user.user_id,
-    full_name: user.login // Используем логин как отображаемое имя
-  }));
-}
-
 /* ────────────────────────────── DISPATCH LOGS ────────────────────────────── */
-
-interface RawDispatchLog {
-  event_id?: string;
-  application_id?: string;
-  channel?: string;
-  send_method?: string;
-  title?: string;
-  body?: string;
-  audience_type?: string;
-  recipients?: string[];
-  account_id?: string;
-  created_at?: string;
-  status?: string;
-  template_name?: string;
-  [key: string]: unknown;
-}
-
-export interface DispatchLog {
-  event_id: string;
-  application_id: string;
-  channel: string;
-  send_method: string;
-  title: string;
-  body: string;
-  audience_type: string;
-  recipients: string[];
-  account_id: string;
-  created_at: string;
-  status: string;
-  template_name: string;
-}
 
 export interface DispatchLogsResponse {
   data: DispatchLog[];

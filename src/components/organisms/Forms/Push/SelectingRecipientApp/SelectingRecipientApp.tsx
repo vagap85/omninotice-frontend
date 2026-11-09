@@ -5,8 +5,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   dispatchNotification,
   DispatchError,
-  ALL_RECIPIENTS_FALLBACK_ID,
-  type ConnectedApp
 } from '@/api/vishenka';
 import { FormSubmitButton } from '@/components/molecules/Form/Elements/FormSubmitButton';
 import { useFormsRegistry } from '@/components/molecules/Form/hooks/useFormsRegistry';
@@ -29,6 +27,7 @@ import { SelectedUsersProvider } from './Providers/SelectedUsers.provider';
 import SelectingRecipientAppProviderTest from './Providers/SelectingRecipientApp.provider';
 import { useNotification } from 'omni-notice-sigma-notification-widget';
 import { ROUTES } from '@/routing/routes';
+import { ConnectedApp } from '@/api/types';
 
 interface PanelContentProps {
   isAuthorized: boolean;
@@ -67,7 +66,8 @@ function PanelContentInner({ isAuthorized }: { isAuthorized: boolean }) {
     selectedIcon,
     recipientsMode,
     setAppError,
-    setRecipientsError
+    setRecipientsError,
+    projectUsersLoaded
   } = useSelectingRecipientApp();
   const { selectedUsers } = useSelectedUsers();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -77,7 +77,7 @@ function PanelContentInner({ isAuthorized }: { isAuthorized: boolean }) {
     navigate(ROUTES.login, { state: { from: location } });
 
   const recipientsCount =
-    recipientsMode === 'all' ? undefined : selectedUsers.length;
+    recipientsMode === 'all' ? projectUsersLoaded : selectedUsers.length;
 
   const formValues = useFormValues<
     PushNotificationFormValues & {
@@ -205,7 +205,7 @@ function PanelContentInner({ isAuthorized }: { isAuthorized: boolean }) {
             recipients:
               payload.recipientsMode === 'individual'
                 ? (payload.selectedUsers?.map((u) => u.id) ?? [])
-                : [ALL_RECIPIENTS_FALLBACK_ID],
+                : [],
             ...(payload.buttonText.trim() && payload.buttonLink.trim()
               ? {
                   action: {

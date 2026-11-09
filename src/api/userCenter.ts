@@ -1,5 +1,6 @@
+import { getAccessTokenCookie } from '@/auth/authCookies';
 import { parseJwtPayload } from './profile';
-import { UserCenterCreateSuccess, UserCenterLoginSuccess } from './types';
+import type { UserCenterCreateSuccess, UserCenterLoginSuccess, ProjectUser, RawProjectUser } from './types';
 
 const DEFAULT_USERCENTER_BASE_URL = 'https://api.users.skroy.ru';
 
@@ -181,4 +182,74 @@ export async function createUserCenter(
     login: login,
     password: password
   };
+}
+
+const PROJECT_USERS_PER_PAGE = 200;
+
+async function getProjectUsersPage(
+  projectId: string,
+  page: number,
+  signal?: AbortSignal
+): Promise<{ users: ProjectUser[]; total: number }> {
+  const token = getAccessTokenCookie();
+  if (!token) {
+    throw new Error('Токен авторизации не найден.');
+  }
+
+  const url = new URL(`${DEFAULT_USERCENTER_BASE_URL}/users`);
+  url.searchParams.append('page', String(page));
+  url.searchParams.append('per_page', String(PROJECT_USERS_PER_PAGE));
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Project-ID': projectId,
+      'Content-Type': 'application/json'
+    },
+    ...(signal ? { signal } : {})
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Не удалось загрузить пользователей: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const json = await response.json();
+  const rawUsers: RawProjectUser[] = Array.isArray(json.data) ? json.data : [];
+
+  const users = rawUsers.map((user) => ({
+    ...user,
+    id: user.user_id,
+    full_name: user.login
+  }));
+  const responseTotal = Number(json.info?.total);
+
+  return {
+    users,
+    total: Number.isFinite(responseTotal) ? responseTotal : users.length
+  };
+}
+
+export async function getProjectUsers(
+  projectId: string,
+  signal?: AbortSignal,
+  onProgress?: (loaded: number, total: number) => void
+): Promise<ProjectUser[]> {
+  const usersById = new Map<string, ProjectUser>();
+  let page = 1;
+  let hasMore = true;
+
+  while (hasMore) {
+    const result = await getProjectUsersPage(projectId, page, signal);
+    result.users.forEach((user) => usersById.set(user.id, user));
+    const total = Math.max(result.total, usersById.size);
+    onProgress?.(usersById.size, total);
+
+    hasMore = result.users.length > 0 && page * PROJECT_USERS_PER_PAGE < total;
+    page += 1;
+  }
+
+  return [...usersById.values()];
 }
