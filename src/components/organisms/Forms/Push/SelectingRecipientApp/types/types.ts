@@ -1,4 +1,5 @@
-import { User } from '@/api/types';
+import type { User } from '@/api/types';
+import type { ProjectUser } from '@/api/vishenka';
 import type { ComponentType } from 'react';
 import type { IconProps } from '@/components/atoms/types/types';
 
@@ -19,6 +20,11 @@ export interface SelectedAppIcon {
 export interface SelectingRecipientAppContextValue {
   selectedApp: SelectedApp | null;
   setSelectedApp: (app: SelectedApp | null) => void;
+  projectUsers: ProjectUser[];
+  projectUsersLoaded: number;
+  projectUsersTotal: number | null;
+  isLoadingProjectUsers: boolean;
+  projectUsersError: string | null;
   selectedIcon: SelectedAppIcon;
   setSelectedIcon: (icon: SelectedAppIcon) => void;
   recipientsMode: RecipientsMode;
@@ -50,7 +56,6 @@ export interface UsersSelectProps {
 }
 
 export interface SearchInputProps {
-  projectId: string;
   onSelectUser?: (user: User) => void;
   error: boolean;
 }

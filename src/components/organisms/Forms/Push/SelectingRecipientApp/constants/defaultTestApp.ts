@@ -1,4 +1,4 @@
-import type { ConnectedApp } from '@/api/vishenka';
+import type { ConnectedApp } from '@/api/types';
 
 import { DEFAULT_ICON_COLOR } from './iconColors';
 
@@ -7,7 +7,7 @@ import { DEFAULT_ICON_COLOR } from './iconColors';
  * Используется, если у пользователя нет ни одного подключённого сервиса.
  */
 export const DEFAULT_TEST_APP: ConnectedApp = {
-  project_id: 'sigma',
+  project_id: 'Omni Notice (Test)',
   title: 'Omni Notice (Test)',
   color: DEFAULT_ICON_COLOR
 };

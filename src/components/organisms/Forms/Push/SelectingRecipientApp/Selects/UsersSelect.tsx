@@ -1,22 +1,27 @@
 import { CloseIcon } from '@chakra-ui/icons';
-import { Flex, IconButton, Text } from '@chakra-ui/react';
+import { Flex, IconButton, Spinner, Text } from '@chakra-ui/react';
 
 import { useSelectedUsers } from '../hooks/useSelectedUsers';
 import { useSelectingRecipientApp } from '../hooks/useSelectingRecipientApp';
 import SearchInput from '../Inputs/SearchInput';
 import type { RecipientsMode, UsersSelectProps } from '../types/types';
 import RecipientsModeSelect from './RecipientsModeSelect';
+import { pluralize } from '@/components/molecules/helpers/pluralize';
 
 export default function UsersSelect({ value, onChange }: UsersSelectProps) {
   const {
     selectedApp,
+    isLoadingProjectUsers,
+    projectUsers,
+    projectUsersLoaded,
+    projectUsersTotal,
+    projectUsersError,
     recipientsMode,
     setRecipientsMode,
     recipientsError,
     setRecipientsError
   } = useSelectingRecipientApp();
   const { selectedUsers, removeUser, addUser } = useSelectedUsers();
-  console.log(selectedApp);
   const selectedValue = value !== undefined ? value : recipientsMode;
 
   const handleChange = (next: RecipientsMode) => {
@@ -48,10 +53,32 @@ export default function UsersSelect({ value, onChange }: UsersSelectProps) {
         isDisabled={selectedApp == null}
       />
 
+      {selectedApp && (
+        <Text
+          fontSize="xs"
+          lineHeight="16px"
+          color={projectUsersError ? '#EF4444' : '#52525B'}
+          display="flex"
+          alignItems="center"
+          gap={1}
+        >
+          {isLoadingProjectUsers && (
+            <Spinner
+              size="xs"
+              color="#346895"
+            />
+          )}
+          {isLoadingProjectUsers
+            ? `Загрузка пользователей: ${projectUsersLoaded} из ${projectUsersTotal ?? '...'}`
+            : projectUsersError
+              ? projectUsersError
+              : `Загружено пользователей: ${projectUsers.length}`}
+        </Text>
+      )}
+
       {selectedValue === 'individual' && selectedApp && (
         <SearchInput
           key={selectedApp.project_id}
-          projectId={selectedApp.project_id}
           onSelectUser={handleAddUser}
           error={recipientsError ? true : false}
         />
@@ -119,8 +146,8 @@ export default function UsersSelect({ value, onChange }: UsersSelectProps) {
           fontWeight="medium"
           lineHeight="24px"
         >
-          {selectedValue === 'all'
-            ? 'Выбраны все пользователи'
+          {selectedValue === 'all' && projectUsersLoaded
+            ? `${pluralize(projectUsersLoaded, ["Выбран", "Выбрано", "Выбрано"])} ${projectUsersLoaded} ${pluralize(projectUsersLoaded, ["пользователь", "пользователя", "пользователей"])}`
             : selectedUsers
               ? `Добавлено получателей: ${selectedUsers.length}`
               : 'Ошибка получения данных'}

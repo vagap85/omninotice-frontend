@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { ConnectedApp } from '@/api/vishenka';
+import type { ConnectedApp, ProjectUser } from '@/api/vishenka';
 import type { SelectedApp, SelectedAppIcon } from '../types/types';
 
 export type RecipientsMode = 'all' | 'individual';
@@ -8,6 +8,11 @@ export interface SelectingRecipientAppContextValue {
   /** UI-готовая форма выбранного приложения (все поля заполнены). */
   selectedApp: SelectedApp | null;
   setSelectedApp: (app: SelectedApp | null) => void;
+  projectUsers: ProjectUser[];
+  projectUsersLoaded: number;
+  projectUsersTotal: number | null;
+  isLoadingProjectUsers: boolean;
+  projectUsersError: string | null;
   selectedIcon: SelectedAppIcon;
   setSelectedIcon: (icon: SelectedAppIcon) => void;
 

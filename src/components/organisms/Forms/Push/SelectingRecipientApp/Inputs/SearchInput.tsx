@@ -8,54 +8,30 @@ import {
   Text,
   Spinner
 } from '@chakra-ui/react';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo } from 'react';
 
-import { getProjectUsers, type ProjectUser } from '@/api/vishenka';
 import type { User } from '@/api/types'; // Импортируем тип для избавления от any
+import type { ProjectUser } from '@/api/vishenka';
 import CloseIcon from '@/components/atoms/Icons/CloseIcon';
 import SearchIcon from '@/components/atoms/Icons/SearchIcon';
 
 import { useSelectedUsers } from '../hooks/useSelectedUsers';
+import { useSelectingRecipientApp } from '../hooks/useSelectingRecipientApp';
 import type { SearchInputProps } from '../types/types';
 
 const MIN_QUERY_LENGTH = 3;
 
-export default function SearchInput({
-  projectId,
-  onSelectUser,
-  error
-}: SearchInputProps) {
+export default function SearchInput({ onSelectUser, error }: SearchInputProps) {
   const { selectedUsers, addUser } = useSelectedUsers();
+  const {
+    projectUsers: allUsers,
+    isLoadingProjectUsers: isLoading,
+    projectUsersError
+  } = useSelectingRecipientApp();
   const [value, setValue] = useState<string>('');
-  const [allUsers, setAllUsers] = useState<ProjectUser[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const queryTooShort = value.trim().length < MIN_QUERY_LENGTH;
-
-  // Загружаем пользователей при монтировании
-  useEffect(() => {
-    let isMounted = true;
-    const controller = new AbortController();
-
-    getProjectUsers(projectId, controller.signal)
-      .then((users) => {
-        if (isMounted) setAllUsers(users);
-      })
-      .catch((err) => {
-        if (isMounted && err.name !== 'AbortError') {
-          console.error('Ошибка загрузки пользователей:', err);
-        }
-      })
-      .finally(() => {
-        if (isMounted) setIsLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-      controller.abort();
-    };
-  }, [projectId]);
 
   const handleClear = () => {
     const input = inputRef.current;
@@ -109,6 +85,8 @@ export default function SearchInput({
   let statusText = 'Начните вводить логин или ID';
   if (isLoading) {
     statusText = 'Загрузка базы пользователей...';
+  } else if (projectUsersError) {
+    statusText = projectUsersError;
   } else if (!queryTooShort && visibleResults.length === 0) {
     statusText = 'Никого не нашли';
   }
@@ -243,7 +221,7 @@ export default function SearchInput({
         <Text
           fontSize="xs"
           lineHeight="16px"
-          color="#52525B"
+          color={projectUsersError ? '#EF4444' : '#52525B'}
           minH="16px"
           display="flex"
           alignItems="center"
