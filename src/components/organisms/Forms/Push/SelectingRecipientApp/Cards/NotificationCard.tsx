@@ -3,17 +3,19 @@ import { Box, Flex, Text } from '@chakra-ui/react';
 import CloseIcon from '@/components/atoms/Icons/CloseIcon';
 import { usePushNotification } from '@/components/organisms/Forms/Push/Contexts/PushNotificationContext';
 
-import type { SelectedApp } from '../types/types';
+import type { SelectedApp, SelectedAppIcon } from '../types/types';
 import CollectionIcon from '../utils/CollectionIcon';
 import { getIconBackgroundColor } from '../utils/iconBackgroundColor';
 
 export default function NotificationCard({
-  selectedApp
+  selectedApp,
+  selectedIcon
 }: {
   selectedApp: SelectedApp;
+  selectedIcon: SelectedAppIcon;
 }) {
   const values = usePushNotification();
-  const SelectedIcon = selectedApp.icon.Icon;
+  const SelectedIcon = selectedIcon.Icon;
 
   const title = values.title || 'Заголовок уведомления';
 
@@ -43,10 +45,7 @@ export default function NotificationCard({
           w={14}
           h={14}
           borderRadius={'xl'}
-          bg={getIconBackgroundColor(
-            selectedApp.iconColor,
-            selectedApp.bgIconColor
-          )}
+          bg={getIconBackgroundColor(selectedApp.color)}
           flexShrink={0}
         >
           <Box
@@ -55,14 +54,14 @@ export default function NotificationCard({
             w={6}
             h={6}
           >
-            {selectedApp.icon.path ? (
+            {selectedIcon.path ? (
               <CollectionIcon
-                icon={selectedApp.icon}
+                icon={selectedIcon}
                 size={15}
-                color={selectedApp.iconColor}
+                color={selectedApp.color}
               />
             ) : SelectedIcon ? (
-              <SelectedIcon color={selectedApp.iconColor} />
+              <SelectedIcon color={selectedApp.color} />
             ) : null}
           </Box>
         </Box>

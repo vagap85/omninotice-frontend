@@ -6,87 +6,18 @@ import { useSelectingRecipientApp } from '../hooks/useSelectingRecipientApp';
 import type { SelectedAppIcon } from '../types/types';
 import CollectionIcon from '../utils/CollectionIcon';
 import { getIconBackgroundColor } from '../utils/iconBackgroundColor';
-
-const COLLECTION_ICONS: SelectedAppIcon[] = [
-  {
-    id: '0',
-    path: 'collections/bell-ring-icon.svg',
-    title: 'Стандартная',
-    description: 'Если не выбрать другую, получатель увидит эту'
-  },
-  {
-    id: '1',
-    path: 'collections/calendar-date-icon.svg',
-    title: 'Дата и срок',
-    description: 'Отпуск, встреча, дедлайн, начало и конец периода'
-  },
-  {
-    id: '2',
-    path: 'collections/check-icon.svg',
-    title: 'Готово',
-    description: 'Согласовано, завершено, заявка одобрена'
-  },
-  {
-    id: '3',
-    path: 'collections/information-icon.svg',
-    title: 'Важное',
-    description: 'Требует действия или внимания в срок'
-  },
-  {
-    id: '4',
-    path: 'collections/about-icon.svg',
-    title: 'Справка',
-    description: 'Регламент, инструкция, изменение правил'
-  },
-  {
-    id: '5',
-    path: 'collections/user-icon.svg',
-    title: 'Сотрудник',
-    description: 'Новый человек, назначение, изменение роли'
-  },
-  {
-    id: '6',
-    path: 'collections/folder-closed-icon.svg',
-    title: 'Проект',
-    description: 'Команда, доступ, подключение к проекту'
-  },
-  {
-    id: '7',
-    path: 'collections/pie-chart-icon.svg',
-    title: 'Отчет',
-    description: 'Результаты опроса, аналитика, показатели'
-  },
-  {
-    id: '8',
-    path: 'collections/envelope-icon.svg',
-    title: 'Сообщение',
-    description: 'Личное обращение, приглашение, ответ'
-  },
-  {
-    id: '9',
-    path: 'collections/settings-icon.svg',
-    title: 'Система',
-    description: 'Обновления, работы, техническое'
-  },
-  {
-    id: '10',
-    path: 'collections/party-icon.svg',
-    title: 'Праздники',
-    description: 'Поздравление, новость, анонс'
-  }
-];
+import { COLLECTION_ICONS } from '../constants/collectionIcons';
 
 export default function IconSelect() {
-  const { selectedApp, setSelectedIcon } = useSelectingRecipientApp();
+  const { selectedApp, selectedIcon, setSelectedIcon } =
+    useSelectingRecipientApp();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [draftIcon, setDraftIcon] = useState<SelectedAppIcon | null>(null);
 
-  const SelectedIcon = selectedApp?.icon.Icon;
-  const isCustomIcon = selectedApp
-    ? selectedApp.icon.id !== selectedApp.standartIcon.id
-    : false;
+  const SelectedIcon = selectedIcon.Icon;
+  const isCustomIcon = selectedIcon.id !== COLLECTION_ICONS[0].id;
   const openIconModal = () => {
-    setDraftIcon(selectedApp?.icon ?? COLLECTION_ICONS[0] ?? null);
+    setDraftIcon(selectedIcon);
     onOpen();
   };
 
@@ -131,10 +62,7 @@ export default function IconSelect() {
                 w={12}
                 h={12}
                 borderRadius={'xl'}
-                bg={getIconBackgroundColor(
-                  selectedApp.iconColor,
-                  selectedApp.bgIconColor
-                )}
+                bg={getIconBackgroundColor(selectedApp.color)}
                 flexShrink={0}
               >
                 <Box
@@ -143,14 +71,14 @@ export default function IconSelect() {
                   w={6}
                   h={6}
                 >
-                  {selectedApp.icon.path ? (
+                  {selectedIcon.path ? (
                     <CollectionIcon
-                      icon={selectedApp.icon}
+                      icon={selectedIcon}
                       size={15}
-                      color={selectedApp.iconColor}
+                      color={selectedApp.color}
                     />
                   ) : SelectedIcon ? (
-                    <SelectedIcon color={selectedApp.iconColor} />
+                    <SelectedIcon color={selectedApp.color} />
                   ) : null}
                 </Box>
               </Box>
@@ -161,14 +89,14 @@ export default function IconSelect() {
                   lineHeight={4}
                   mb={1}
                 >
-                  {selectedApp.icon.title}
+                  {selectedIcon.title}
                 </Text>
                 <Text
                   color={'#A1A1AA'}
                   fontSize={'xs'}
                   lineHeight={4}
                 >
-                  {selectedApp.icon.description}
+                  {selectedIcon.description}
                 </Text>
               </Box>
             </Box>
@@ -204,7 +132,7 @@ export default function IconSelect() {
                   lineHeight={'1em'}
                   py={2}
                   px={2.5}
-                  onClick={() => setSelectedIcon(selectedApp.standartIcon)}
+                  onClick={() => setSelectedIcon(COLLECTION_ICONS[0])}
                 >
                   Убрать
                 </Button>

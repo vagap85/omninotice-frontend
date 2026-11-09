@@ -37,7 +37,7 @@ export default function AppSelect({
     if (value === undefined) setInternalSelected(app);
 
     // Передаем выбранное приложение в стейт
-    setSelectedApp(mapToSelectedApp(app as unknown as ConnectedApp));
+    setSelectedApp(mapToSelectedApp(app));
     onChange?.(app);
   };
 

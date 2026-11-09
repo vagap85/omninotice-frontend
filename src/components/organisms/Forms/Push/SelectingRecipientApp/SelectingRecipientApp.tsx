@@ -20,6 +20,7 @@ import type {
 import { sanitizeSubmitValue } from '@/utils/sanitizeSubmitValue';
 import { countMeaningfulLength } from '@/utils/meaningfulLength';
 import type { SelectedApp } from './types/types';
+import { getCollectionIconUrl } from './utils/collectionIconUrl';
 
 import AllSelectBoxes from './AllSelectBoxes';
 import { useSelectedUsers } from './hooks/useSelectedUsers';
@@ -61,8 +62,13 @@ function PanelContentInner({ isAuthorized }: { isAuthorized: boolean }) {
   const navigate = useNavigate();
   const location = useLocation();
   const registry = useFormsRegistry();
-  const { selectedApp, recipientsMode, setAppError, setRecipientsError } =
-    useSelectingRecipientApp();
+  const {
+    selectedApp,
+    selectedIcon,
+    recipientsMode,
+    setAppError,
+    setRecipientsError
+  } = useSelectingRecipientApp();
   const { selectedUsers } = useSelectedUsers();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { add } = useNotification();
@@ -142,6 +148,7 @@ function PanelContentInner({ isAuthorized }: { isAuthorized: boolean }) {
       buttonText: sanitizeSubmitValue(contentValues.buttonText),
       buttonLink: contentValues.buttonLink,
       app: selectedApp,
+      selectedIcon,
       recipientsMode,
       selectedUsers: recipientsMode === 'individual' ? selectedUsers : undefined
     };
@@ -192,6 +199,9 @@ function PanelContentInner({ isAuthorized }: { isAuthorized: boolean }) {
             channels: ['in_app'],
             title: payload.title,
             body: payload.text,
+            picture: {
+              icon: getCollectionIconUrl(payload.selectedIcon)
+            },
             recipients:
               payload.recipientsMode === 'individual'
                 ? (payload.selectedUsers?.map((u) => u.id) ?? [])

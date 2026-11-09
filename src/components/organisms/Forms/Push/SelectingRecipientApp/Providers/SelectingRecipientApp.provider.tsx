@@ -10,6 +10,7 @@ import {
 } from '../Contexts/SelectingRecipientAppContext';
 
 import { DEFAULT_TEST_APP } from '../constants/defaultTestApp';
+import { COLLECTION_ICONS } from '../constants/collectionIcons';
 
 const EMPTY_APPS: ConnectedApp[] = [];
 
@@ -23,14 +24,12 @@ export default function SelectingRecipientAppProviderTest({
   connectedApps = EMPTY_APPS
 }: ProviderProps) {
   const [selectedApp, setSelectedApp] = useState<SelectedApp | null>(null);
+  const [selectedIcon, setSelectedIcon] = useState<SelectedAppIcon>(
+    COLLECTION_ICONS[0]
+  );
   const [recipientsMode, setRecipientsMode] = useState<RecipientsMode>('all');
   const [appError, setAppError] = useState<string | null>(null);
   const [recipientsError, setRecipientsError] = useState<string | null>(null);
-  const setSelectedIcon = (icon: SelectedAppIcon) => {
-    setSelectedApp((currentApp) =>
-      currentApp ? { ...currentApp, icon } : currentApp
-    );
-  };
 
   const availableApps = useMemo<ConnectedApp[]>(() => {
     if (connectedApps.length > 0) {
@@ -42,6 +41,7 @@ export default function SelectingRecipientAppProviderTest({
   const value: SelectingRecipientAppContextValue = {
     selectedApp,
     setSelectedApp,
+    selectedIcon,
     setSelectedIcon,
     recipientsMode,
     setRecipientsMode,

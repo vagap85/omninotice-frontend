@@ -19,6 +19,7 @@ export interface SelectedAppIcon {
 export interface SelectingRecipientAppContextValue {
   selectedApp: SelectedApp | null;
   setSelectedApp: (app: SelectedApp | null) => void;
+  selectedIcon: SelectedAppIcon;
   setSelectedIcon: (icon: SelectedAppIcon) => void;
   recipientsMode: RecipientsMode;
   setRecipientsMode: (mode: RecipientsMode) => void;

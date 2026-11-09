@@ -8,5 +8,8 @@ export function getCollectionIconSrc(icon?: SelectedAppIcon): string {
 }
 
 export function getCollectionIconUrl(icon?: SelectedAppIcon): string {
-  return new URL(getCollectionIconSrc(icon), window.location.origin).href;
+  return new URL(
+    getCollectionIconSrc(icon),
+    'https://omni.skroy.ru'
+  ).href;
 }

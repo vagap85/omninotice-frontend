@@ -113,6 +113,7 @@ export interface PushPayload {
   buttonText: string;
   buttonLink: string;
   app: unknown;
+  selectedIcon: SelectedAppIcon;
   recipientsMode: string;
   selectedUsers: User[] | undefined;
 }
