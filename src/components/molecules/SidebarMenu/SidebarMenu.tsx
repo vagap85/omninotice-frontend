@@ -1,7 +1,8 @@
 import { Flex } from '@chakra-ui/react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import type { SidebarMenuEntry } from '@/components/molecules/types/sidebar';
 import {
   sidebarCreateAction,
   sidebarMenuItems
@@ -10,25 +11,53 @@ import { useSidebar } from '@/components/organisms/Sidebar/SidebarContext';
 
 import { SidebarMenuItem } from '../SidebarElements/SidebarMenuItem/SidebarMenuItem';
 
+function isRouteMatchingSubmenu(
+  pathname: string,
+  submenuItems?: SidebarMenuEntry[]
+): boolean {
+  if (!submenuItems) return false;
+  return submenuItems.some((entry) => {
+    if (entry.href) {
+      if (pathname === entry.href) return true;
+      if (entry.href !== '/' && pathname.startsWith(`${entry.href}/`)) return true;
+    }
+    if (entry.submenuItems) {
+      return isRouteMatchingSubmenu(pathname, entry.submenuItems);
+    }
+    return false;
+  });
+}
+
 export function SidebarMenu() {
   const { isCollapsed } = useSidebar();
   const { pathname } = useLocation();
-  const [openMenu, setOpenMenu] = useState<{
-    pathname: string;
-    id: string;
-  } | null>(null);
-  const openId = openMenu?.pathname === pathname ? openMenu.id : null;
 
-  const handleToggle = useCallback(
-    (id: string) => {
-      setOpenMenu((previous) =>
-        previous?.pathname === pathname && previous.id === id
-          ? null
-          : { pathname, id }
-      );
-    },
-    [pathname]
-  );
+  const activeMenuId = useMemo(() => {
+    const normalized = pathname.replace(/\/+$/, '') || '/';
+    for (const item of sidebarMenuItems) {
+      if (
+        item.submenuItems &&
+        isRouteMatchingSubmenu(normalized, item.submenuItems)
+      ) {
+        return item.text;
+      }
+    }
+    return null;
+  }, [pathname]);
+
+  const [openId, setOpenId] = useState<string | null>(activeMenuId);
+  const prevActiveMenuIdRef = useRef<string | null>(activeMenuId);
+
+  useEffect(() => {
+    if (activeMenuId && activeMenuId !== prevActiveMenuIdRef.current) {
+      setOpenId(activeMenuId);
+    }
+    prevActiveMenuIdRef.current = activeMenuId;
+  }, [activeMenuId]);
+
+  const handleToggle = useCallback((id: string) => {
+    setOpenId((previous) => (previous === id ? null : id));
+  }, []);
 
   return (
     <Flex

@@ -42,7 +42,7 @@ function SidebarMenuItemComponent({
     : [];
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || effectiveSubmenuType !== 'outside') return;
 
     const handlePointerDown = (event: PointerEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) {
@@ -52,7 +52,7 @@ function SidebarMenuItemComponent({
 
     document.addEventListener('pointerdown', handlePointerDown);
     return () => document.removeEventListener('pointerdown', handlePointerDown);
-  }, [isOpen, onToggle, text]);
+  }, [isOpen, onToggle, text, effectiveSubmenuType]);
 
   const handleClick = () => {
     onActionClick?.();
