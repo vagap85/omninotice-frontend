@@ -77,6 +77,15 @@ describe('Header', () => {
     ).toBeTruthy();
   });
 
+  test('для авторизованного пользователя кнопка действия всегда имеет текст "Попробовать"', () => {
+    mockIsAuthorized = true;
+    renderWithProviders(<Header />);
+
+    const tryButton = screen.getByRole('link', { name: 'Попробовать' });
+    expect(tryButton).toBeInTheDocument();
+    expect(tryButton.textContent).toBe('Попробовать');
+  });
+
   test('показывает имя и фамилию из сохраненного профиля над логином', () => {
     mockIsAuthorized = true;
     mockAuthState = { login: 'test@example.com' };

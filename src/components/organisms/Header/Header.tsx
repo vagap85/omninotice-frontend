@@ -16,12 +16,13 @@ import Navigation from '../../molecules/Navigation/Navigation';
 
 export default function Header() {
   const iconSize = useBreakpointValue({ base: 12, md: 16 }) ?? 16;
-  const buttonText =
+  const guestButtonText =
     useBreakpointValue({
       base: 'Попробовать',
       sm: 'Попробовать бесплатно'
     }) ?? 'Попробовать бесплатно';
   const { isAuthorized } = useAuth();
+  const buttonText = isAuthorized ? 'Попробовать' : guestButtonText;
 
   return (
     <Grid
