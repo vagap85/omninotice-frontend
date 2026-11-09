@@ -101,7 +101,7 @@ export const sidebarMenuItems: SidebarMenuItemProps[] = [
       />
     ),
     submenuItems: [
-      { label: 'Все ссылки', href: ROUTES.links },
+      { label: 'Короткие ссылки', href: ROUTES.links },
       { label: 'Кампании', href: ROUTES.campaigns }
     ],
     submenuType: 'inside'

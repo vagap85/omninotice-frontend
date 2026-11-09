@@ -52,6 +52,12 @@ const LinkDetailPage = lazyWithMinDelay(
 const CampaignsPage = lazyWithMinDelay(
   () => import('@/pages/Shortener/CampaignsPage/CampaignsPage')
 );
+const CampaignDetailPage = lazyWithMinDelay(
+  () => import('@/pages/Shortener/CampaignDetailPage/CampaignDetailPage')
+);
+const AddCampaignLinkPage = lazyWithMinDelay(
+  () => import('@/pages/Shortener/AddCampaignLinkPage/AddCampaignLinkPage')
+);
 const LinksLandingPage = lazyWithMinDelay(
   () => import('@/pages/Shortener/LinksLandingPage/LinksLandingPage')
 );
@@ -136,6 +142,18 @@ function App() {
           <Route
             path={ROUTES.campaigns}
             element={<CampaignsPage />}
+          />
+          <Route
+            path={ROUTES.campaignDetails}
+            element={<CampaignDetailPage />}
+          />
+          <Route
+            path={ROUTES.addCampaignLink}
+            element={<AddCampaignLinkPage />}
+          />
+          <Route
+            path={ROUTES.editCampaignLink}
+            element={<AddCampaignLinkPage />}
           />
           <Route
             path="/dashboard/profile"

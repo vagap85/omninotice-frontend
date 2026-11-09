@@ -20,6 +20,9 @@ export const ROUTES = {
   links: '/links',
   linkDetails: '/links/:id',
   campaigns: '/campaigns',
+  campaignDetails: '/campaigns/:id',
+  addCampaignLink: '/campaigns/:id/add-link',
+  editCampaignLink: '/campaigns/:id/edit-link/:linkId',
   profile: '/profile',
   login: '/login',
   registration: '/registration',
@@ -92,6 +95,7 @@ export const PAGE_TITLES: Partial<Record<string, string>> = {
   [ROUTES.templates]: 'Шаблоны рассылок',
   [ROUTES.links]: 'Короткие ссылки',
   [ROUTES.campaigns]: 'Кампании',
+  [ROUTES.campaignDetails]: 'Кампания',
   [ROUTES.linkDetails]: 'Детали ссылки',
   [ROUTES.profile]: 'Настройка профиля',
   '/dashboard/profile': 'Настройка профиля'

@@ -1,9 +1,5 @@
-import {
-  SearchIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  EditIcon,
-} from '@chakra-ui/icons';
+import { useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Heading,
@@ -12,16 +8,7 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  Select,
   Button,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Badge,
-  HStack,
   IconButton,
   Tooltip,
   Modal,
@@ -35,12 +22,23 @@ import {
   FormLabel,
   Textarea,
   useDisclosure,
-  useToast
+  VStack,
+  useToast,
 } from '@chakra-ui/react';
-import { useState, useCallback, useEffect } from 'react';
-
+import {
+  SearchIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  SettingsIcon,
+  LinkIcon,
+  EditIcon,
+  InfoOutlineIcon,
+  DownloadIcon,
+  ArrowForwardIcon,
+} from '@chakra-ui/icons';
 import {
   fetchCampaigns,
+  createCampaign,
   updateCampaign,
   isApiConfigured,
 } from '@/api/shortener';
@@ -48,12 +46,14 @@ import { mockCampaigns } from '@/mocks/shortener';
 import type { CampaignRow } from '@/types/shortener';
 import './CampaignsPage.scss';
 
-const ITEMS_PER_PAGE = 7;
+const ITEMS_PER_PAGE = 6;
+
+type PageState = 'has-data' | 'empty' | 'error';
 
 // ─── Edit Modal ───────────────────────────────────────────────────────────────
 
 interface EditModalProps {
-  campaign: CampaignRow;
+  campaign: CampaignRow | null; // null means 'create new'
   isOpen: boolean;
   onClose: () => void;
   onSave: (updated: CampaignRow) => void;
@@ -65,10 +65,21 @@ function EditCampaignModal({
   onClose,
   onSave,
 }: EditModalProps) {
+  const isEdit = !!campaign;
   const toast = useToast();
-  const [name, setName] = useState(campaign.name);
-  const [description, setDescription] = useState(campaign.description);
-  const [tags, setTags] = useState(campaign.tags.join(', '));
+
+  const [name, setName] = useState(campaign?.name || '');
+  const [description, setDescription] = useState(campaign?.description || '');
+
+  useEffect(() => {
+    if (campaign) {
+      setName(campaign.name);
+      setDescription(campaign.description || '');
+    } else {
+      setName('');
+      setDescription('');
+    }
+  }, [campaign, isOpen]);
 
   const handleSave = () => {
     if (!name.trim()) {
@@ -76,121 +87,117 @@ function EditCampaignModal({
         title: 'Название кампании обязательно',
         status: 'error',
         duration: 4000,
-        isClosable: true
+        isClosable: true,
       });
       return;
     }
-    onSave({
-      ...campaign,
+
+    const newCampaign: CampaignRow = campaign || {
+      id: Date.now().toString(),
       name: name.trim(),
       description: description.trim(),
-      tags: tags
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean),
+      tags: [],
+      createdAt: new Date().toISOString(),
+      linksCount: 0,
+      shortLinksCount: 0,
+      totalClicks: 0,
+    };
+
+    onSave({
+      ...newCampaign,
+      name: name.trim(),
+      description: description.trim(),
     });
     onClose();
-    toast({
-      title: 'Кампания успешно сохранена',
-      status: 'success',
-      duration: 4000,
-      isClosable: true
-    });
+    if (isEdit) {
+      toast({
+        title: 'Кампания успешно сохранена',
+        status: 'success',
+        duration: 4000,
+        isClosable: true,
+      });
+    } else {
+      toast({
+        title:
+          'Кампания успешно создана. Добавьте целевой URL и разметку — ссылки появятся в кампании',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
+    <Modal isOpen={isOpen} onClose={onClose} size="2xl" isCentered>
       <ModalOverlay className="campaigns-modal__overlay" />
       <ModalContent className="campaigns-modal__content">
-        <ModalHeader className="campaigns-modal__header">
-          Редактировать кампанию
+        <ModalHeader className="campaigns-modal__header" pb={2}>
+          {isEdit ? 'Редактировать кампанию' : 'Создать кампанию'}
         </ModalHeader>
         <ModalCloseButton className="campaigns-modal__close-btn" />
 
-        <ModalBody className="campaigns-modal__body">
-          <FormControl isRequired>
-            <FormLabel
-              fontSize="13px"
-              fontWeight={600}
-              color="#52525b"
-              mb="6px"
-            >
-              Название
-            </FormLabel>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Название кампании"
-              borderRadius="10px"
-              fontSize="14px"
-              borderColor="#e2e8f0"
-              _hover={{ borderColor: '#a6c2de' }}
-              _focus={{
-                borderColor: '#3b6ea0',
-                boxShadow: '0 0 0 1px #3b6ea0',
-              }}
-            />
-          </FormControl>
+        <ModalBody className="campaigns-modal__body" px={6} py={4}>
+          <VStack spacing={6} align="stretch">
+            <FormControl isRequired>
+              <FormLabel
+                className="campaigns-modal__form-label"
+                fontWeight="600"
+                mb={3}
+              >
+                Название кампании
+              </FormLabel>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Летняя распродажа"
+                className="campaigns-modal__input"
+                bg="#f8fafc"
+                border="1px solid #e2e8f0"
+                borderRadius="8px"
+                px={4}
+                py={3}
+                height="auto"
+              />
+            </FormControl>
 
-          <FormControl>
-            <FormLabel
-              fontSize="13px"
-              fontWeight={600}
-              color="#52525b"
-              mb="6px"
-            >
-              Описание
-            </FormLabel>
-            <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Краткое описание кампании"
-              borderRadius="10px"
-              fontSize="14px"
-              borderColor="#e2e8f0"
-              resize="vertical"
-              rows={3}
-              _hover={{ borderColor: '#a6c2de' }}
-              _focus={{
-                borderColor: '#3b6ea0',
-                boxShadow: '0 0 0 1px #3b6ea0',
-              }}
-            />
-          </FormControl>
-
-          <FormControl>
-            <FormLabel
-              fontSize="13px"
-              fontWeight={600}
-              color="#52525b"
-              mb="6px"
-            >
-              Теги{' '}
-              <Text as="span" fontWeight={400} color="#a1a1aa">
-                (через запятую)
+            <FormControl>
+              <FormLabel
+                className="campaigns-modal__form-label"
+                fontWeight="600"
+                mb={3}
+              >
+                Описание кампании
+              </FormLabel>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Три посадочные страницы: категория, хит и лендинг акции."
+                className="campaigns-modal__input"
+                resize="vertical"
+                rows={3}
+                bg="#f8fafc"
+                border="1px solid #e2e8f0"
+                borderRadius="8px"
+                px={4}
+                py={3}
+              />
+              <Text fontSize="13px" color="#52525b" mt={2}>
+                Показывается в карточке кампании, чтобы вы не забыли ее
+                назначение.
               </Text>
-            </FormLabel>
-            <Input
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="тег1, тег2, тег3"
-              borderRadius="10px"
-              fontSize="14px"
-              borderColor="#e2e8f0"
-              _hover={{ borderColor: '#a6c2de' }}
-              _focus={{
-                borderColor: '#3b6ea0',
-                boxShadow: '0 0 0 1px #3b6ea0',
-              }}
-            />
-          </FormControl>
+            </FormControl>
+          </VStack>
         </ModalBody>
 
-        <ModalFooter className="campaigns-modal__footer">
+        <ModalFooter
+          className="campaigns-modal__footer"
+          bg="transparent"
+          px={6}
+          py={5}
+        >
           <Button
-            variant="outline"
-            color="#52525b"
-            borderColor="#e2e8f0"
+            variant="ghost"
+            color="#12233f"
             borderRadius="10px"
             fontSize="14px"
             fontWeight={500}
@@ -208,8 +215,11 @@ function EditCampaignModal({
             _hover={{ bg: '#34608c' }}
             _active={{ bg: '#2d547b' }}
             onClick={handleSave}
+            rightIcon={<ArrowForwardIcon />}
+            pl="20px"
+            pr="16px"
           >
-            Сохранить
+            {isEdit ? 'Сохранить изменения' : 'Создать кампанию'}
           </Button>
         </ModalFooter>
       </ModalContent>
@@ -217,49 +227,313 @@ function EditCampaignModal({
   );
 }
 
+// ─── Debug State Switcher ──────────────────────────────────────────────────────
+
+interface DebugSwitcherProps {
+  currentState: PageState;
+  onChange: (state: PageState) => void;
+}
+
+function DebugStateSwitcher({ currentState, onChange }: DebugSwitcherProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const states: { key: PageState; label: string; dotClass: string }[] = [
+    {
+      key: 'has-data',
+      label: 'Есть кампании',
+      dotClass: 'campaigns-debug-panel__dot--has-data',
+    },
+    {
+      key: 'empty',
+      label: 'Нет кампаний',
+      dotClass: 'campaigns-debug-panel__dot--empty',
+    },
+    {
+      key: 'error',
+      label: 'Ошибка загрузки',
+      dotClass: 'campaigns-debug-panel__dot--error',
+    },
+  ];
+
+  return (
+    <Box className="campaigns-debug-panel">
+      {isMenuOpen && (
+        <Box className="campaigns-debug-panel__menu">
+          <Text className="campaigns-debug-panel__label">Состояние</Text>
+          {states.map((s) => (
+            <button
+              key={s.key}
+              type="button"
+              className={`campaigns-debug-panel__option ${
+                currentState === s.key
+                  ? 'campaigns-debug-panel__option--active'
+                  : ''
+              }`}
+              onClick={() => {
+                onChange(s.key);
+                setIsMenuOpen(false);
+              }}
+            >
+              <Box className={`campaigns-debug-panel__dot ${s.dotClass}`} />
+              {s.label}
+            </button>
+          ))}
+        </Box>
+      )}
+      <button
+        type="button"
+        className="campaigns-debug-panel__toggle"
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        title="Переключить состояние"
+      >
+        <SettingsIcon />
+      </button>
+    </Box>
+  );
+}
+
+// ─── Campaign Card ────────────────────────────────────────────────────────────
+
+interface CampaignCardProps {
+  campaign: CampaignRow;
+  onEdit: (campaign: CampaignRow, e: React.MouseEvent) => void;
+}
+
+function CampaignCard({ campaign, onEdit }: CampaignCardProps) {
+  const navigate = useNavigate();
+  const formattedDate = new Date(campaign.createdAt).toLocaleDateString(
+    'ru-RU',
+    {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    },
+  );
+
+  return (
+    <Tooltip
+      label={campaign.description}
+      bg="#1e293b"
+      color="white"
+      fontSize="12px"
+      borderRadius="8px"
+      p="10px 14px"
+      maxW="320px"
+      hasArrow
+      placement="top"
+      isDisabled={!campaign.description}
+    >
+      <Box
+        className="campaigns-page__card"
+        onClick={() => navigate(`/campaigns/${campaign.id}`)}
+      >
+        <Flex justify="space-between" align="flex-start" mb="4px">
+          <Text className="campaigns-page__card-name">{campaign.name}</Text>
+          <IconButton
+            aria-label="Edit campaign"
+            icon={<EditIcon />}
+            size="xs"
+            variant="ghost"
+            className="campaigns-page__card-edit-btn"
+            onClick={(e) => onEdit(campaign, e)}
+          />
+        </Flex>
+        <Text className="campaigns-page__card-date">
+          Создана: {formattedDate}
+        </Text>
+
+        <Flex className="campaigns-page__card-stats">
+          <Box className="campaigns-page__card-stat">
+            <Text className="campaigns-page__card-stat-label">Целевых URL</Text>
+            <Text className="campaigns-page__card-stat-value">
+              {campaign.linksCount}
+            </Text>
+          </Box>
+          <Box className="campaigns-page__card-stat">
+            <Text className="campaigns-page__card-stat-label">
+              Коротких ссылок
+            </Text>
+            <Text className="campaigns-page__card-stat-value">
+              {campaign.shortLinksCount ?? campaign.linksCount}
+            </Text>
+          </Box>
+          <Box className="campaigns-page__card-stat">
+            <Text className="campaigns-page__card-stat-label">Переходов</Text>
+            <Text className="campaigns-page__card-stat-value">
+              {campaign.totalClicks.toLocaleString('ru-RU')}
+            </Text>
+          </Box>
+        </Flex>
+      </Box>
+    </Tooltip>
+  );
+}
+
+// ─── Empty State ──────────────────────────────────────────────────────────────
+
+interface EmptyStateProps {
+  onCreate: () => void;
+}
+
+function EmptyState({ onCreate }: EmptyStateProps) {
+  const features = [
+    {
+      icon: <LinkIcon />,
+      title: 'Ссылки в кампаниях',
+      desc: 'Структурируйте аналитику по каналам: Telegram, VK, блогеры, полиграфия, маркетплейсы',
+    },
+    {
+      icon: <EditIcon />,
+      title: 'UTM-конструктор',
+      desc: 'Редактируйте ссылки, добавляйте UTM-метки и сохраняйте их в личном кабинете',
+    },
+    {
+      icon: <InfoOutlineIcon />,
+      title: 'Аналитика по кампании',
+      desc: 'Общие и уникальные переходы, динамика кликов по дням и по часам',
+    },
+    {
+      icon: <DownloadIcon />,
+      title: 'Выгрузка отчета в CSV и Excel',
+      desc: 'Таблица кликов за выбранный период',
+    },
+  ];
+
+  return (
+    <>
+      <Box className="campaigns-page__empty-card">
+        <Box className="campaigns-page__empty-icon">
+          <InfoOutlineIcon />
+        </Box>
+        <Text className="campaigns-page__empty-title">
+          Здесь появится список ваших кампаний
+        </Text>
+        <Text className="campaigns-page__empty-desc">
+          Кампания объединяет ссылки одной акции по внешним каналам: Telegram,
+          VK, блогеры, маркетплейсы, печатная полиграфия. Ссылки создаются с
+          UTM-метками, а статистика собирается в общий дашборд.
+        </Text>
+        <Button
+          bg="#3b6ea0"
+          color="white"
+          fontSize="14px"
+          fontWeight={600}
+          borderRadius="10px"
+          px="24px"
+          _hover={{ bg: '#34608c' }}
+          _active={{ bg: '#2d547b' }}
+          onClick={onCreate}
+        >
+          Создать первую кампанию
+        </Button>
+      </Box>
+
+      <Box className="campaigns-page__features-section">
+        <Heading className="campaigns-page__features-title">
+          Больше возможностей <span>для вашего маркетинга</span>
+        </Heading>
+        <Text className="campaigns-page__features-subtitle">
+          Объединяйте ссылки в рекламные кампании, привязывайте UTM-метки и
+          оценивайте эффективность каждого канала.
+        </Text>
+
+        <Box className="campaigns-page__features-grid">
+          {features.map((f) => (
+            <Box key={f.title} className="campaigns-page__feature-card">
+              <Box className="campaigns-page__feature-icon">{f.icon}</Box>
+              <Box>
+                <Text className="campaigns-page__feature-name">{f.title}</Text>
+                <Text className="campaigns-page__feature-desc">{f.desc}</Text>
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    </>
+  );
+}
+
+// ─── Error State ──────────────────────────────────────────────────────────────
+
+interface ErrorStateProps {
+  onRetry: () => void;
+}
+
+function ErrorState({ onRetry }: ErrorStateProps) {
+  return (
+    <Box className="campaigns-page__empty-card">
+      <Box className="campaigns-page__error-icon">
+        <InfoOutlineIcon />
+      </Box>
+      <Text className="campaigns-page__empty-title">
+        Не удалось загрузить список кампаний
+      </Text>
+      <Text className="campaigns-page__empty-desc">
+        Проверьте соединение и повторите. Ничего не потеряется.
+      </Text>
+      <Button
+        bg="#3b6ea0"
+        color="white"
+        fontSize="14px"
+        fontWeight={600}
+        borderRadius="10px"
+        px="24px"
+        _hover={{ bg: '#34608c' }}
+        _active={{ bg: '#2d547b' }}
+        onClick={onRetry}
+      >
+        Повторить
+      </Button>
+    </Box>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function CampaignsPage() {
+  const navigate = useNavigate();
+  const toast = useToast();
   const [campaigns, setCampaigns] = useState<CampaignRow[]>(mockCampaigns);
   const [searchText, setSearchText] = useState('');
-  const [filterTag, setFilterTag] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [editTarget, setEditTarget] = useState<CampaignRow | null>(null);
+  const [pageState, setPageState] = useState<PageState>('has-data');
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const toast = useToast();
 
+  // Загрузка кампаний из API (fallback — моки, если токен не задан)
   useEffect(() => {
     if (!isApiConfigured) return;
     let cancelled = false;
     fetchCampaigns()
       .then((data) => {
-        if (!cancelled) setCampaigns(data);
+        if (!cancelled) {
+          setCampaigns(data);
+          setPageState('has-data');
+        }
       })
-      .catch((err) =>
-        toast({
-          title: 'Не удалось загрузить кампании',
-          description: (err as Error).message,
-          status: 'error',
-          duration: 4000,
-          isClosable: true
-        }),
-      );
+      .catch((err) => {
+        if (!cancelled) {
+          setPageState('error');
+          toast({
+            title: `Не удалось загрузить кампании: ${(err as Error).message}`,
+            status: 'error',
+            duration: 4000,
+            isClosable: true,
+          });
+        }
+      });
     return () => {
       cancelled = true;
     };
   }, [toast]);
 
-  const allTags = Array.from(new Set(campaigns.flatMap((c) => c.tags))).sort();
-
   const filtered = campaigns.filter((c) => {
     const q = searchText.toLowerCase();
-    const matchesSearch =
+    return (
       !q ||
       c.name.toLowerCase().includes(q) ||
-      c.description.toLowerCase().includes(q) ||
-      c.tags.some((t) => t.toLowerCase().includes(q));
-    const matchesTag = !filterTag || c.tags.includes(filterTag);
-    return matchesSearch && matchesTag;
+      c.description.toLowerCase().includes(q)
+    );
   });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
@@ -269,19 +543,10 @@ export default function CampaignsPage() {
     safePage * ITEMS_PER_PAGE,
   );
 
-  const hasActiveFilters = !!searchText || !!filterTag;
-  const resetFilters = () => {
-    setSearchText('');
-    setFilterTag('');
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
     setCurrentPage(1);
   };
-
-  const handleFilterChange =
-    (setter: (v: string) => void) =>
-    (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-      setter(e.target.value);
-      setCurrentPage(1);
-    };
 
   const handleEdit = useCallback(
     (campaign: CampaignRow, e: React.MouseEvent) => {
@@ -292,26 +557,66 @@ export default function CampaignsPage() {
     [onOpen],
   );
 
-  const handleSave = (updated: CampaignRow) => {
-    setCampaigns((prev) =>
-      prev.map((c) => (c.id === updated.id ? updated : c)),
-    );
+  const handleSave = async (updated: CampaignRow) => {
+    const isNew = !editTarget;
 
     if (isApiConfigured) {
-      updateCampaign(updated.id, {
-        name: updated.name,
-        description: updated.description,
-        tags: updated.tags,
-      }).catch((err) =>
+      try {
+        if (isNew) {
+          const created = await createCampaign({
+            name: updated.name,
+            description: updated.description,
+          });
+          setCampaigns((prev) => [created, ...prev]);
+          navigate(`/campaigns/${created.id}`);
+        } else {
+          await updateCampaign(updated.id, {
+            name: updated.name,
+            description: updated.description,
+          });
+          setCampaigns((prev) =>
+            prev.map((c) => (c.id === updated.id ? updated : c)),
+          );
+        }
+      } catch (err) {
         toast({
-          title: 'Не удалось сохранить кампанию',
-          description: (err as Error).message,
+          title: `Не удалось сохранить кампанию: ${(err as Error).message}`,
           status: 'error',
           duration: 4000,
-          isClosable: true
-        }),
-      );
+          isClosable: true,
+        });
+      }
+      return;
     }
+
+    setCampaigns((prev) => {
+      const exists = prev.find((c) => c.id === updated.id);
+      if (exists) {
+        return prev.map((c) => (c.id === updated.id ? updated : c));
+      } else {
+        return [updated, ...prev];
+      }
+    });
+
+    if (isNew) {
+      navigate(`/campaigns/${updated.id}`);
+    }
+  };
+
+  const handleCreate = () => {
+    setEditTarget(null);
+    onOpen();
+  };
+
+  const handleRetry = () => {
+    setPageState('has-data');
+    if (!isApiConfigured) return;
+    fetchCampaigns()
+      .then((data) => {
+        setCampaigns(data);
+        setPageState('has-data');
+      })
+      .catch(() => setPageState('error'));
   };
 
   // Pagination
@@ -331,65 +636,44 @@ export default function CampaignsPage() {
     paginationPages.push(totalPages);
   }
 
-  return (
-    <Box className="campaigns-page">
-      <Box className="campaigns-page__container">
-        <Heading className="campaigns-page__title">Кампании</Heading>
-        <Heading className="campaigns-page__subtitle">Список кампаний</Heading>
+  // ─── Render content based on state ───────────────────────────────────────
+  const renderContent = () => {
+    if (pageState === 'error') {
+      return <ErrorState onRetry={handleRetry} />;
+    }
 
-        {/* Filters */}
-        <Flex gap="12px" mb="20px" align="center" flexWrap="wrap">
-          <InputGroup maxW="360px" size="md">
-            <InputLeftElement>
-              <SearchIcon color="#a1a1aa" />
-            </InputLeftElement>
-            <Input
-              value={searchText}
-              onChange={handleFilterChange(setSearchText)}
-              placeholder="Поиск по названию, описанию, тегу"
-              bg="white"
-              borderColor="#e2e8f0"
-              borderRadius="10px"
-              fontSize="14px"
-              _hover={{ borderColor: '#a6c2de' }}
-              _focus={{
-                borderColor: '#3b6ea0',
-                boxShadow: '0 0 0 1px #3b6ea0',
-              }}
-              _placeholder={{ color: '#a1a1aa' }}
-            />
-          </InputGroup>
+    if (pageState === 'empty') {
+      return <EmptyState onCreate={handleCreate} />;
+    }
 
-          <Select
-            maxW="170px"
-            bg="white"
-            borderColor="#e2e8f0"
-            borderRadius="10px"
-            fontSize="14px"
-            _hover={{ borderColor: '#a6c2de' }}
-            value={filterTag}
-            onChange={handleFilterChange(setFilterTag)}
-          >
-            <option value="">Все теги</option>
-            {allTags.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </Select>
-
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              color="#3b6ea0"
-              fontSize="14px"
-              fontWeight={500}
-              _hover={{ bg: '#f0f5fa' }}
-              onClick={resetFilters}
-            >
-              Сбросить фильтры
-            </Button>
-          )}
+    // has-data state
+    return (
+      <>
+        {/* Toolbar */}
+        <Flex className="campaigns-page__toolbar">
+          <Box className="campaigns-page__search-wrapper">
+            <InputGroup size="md">
+              <InputLeftElement pointerEvents="none" h="42px">
+                <SearchIcon color="#a1a1aa" />
+              </InputLeftElement>
+              <Input
+                value={searchText}
+                onChange={handleSearchChange}
+                placeholder="Поиск по названию"
+                bg="white"
+                borderColor="#e2e8f0"
+                borderRadius="10px"
+                h="42px"
+                fontSize="14px"
+                _hover={{ borderColor: '#a6c2de' }}
+                _focus={{
+                  borderColor: '#3b6ea0',
+                  boxShadow: '0 0 0 1px #3b6ea0',
+                }}
+                _placeholder={{ color: '#a1a1aa' }}
+              />
+            </InputGroup>
+          </Box>
 
           <Box flex={1} />
 
@@ -400,23 +684,24 @@ export default function CampaignsPage() {
             fontWeight={600}
             borderRadius="10px"
             px="20px"
+            h="42px"
             _hover={{ bg: '#34608c' }}
             _active={{ bg: '#2d547b' }}
-            rightIcon={<Text fontSize="18px">+</Text>}
+            rightIcon={<Text fontSize="18px" lineHeight="1">+</Text>}
+            onClick={handleCreate}
           >
             Создать кампанию
           </Button>
         </Flex>
 
-        {/* Table or empty state */}
-        {filtered.length === 0 ? (
-          <Box className="campaigns-page__empty-state">
-            <Text className="campaigns-page__empty-state-icon">🔍</Text>
-            <Text className="campaigns-page__empty-state-title">
+        {/* Cards Grid */}
+        {paged.length === 0 ? (
+          <Box className="campaigns-page__empty-card">
+            <Text className="campaigns-page__empty-title">
               Ничего не найдено
             </Text>
-            <Text className="campaigns-page__empty-state-desc">
-              Попробуйте изменить параметры поиска или сбросить фильтры.
+            <Text className="campaigns-page__empty-desc">
+              Попробуйте изменить параметры поиска.
             </Text>
             <Button
               variant="outline"
@@ -426,168 +711,29 @@ export default function CampaignsPage() {
               fontSize="14px"
               fontWeight={500}
               _hover={{ bg: '#f0f5fa' }}
-              onClick={resetFilters}
+              onClick={() => {
+                setSearchText('');
+                setCurrentPage(1);
+              }}
             >
-              Сбросить фильтры
+              Сбросить поиск
             </Button>
           </Box>
         ) : (
           <>
-            <Flex align="center" mb="12px">
-              <Text fontSize="13px" color="#52525b">
-                Найдено:{' '}
-                <Text as="span" fontWeight={600} color="#12233f">
-                  {filtered.length}
-                </Text>{' '}
-                кампаний
-              </Text>
-            </Flex>
-
-            <Box className="campaigns-page__table-card">
-              <Table variant="simple" size="md">
-                <Thead>
-                  <Tr>
-                    {[
-                      'Название',
-                      'Описание',
-                      'Теги',
-                      'Ссылок',
-                      'Переходы',
-                      'Создана',
-                      'Действия',
-                    ].map((label, i) => (
-                      <Th
-                        key={label}
-                        fontSize="12px"
-                        color="#52525b"
-                        fontWeight={600}
-                        textTransform="none"
-                        borderColor="#e2e8f0"
-                        isNumeric={i === 4}
-                      >
-                        {label}
-                      </Th>
-                    ))}
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {paged.map((campaign) => (
-                    <Tr key={campaign.id} _hover={{ bg: '#f8fafc' }}>
-                      {/* Название */}
-                      <Td
-                        fontSize="14px"
-                        color="#12233f"
-                        borderColor="#f0f0f5"
-                        maxW="160px"
-                      >
-                        <Tooltip
-                          label={campaign.description}
-                          bg="#1e293b"
-                          color="white"
-                          fontSize="12px"
-                          borderRadius="8px"
-                          p="10px 14px"
-                          hasArrow
-                          isDisabled={!campaign.description}
-                        >
-                          <Text noOfLines={1} fontWeight={500}>
-                            {campaign.name}
-                          </Text>
-                        </Tooltip>
-                      </Td>
-
-                      {/* Описание */}
-                      <Td
-                        fontSize="13px"
-                        color="#52525b"
-                        borderColor="#f0f0f5"
-                        maxW="220px"
-                      >
-                        <Text noOfLines={1}>{campaign.description || '—'}</Text>
-                      </Td>
-
-                      {/* Теги */}
-                      <Td borderColor="#f0f0f5" maxW="180px">
-                        {campaign.tags.length === 0 ? (
-                          <Text fontSize="13px" color="#a1a1aa">
-                            —
-                          </Text>
-                        ) : (
-                          <Flex gap="4px" flexWrap="wrap">
-                            {campaign.tags.slice(0, 3).map((tag) => (
-                              <Badge key={tag} className="campaigns-tag-badge">
-                                {tag}
-                              </Badge>
-                            ))}
-                            {campaign.tags.length > 3 && (
-                              <Badge className="campaigns-tag-badge campaigns-tag-badge--more">
-                                +{campaign.tags.length - 3}
-                              </Badge>
-                            )}
-                          </Flex>
-                        )}
-                      </Td>
-
-                      {/* Ссылок */}
-                      <Td fontSize="14px" color="#12233f" borderColor="#f0f0f5">
-                        {campaign.linksCount}
-                      </Td>
-
-                      {/* Переходы */}
-                      <Td
-                        fontSize="14px"
-                        color="#12233f"
-                        borderColor="#f0f0f5"
-                        isNumeric
-                      >
-                        {campaign.totalClicks.toLocaleString('ru-RU')}
-                      </Td>
-
-                      {/* Создана */}
-                      <Td fontSize="13px" color="#52525b" borderColor="#f0f0f5">
-                        {new Date(campaign.createdAt).toLocaleDateString(
-                          'ru-RU',
-                          {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                          },
-                        )}
-                      </Td>
-
-                      {/* Действия */}
-                      <Td borderColor="#f0f0f5">
-                        <HStack spacing="4px">
-                          <Tooltip
-                            label="Редактировать"
-                            bg="#1e293b"
-                            color="white"
-                            fontSize="12px"
-                            borderRadius="8px"
-                            hasArrow
-                            placement="top"
-                          >
-                            <IconButton
-                              aria-label="Edit campaign"
-                              icon={<EditIcon />}
-                              variant="ghost"
-                              size="sm"
-                              color="#a1a1aa"
-                              _hover={{ color: '#3b6ea0', bg: '#f0f5fa' }}
-                              onClick={(e) => handleEdit(campaign, e)}
-                            />
-                          </Tooltip>
-                        </HStack>
-                      </Td>
-                    </Tr>
-                  ))}
-                </Tbody>
-              </Table>
+            <Box className="campaigns-page__grid">
+              {paged.map((campaign) => (
+                <CampaignCard
+                  key={campaign.id}
+                  campaign={campaign}
+                  onEdit={handleEdit}
+                />
+              ))}
             </Box>
 
             {/* Pagination */}
-            {totalPages > 1 && (
-              <Flex justify="center" align="center" mt="20px" gap="6px">
+            {filtered.length > 0 && (
+              <Flex className="campaigns-page__pagination">
                 <IconButton
                   aria-label="Prev page"
                   icon={<ChevronLeftIcon />}
@@ -618,7 +764,9 @@ export default function CampaignsPage() {
                       fontSize="14px"
                       fontWeight={safePage === p ? 600 : 400}
                       minW="36px"
-                      _hover={{ bg: safePage === p ? '#34608c' : '#f0f5fa' }}
+                      _hover={{
+                        bg: safePage === p ? '#34608c' : '#f0f5fa',
+                      }}
                       onClick={() => setCurrentPage(p as number)}
                     >
                       {p}
@@ -640,11 +788,24 @@ export default function CampaignsPage() {
             )}
           </>
         )}
+      </>
+    );
+  };
+
+  return (
+    <Box className="campaigns-page">
+      <Box className="campaigns-page__container">
+        <Heading className="campaigns-page__subtitle">Список кампаний</Heading>
+        {renderContent()}
       </Box>
 
-      {/* Edit Modal */}
-      {editTarget && (
+      {/* Debug State Switcher */}
+      <DebugStateSwitcher currentState={pageState} onChange={setPageState} />
+
+      {/* Edit / Create Modal */}
+      {isOpen && (
         <EditCampaignModal
+          key={editTarget ? editTarget.id : 'new'}
           campaign={editTarget}
           isOpen={isOpen}
           onClose={onClose}
