@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 
+import { useAuth } from '@/auth/AuthContext';
 import AuthPrompt from '@/components/shortener/landing/AuthPrompt/AuthPrompt';
 import LandingHeader from '@/components/shortener/landing/LandingHeader/LandingHeader';
 import LinkShortener from '@/components/shortener/landing/LinkShortener/LinkShortener';
 import { MarketingBlock } from '@/components/shortener/landing/MarketingBlock/MarketingBlock';
 import ResultCard from '@/components/shortener/landing/ResultCard/ResultCard';
+import { ROUTES } from '@/routing/routes';
 import type { LinkData } from '@/types/shortener';
 import { getGuestShortcuts } from '@/utils/guestShortcuts';
 
 import './LinksLandingPage.scss';
 
 export default function LinksLandingPage() {
+  const { isAuthorized } = useAuth();
   const [shortenedLink, setShortenedLink] = useState<LinkData | null>(null);
   const [originalUrl, setOriginalUrl] = useState('');
   const [showResult, setShowResult] = useState(false);
@@ -21,6 +25,8 @@ export default function LinksLandingPage() {
 
   // При загрузке — восстанавливаем последнюю гостевую ссылку из хранилища
   useEffect(() => {
+    if (isAuthorized) return;
+
     const restore = async () => {
       const guests = getGuestShortcuts();
       if (guests.length === 0) return;
@@ -43,7 +49,16 @@ export default function LinksLandingPage() {
     };
 
     void restore();
-  }, []);
+  }, [isAuthorized]);
+
+  if (isAuthorized) {
+    return (
+      <Navigate
+        to={ROUTES.links}
+        replace
+      />
+    );
+  }
 
   const handleShortened = (data: LinkData): void => {
     setShortenedLink(data);

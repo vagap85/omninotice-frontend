@@ -10,9 +10,11 @@ import {
   VStack
 } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 
+import { useAuth } from '@/auth/AuthContext';
 import CustomButton from '@/components/atoms/Button/CustomButton';
-import { MAILING_CHANNELS } from '@/routing/routes';
+import { MAILING_CHANNELS, ROUTES } from '@/routing/routes';
 
 const submenuItems = MAILING_CHANNELS.map((channel) => {
   const Icon = channel.Icon;
@@ -31,6 +33,7 @@ const submenuItems = MAILING_CHANNELS.map((channel) => {
 });
 
 export default function Navigation() {
+  const { isAuthorized } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const desktopMenuContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -85,7 +88,8 @@ export default function Navigation() {
         Тарифы
       </Link>
       <Link
-        href="/links-landing"
+        as={RouterLink}
+        to={isAuthorized ? ROUTES.links : ROUTES.linksLanding}
         fontSize={{
           base: '12px',
           md: 'md'

@@ -115,4 +115,20 @@ describe('Header', () => {
       lastName: 'Сидоров'
     });
   });
+
+  test('для неавторизованного пользователя ссылка "Сократить ссылку" ведет на лендинг коротких ссылок', () => {
+    mockIsAuthorized = false;
+    renderWithProviders(<Header />);
+
+    const link = screen.getByRole('link', { name: /сократить ссылку/i });
+    expect(link).toHaveAttribute('href', '/links-landing');
+  });
+
+  test('для авторизованного пользователя ссылка "Сократить ссылку" ведет на дашборд со списком ссылок', () => {
+    mockIsAuthorized = true;
+    renderWithProviders(<Header />);
+
+    const link = screen.getByRole('link', { name: /сократить ссылку/i });
+    expect(link).toHaveAttribute('href', '/links');
+  });
 });
