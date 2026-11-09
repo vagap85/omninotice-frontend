@@ -141,7 +141,7 @@ function ResultCard({ link, originalUrl, onNewLink }: ResultCardProps) {
             {/* Предупреждение о временном хранении */}
             <p className="result-card__temporary-warning">
               Гостевая ссылка хранится временно — {ttl} часов.
-              Зарегистрируйтесь, чтобы сохранить её навсегда.
+              Зарегистрируйтесь, чтобы сохранить ее навсегда.
             </p>
           </div>
         </div>

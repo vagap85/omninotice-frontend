@@ -90,6 +90,7 @@ const toCampaignRow = (campaign: ApiCampaign): CampaignRow => ({
   name: campaign.name,
   description: campaign.description || '',
   linksCount: campaign.linksCount,
+  shortLinksCount: campaign.linksCount,
   totalClicks: campaign.totalClicks,
   createdAt: campaign.createdAt,
   modifiedAt: campaign.modifiedAt,
@@ -239,6 +240,11 @@ export const fetchCampaignStatistics = async (
 export const fetchCampaigns = async (): Promise<CampaignRow[]> => {
   const data = await request<ApiResponse<ApiCampaign>>('/campaigns/');
   return data.data.map(toCampaignRow);
+};
+
+export const fetchCampaign = async (id: string): Promise<CampaignRow> => {
+  const data = await request<ApiResponse<ApiCampaign>>(`/campaign/${id}`);
+  return toCampaignRow(data.data[0]);
 };
 
 export interface CreateCampaignInput {

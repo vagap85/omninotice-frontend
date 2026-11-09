@@ -77,6 +77,15 @@ describe('Header', () => {
     ).toBeTruthy();
   });
 
+  test('для авторизованного пользователя кнопка действия всегда имеет текст "Попробовать"', () => {
+    mockIsAuthorized = true;
+    renderWithProviders(<Header />);
+
+    const tryButton = screen.getByRole('link', { name: 'Попробовать' });
+    expect(tryButton).toBeInTheDocument();
+    expect(tryButton.textContent).toBe('Попробовать');
+  });
+
   test('показывает имя и фамилию из сохраненного профиля над логином', () => {
     mockIsAuthorized = true;
     mockAuthState = { login: 'test@example.com' };
@@ -114,5 +123,21 @@ describe('Header', () => {
       firstName: 'Сергей',
       lastName: 'Сидоров'
     });
+  });
+
+  test('для неавторизованного пользователя ссылка "Сократить ссылку" ведет на лендинг коротких ссылок', () => {
+    mockIsAuthorized = false;
+    renderWithProviders(<Header />);
+
+    const link = screen.getByRole('link', { name: /сократить ссылку/i });
+    expect(link).toHaveAttribute('href', '/links-landing');
+  });
+
+  test('для авторизованного пользователя ссылка "Сократить ссылку" ведет на дашборд со списком ссылок', () => {
+    mockIsAuthorized = true;
+    renderWithProviders(<Header />);
+
+    const link = screen.getByRole('link', { name: /сократить ссылку/i });
+    expect(link).toHaveAttribute('href', '/links');
   });
 });

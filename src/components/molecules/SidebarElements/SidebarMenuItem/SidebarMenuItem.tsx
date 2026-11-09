@@ -42,7 +42,7 @@ function SidebarMenuItemComponent({
     : [];
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || effectiveSubmenuType !== 'outside') return;
 
     const handlePointerDown = (event: PointerEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) {
@@ -52,7 +52,7 @@ function SidebarMenuItemComponent({
 
     document.addEventListener('pointerdown', handlePointerDown);
     return () => document.removeEventListener('pointerdown', handlePointerDown);
-  }, [isOpen, onToggle, text]);
+  }, [isOpen, onToggle, text, effectiveSubmenuType]);
 
   const handleClick = () => {
     onActionClick?.();
@@ -103,7 +103,13 @@ function SidebarMenuItemComponent({
         w={'full'}
         p={isCollapsed ? 0 : undefined}
         variant={btnVariant}
-        _hover={btnVariant === 'ghost' ? { bgColor: 'brand.60' } : undefined}
+        _hover={
+          btnVariant === 'ghost'
+            ? location.pathname === href
+              ? { bg: '#95B5D5' }
+              : { bg: 'brand.60' }
+            : undefined
+        }
         aria-label={isCollapsed ? text : undefined}
         fontSize={'sm'}
         bg={isCollapsed && location.pathname === href ? '#A6C2DE' : undefined}

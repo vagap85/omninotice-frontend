@@ -45,7 +45,12 @@ function SidebarSubmenuItemComponent({
         icon={icon}
         showIcon={showIcon}
         isDisabled={entry.disabled || (!href && !hasSubmenu)}
-        isActive={!hasSubmenu && Boolean(href) && location.pathname === href}
+        isActive={
+          !hasSubmenu &&
+          Boolean(href) &&
+          (location.pathname === href ||
+            (href !== '/' && location.pathname.startsWith(`${href}/`)))
+        }
         isExpanded={hasSubmenu ? isOpen : undefined}
         controls={hasSubmenu ? submenuId : undefined}
         onClick={hasSubmenu ? handleClick : undefined}

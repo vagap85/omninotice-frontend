@@ -44,6 +44,7 @@ export interface CampaignRow {
   name: string;
   description: string;
   linksCount: number;
+  shortLinksCount?: number;
   totalClicks: number;
   createdAt: string;
   modifiedAt?: string;

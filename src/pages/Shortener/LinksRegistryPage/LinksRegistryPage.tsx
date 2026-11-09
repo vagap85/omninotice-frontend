@@ -690,7 +690,7 @@ export default function LinksRegistryPage() {
           mb="24px"
           fontFamily="'Inter', sans-serif"
         >
-          Список сокращённых ссылок
+          Список сокращенных ссылок
         </Heading>
 
         <Flex

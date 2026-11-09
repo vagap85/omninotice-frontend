@@ -89,8 +89,8 @@ export const sidebarMenuItems: SidebarMenuItemProps[] = [
   {
     leftIcon: (
       <FiLink
-        strokeWidth={1}
         size={MENU_ICON_SIZE}
+        strokeWidth={1}
       />
     ),
     text: 'Короткие ссылки',
@@ -101,7 +101,7 @@ export const sidebarMenuItems: SidebarMenuItemProps[] = [
       />
     ),
     submenuItems: [
-      { label: 'Все ссылки', href: ROUTES.links },
+      { label: 'Короткие ссылки', href: ROUTES.links },
       { label: 'Кампании', href: ROUTES.campaigns }
     ],
     submenuType: 'inside'
