@@ -1,4 +1,4 @@
-import { Box, HStack, Text, VStack } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 
 import CustomButton from '@/components/atoms/Button/CustomButton';
@@ -38,14 +38,20 @@ export function SidebarSubmenuEntry({
       pl={showIcon && icon ? '18px' : '28px'}
       pr="18px"
       py={3}
-      borderRadius="10px"
+      borderRadius="8px"
       opacity={isButtonDisabled ? 0.6 : 1}
       cursor={isButtonDisabled ? 'default' : 'pointer'}
       isDisabled={isButtonDisabled}
       minW={minW}
       w="full"
       bg={isActive ? '#A6C2DE' : undefined}
-      _hover={isButtonDisabled ? undefined : { bg: 'brand.60' }}
+      _hover={
+        isButtonDisabled
+          ? undefined
+          : isActive
+            ? { bg: '#95B5D5' }
+            : { bg: 'brand.60' }
+      }
     >
       {showIcon && icon && (
         <Box
@@ -53,29 +59,23 @@ export function SidebarSubmenuEntry({
           alignItems={iconContainerSize ? 'center' : undefined}
           justifyContent={iconContainerSize ? 'center' : undefined}
           boxSize={iconContainerSize}
-          borderRadius={iconContainerSize ? '9px' : undefined}
+          borderRadius={iconContainerSize ? '8px' : undefined}
           flexShrink={0}
         >
           {icon}
         </Box>
       )}
-      <VStack
-        align="start"
-        spacing={0}
+      <Text
         flex={1}
         minW={0}
+        textAlign="left"
+        fontSize="16px"
+        fontWeight="500"
+        color="#12233F"
+        noOfLines={1}
       >
-        <HStack spacing={2}>
-          <Text
-            fontSize="16px"
-            fontWeight="500"
-            color="#12233F"
-            noOfLines={1}
-          >
-            {label}
-          </Text>
-        </HStack>
-      </VStack>
+        {label}
+      </Text>
       {children}
     </CustomButton>
   );

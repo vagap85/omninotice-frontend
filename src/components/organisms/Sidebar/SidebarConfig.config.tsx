@@ -89,8 +89,8 @@ export const sidebarMenuItems: SidebarMenuItemProps[] = [
   {
     leftIcon: (
       <FiLink
-        strokeWidth={1}
         size={MENU_ICON_SIZE}
+        strokeWidth={1}
       />
     ),
     text: 'Короткие ссылки',

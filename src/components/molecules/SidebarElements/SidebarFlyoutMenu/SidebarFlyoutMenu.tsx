@@ -123,7 +123,11 @@ export function SidebarFlyoutMenu({
                 icon={icon}
                 showIcon={showIcons}
                 isDisabled={disabled || !hasHref}
-                isActive={hasHref && location.pathname === href}
+                isActive={
+                  hasHref &&
+                  (location.pathname === href ||
+                    (href !== '/' && location.pathname.startsWith(`${href}/`)))
+                }
                 minW="220px"
                 iconContainerSize="22px"
               />
