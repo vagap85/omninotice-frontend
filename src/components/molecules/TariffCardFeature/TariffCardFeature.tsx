@@ -1,8 +1,7 @@
-import { CheckIcon } from "@chakra-ui/icons/Check";
-import { Box, HStack, Text } from "@chakra-ui/react";
+import { CheckIcon } from '@chakra-ui/icons/Check';
+import { Box, HStack, Text } from '@chakra-ui/react';
 
-import type { TariffCardFeatureProps } from "../types/types";
-
+import type { TariffCardFeatureProps } from '../types/types';
 
 export default function TariffCardFeature({
   text,
@@ -11,14 +10,17 @@ export default function TariffCardFeature({
 }: TariffCardFeatureProps) {
   const textColor = isDisabled
     ? isHighlighted
-      ? "rgba(255, 255, 255, 0.45)"
-      : "#9CA3AF"
+      ? 'rgba(255, 255, 255, 0.45)'
+      : '#9CA3AF'
     : isHighlighted
-      ? "white"
-      : "#12233F";
+      ? 'white'
+      : '#12233F';
 
   return (
-    <HStack align="start" spacing={3}>
+    <HStack
+      align="start"
+      spacing={3}
+    >
       {!isDisabled && (
         <Box
           mt="5px"
@@ -32,17 +34,17 @@ export default function TariffCardFeature({
           flexShrink={0}
           padding={1}
         >
-          <CheckIcon boxSize={3.5}/>
+          <CheckIcon boxSize={3.5} />
         </Box>
       )}
       <Text
         fontSize="xl"
         lineHeight="30px"
         color={textColor}
-        textDecor={isDisabled ? "line-through" : "unset"}
+        textDecor={isDisabled ? 'line-through' : 'unset'}
       >
         {text}
       </Text>
     </HStack>
-  )
+  );
 }

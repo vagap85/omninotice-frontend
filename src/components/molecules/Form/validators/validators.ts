@@ -1,37 +1,42 @@
-import { isValidEmail } from "@/utils/recipient";
+import { isValidEmail } from '@/utils/recipient';
 
-import { Validator } from "../../types/form";
+import { Validator } from '../../types/form';
 
 export const maxLength = (
   max: number,
-  message = "Превышено количество знаков. Уберите лишние, чтобы отправить.",
+  message = 'Превышено количество знаков. Уберите лишние, чтобы отправить.'
 ): Validator<string> => {
-  const validator: Validator<string> = (value) =>
-    typeof value === "string" && value.length > max ? message : undefined;
-  validator.immediate = true; // проверяется сразу при вводе, а не только после сабмита
+  const validator: Validator<string> = (value) => {
+    if (typeof value !== 'string') return undefined;
+    const meaningfulLength = value.replace(/\s/g, '').length;
+    return meaningfulLength > max ? message : undefined;
+  };
+  validator.immediate = true;
   return validator;
 };
 
 export const required =
-  (message = "Поле обязательно для заполнения"): Validator<string> =>
+  (message = 'Поле обязательно для заполнения'): Validator<string> =>
   (value) =>
     !value?.trim() ? message : undefined;
 
 export const minLength =
   (min: number, message?: string): Validator<string> =>
   (value) =>
-    typeof value === "string" && value.length < min
+    typeof value === 'string' && value.length < min
       ? (message ?? `Минимум ${min} символов`)
       : undefined;
 
 export const pattern =
-  (regexp: RegExp, message = "Неверный формат"): Validator<string> =>
+  (regexp: RegExp, message = 'Неверный формат'): Validator<string> =>
   (value) =>
-    typeof value === "string" && value !== "" && !regexp.test(value)
+    typeof value === 'string' && value !== '' && !regexp.test(value)
       ? message
       : undefined;
 
-export const httpUrl = (message = 'Введите корректную ссылку'): Validator<string> => {
+export const httpUrl = (
+  message = 'Введите корректную ссылку'
+): Validator<string> => {
   const validator: Validator<string> = (value) => {
     const v = value?.trim();
     if (!v) return undefined; // пустое поле — забота required(), не наша
@@ -41,7 +46,9 @@ export const httpUrl = (message = 'Введите корректную ссыл�
 
     try {
       const url = new URL(v);
-      return url.protocol === 'http:' || url.protocol === 'https:' ? undefined : message;
+      return url.protocol === 'http:' || url.protocol === 'https:'
+        ? undefined
+        : message;
     } catch {
       return message;
     }
@@ -51,7 +58,7 @@ export const httpUrl = (message = 'Введите корректную ссыл�
 };
 
 export const email =
-  (message = "Введите корректный email"): Validator<string> =>
+  (message = 'Введите корректный email'): Validator<string> =>
   (value) => {
     if (!value) return undefined; // пустое поле — забота required(), не наша
     return isValidEmail(value) ? undefined : message;
@@ -59,6 +66,6 @@ export const email =
 
 // ← новое, для подтверждения пароля
 export const matchesField =
-  (fieldName: string, message = "Пароли не совпадают"): Validator<string> =>
+  (fieldName: string, message = 'Пароли не совпадают'): Validator<string> =>
   (value, allValues) =>
     value !== allValues[fieldName] ? message : undefined;

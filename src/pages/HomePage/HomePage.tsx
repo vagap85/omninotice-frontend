@@ -1,15 +1,18 @@
-import { Box, Container } from "@chakra-ui/react";
+import { Box, Container } from '@chakra-ui/react';
 
-import PageHeaderBadge from "@/components/molecules/PageHeaderBadgeLanding/PageHeaderBadge";
-import Header from "@/components/organisms/Header/Header";
-import FeaturesSection from "@/components/organisms/Sections/FeaturesSection";
-import HeroSection from "@/components/organisms/Sections/HeroSection";
-import TariffsSection from "@/components/organisms/Sections/TariffsSection";
+import PageHeaderBadge from '@/components/molecules/PageHeaderBadgeLanding/PageHeaderBadge';
+import Header from '@/components/organisms/Header/Header';
+import FeaturesSection from '@/components/organisms/Sections/FeaturesSection';
+import HeroSection from '@/components/organisms/Sections/HeroSection';
+import TariffsSection from '@/components/organisms/Sections/TariffsSection';
 
-// TODO: Исправить ошибку показа цветового фона сзади Hero и других элементов
 export default function HomePage() {
   return (
-    <Box minH="100vh" bg="white" color="#12233F">
+    <Box
+      minH="100vh"
+      bg="white"
+      color="#12233F"
+    >
       <Container
         maxW="1760px"
         px={{ base: 4, md: 6, xl: 8 }}
@@ -20,6 +23,7 @@ export default function HomePage() {
         <Header />
       </Container>
       <Box
+        as="main"
         mt={{ base: 10, lg: 6 }}
         pb={{ base: 16, lg: 20 }}
         position="relative"
@@ -30,7 +34,7 @@ export default function HomePage() {
           inset={0}
           bg="linear-gradient(180deg, #FFFFFF 0%, #DFF6FF 75%, #DFF6FF 100%)"
           zIndex={0}
-          top={"-300px"}
+          top={'-300px'}
         />
         <Box
           position="absolute"

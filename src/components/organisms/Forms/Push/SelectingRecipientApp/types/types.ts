@@ -1,22 +1,18 @@
-import type { ComponentType } from "react";
-
-import { User } from "@/api/types";
-import type { IconProps } from "@/components/atoms/types/types";
+import type { User } from '@/api/types';
+import type { ProjectUser } from '@/api/vishenka';
+import type { ComponentType } from 'react';
+import type { IconProps } from '@/components/atoms/types/types';
 
 export interface SelectedApp {
+  project_id: string;
+  color: string;
   title: string;
-  icon: SelectedAppIcon;         // текущая выбранная иконка
-  standartIcon: SelectedAppIcon; // иконка по умолчанию для этого приложения
-  iconColor: string;
-  bgIconColor: string;
-  description: string;
-  count: number;
-  platform: string;
 }
 
 export interface SelectedAppIcon {
   id: string;
-  Icon: ComponentType<IconProps>;
+  path?: string;
+  Icon?: ComponentType<IconProps>;
   title: string;
   description: string;
 }
@@ -24,6 +20,12 @@ export interface SelectedAppIcon {
 export interface SelectingRecipientAppContextValue {
   selectedApp: SelectedApp | null;
   setSelectedApp: (app: SelectedApp | null) => void;
+  projectUsers: ProjectUser[];
+  projectUsersLoaded: number;
+  projectUsersTotal: number | null;
+  isLoadingProjectUsers: boolean;
+  projectUsersError: string | null;
+  selectedIcon: SelectedAppIcon;
   setSelectedIcon: (icon: SelectedAppIcon) => void;
   recipientsMode: RecipientsMode;
   setRecipientsMode: (mode: RecipientsMode) => void;
@@ -35,14 +37,9 @@ export interface SelectingRecipientAppContextValue {
 }
 
 export interface SelectingApp {
-  id: string;
-  name: string;
-  count: number;
-  isActive: boolean;
-  platform: string;
-  iconColor: string;
-  bgIconColor: string;
-  standartIcon: SelectedAppIcon;
+  project_id: string;
+  color: string;
+  title: string;
 }
 
 export interface AppSelectProps {
@@ -51,7 +48,7 @@ export interface AppSelectProps {
   onChange?: (app: SelectingApp) => void;
 }
 
-export type RecipientsMode = "all" | "individual";
+export type RecipientsMode = 'all' | 'individual';
 
 export interface UsersSelectProps {
   value?: RecipientsMode;
@@ -59,7 +56,6 @@ export interface UsersSelectProps {
 }
 
 export interface SearchInputProps {
-  platform: string;
   onSelectUser?: (user: User) => void;
   error: boolean;
 }

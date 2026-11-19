@@ -6,70 +6,32 @@ import {
   InputLeftElement,
   InputRightElement,
   Text,
-} from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
+  Spinner
+} from '@chakra-ui/react';
+import { useRef, useState, useMemo } from 'react';
 
-import { fetchGetUsers } from "@/api/fetches";
-import type { User } from "@/api/types";
-import CloseIcon from "@/components/atoms/Icons/CloseIcon";
-import SearchIcon from "@/components/atoms/Icons/SearchIcon";
+import type { User } from '@/api/types'; // Импортируем тип для избавления от any
+import type { ProjectUser } from '@/api/vishenka';
+import CloseIcon from '@/components/atoms/Icons/CloseIcon';
+import SearchIcon from '@/components/atoms/Icons/SearchIcon';
 
-import { useSelectedUsers } from "../hooks/useSelectedUsers";
-import type { SearchInputProps } from "../types/types";
-
+import { useSelectedUsers } from '../hooks/useSelectedUsers';
+import { useSelectingRecipientApp } from '../hooks/useSelectingRecipientApp';
+import type { SearchInputProps } from '../types/types';
 
 const MIN_QUERY_LENGTH = 3;
-const DEBOUNCE_DELAY = 300;
 
-export default function SearchInput({ platform, onSelectUser, error }: SearchInputProps) {
+export default function SearchInput({ onSelectUser, error }: SearchInputProps) {
   const { selectedUsers, addUser } = useSelectedUsers();
-
-  const [value, setValue] = useState<string>("");
-  const [usersInSearch, setUsersInSearch] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const {
+    projectUsers: allUsers,
+    isLoadingProjectUsers: isLoading,
+    projectUsersError
+  } = useSelectingRecipientApp();
+  const [value, setValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
-  const abortControllerRef = useRef<AbortController | null>(null);
 
   const queryTooShort = value.trim().length < MIN_QUERY_LENGTH;
-
-  useEffect(() => {
-    if (queryTooShort) {
-      abortControllerRef.current?.abort();
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      return;
-    }
-
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-
-    debounceRef.current = setTimeout(async () => {
-      abortControllerRef.current?.abort();
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
-
-      setIsLoading(true);
-      try {
-        const response = await fetchGetUsers(value, platform, {
-          signal: controller.signal,
-        });
-        setUsersInSearch(response?.users ?? []);
-        setHasSearched(true);
-      } catch (error) {
-        if ((error as Error).name !== "AbortError") {
-          console.error("Ошибка поиска пользователей:", error);
-          setUsersInSearch([]);
-          setHasSearched(true);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    }, DEBOUNCE_DELAY);
-
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [value, platform, queryTooShort]);
 
   const handleClear = () => {
     const input = inputRef.current;
@@ -77,12 +39,12 @@ export default function SearchInput({ platform, onSelectUser, error }: SearchInp
 
     const nativeSetter = Object.getOwnPropertyDescriptor(
       window.HTMLInputElement.prototype,
-      "value"
+      'value'
     )?.set;
-    nativeSetter?.call(input, "");
-    input.dispatchEvent(new Event("input", { bubbles: true }));
+    nativeSetter?.call(input, '');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
     input.focus();
-    setValue("");
+    setValue('');
   };
 
   const handleChange = () => {
@@ -91,69 +53,92 @@ export default function SearchInput({ platform, onSelectUser, error }: SearchInp
     setValue(input.value);
   };
 
-  const handleSelectUser = (user: User) => {
-    addUser(user);
-    onSelectUser?.(user); // сообщаем наружу, что пользователь выбран
+  const handleSelectUser = (user: ProjectUser) => {
+    // Используем unknown as User вместо any
+    const userAsUser = user as unknown as User;
+    addUser(userAsUser);
+    onSelectUser?.(userAsUser);
     handleClear();
   };
 
-  // не показываем в выпадающем списке тех, кто уже выбран
-  const visibleResults = queryTooShort
-    ? []
-    : usersInSearch.filter(
-        (user) => !selectedUsers.some((selected) => selected.id === user.id)
+  // Локальная фильтрация пользователей
+  const visibleResults = useMemo(() => {
+    if (queryTooShort) return [];
+
+    const query = value.toLowerCase().trim();
+
+    return allUsers.filter((user) => {
+      // Исключаем уже выбранных
+      if (selectedUsers.some((selected) => selected.id === user.id)) {
+        return false;
+      }
+      // Ищем по логину (full_name) или ID
+      return (
+        user.full_name.toLowerCase().includes(query) ||
+        user.id.toLowerCase().includes(query)
       );
+    });
+  }, [allUsers, value, queryTooShort, selectedUsers]);
 
   const showResults = !isLoading && !queryTooShort && visibleResults.length > 0;
 
-  let statusText = "Начните вводить фамилию или имя";
-
-  if (!queryTooShort && isLoading) {
-    statusText = "Ищем...";
-  } else if (!queryTooShort && hasSearched && visibleResults.length === 0) {
-    statusText = "Никого не нашли";
+  let statusText = 'Начните вводить логин или ID';
+  if (isLoading) {
+    statusText = 'Загрузка базы пользователей...';
+  } else if (projectUsersError) {
+    statusText = projectUsersError;
+  } else if (!queryTooShort && visibleResults.length === 0) {
+    statusText = 'Никого не нашли';
   }
 
   return (
-    <Flex direction={"column"} gap={1.5}>
+    <Flex
+      direction={'column'}
+      gap={1.5}
+    >
       <InputGroup
         color="#A1A1AA"
-        _focusWithin={{ color: "#3B6EA0" }}
+        _focusWithin={{ color: '#3B6EA0' }}
       >
         <InputLeftElement
-          color={error ? "red.500" : "inherit"}
-          pointerEvents="none" top={"50%"}
-          transform={"translateY(-50%)"}
-          _focusVisible={{ color: error ? "red.500" : "inherit" }}
-          _hover={{ color: error ? "red.500" : "inherit" }}
+          color={error ? 'red.500' : 'inherit'}
+          pointerEvents="none"
+          top={'50%'}
+          transform={'translateY(-50%)'}
+          _focusVisible={{ color: error ? 'red.500' : 'inherit' }}
+          _hover={{ color: error ? 'red.500' : 'inherit' }}
         >
-          <SearchIcon width={16} height={16} />
+          <SearchIcon
+            width={16}
+            height={16}
+          />
         </InputLeftElement>
 
         <Input
           ref={inputRef}
           id="search"
           type="search"
-          placeholder="Введите фамилию или имя"
-          aria-label="Поиск по фамилии или имени"
+          placeholder="Введите логин или ID"
+          aria-label="Поиск по логину или ID"
           border="none"
           pr={8}
-          outlineColor={error ? "red.500" : "none"}
-          _focus={{ border: "none" }}
-          _focusVisible={{ outlineColor: error ? "red.500" : "#3182ce" }}
-          _hover={{ outlineColor: error ? "red.500" : "#3182ce" }}
+          outlineColor={error ? 'red.500' : 'none'}
+          _focus={{ border: 'none' }}
+          _focusVisible={{ outlineColor: error ? 'red.500' : '#3182ce' }}
+          _hover={{ outlineColor: error ? 'red.500' : '#3182ce' }}
           sx={{
-            "&::-webkit-search-cancel-button": {
-              WebkitAppearance: "none",
-              appearance: "none",
-              margin: 0,
-            },
+            '&::-webkit-search-cancel-button': {
+              WebkitAppearance: 'none',
+              appearance: 'none',
+              margin: 0
+            }
           }}
-          borderRadius={"10px"}
-          h={"44px"}
-          color={"#12233F"}
+          borderRadius={'10px'}
+          h={'44px'}
+          color={'#12233F'}
           value={value}
           onChange={handleChange}
+          disabled={isLoading} // Блокируем ввод, пока грузится база
         />
 
         <InputRightElement
@@ -161,27 +146,33 @@ export default function SearchInput({ platform, onSelectUser, error }: SearchInp
           pointerEvents="none"
           transition="opacity 0.15s ease"
           sx={{
-            "input:not(:placeholder-shown) ~ &": {
+            'input:not(:placeholder-shown) ~ &': {
               opacity: 1,
-              pointerEvents: "auto",
-            },
+              pointerEvents: 'auto'
+            }
           }}
           maxW={6}
           maxH={6}
         >
           <IconButton
             aria-label="Очистить поле"
-            icon={<CloseIcon width={9} height={9} color="#12233F" />}
+            icon={
+              <CloseIcon
+                width={9}
+                height={9}
+                color="#12233F"
+              />
+            }
             size="xs"
             variant="ghost"
             color="inherit"
             onClick={handleClear}
-            maxH={"24px"}
-            maxW={"24px"}
-            top={"10px"}
-            right={"18px"}
-            minH={"unset"}
-            borderRadius={"4px"}
+            maxH={'24px'}
+            maxW={'24px'}
+            top={'10px'}
+            right={'18px'}
+            minH={'unset'}
+            borderRadius={'4px'}
           />
         </InputRightElement>
       </InputGroup>
@@ -191,29 +182,57 @@ export default function SearchInput({ platform, onSelectUser, error }: SearchInp
           direction="column"
           gap={1}
           padding={1}
-          bg={"white"}
-          outline={"1px solid #E2EBF3"}
+          bg={'white'}
+          outline={'1px solid #E2EBF3'}
           borderRadius={8}
           boxShadow="0 4px 12px rgba(0,0,0,0.08)"
           overflowY="auto"
+          maxH="200px"
         >
           {visibleResults.map((user) => (
             <Flex
               key={user.id}
               p={2}
               borderRadius={10}
-              _hover={{ bg: "#F8FAFC", cursor: "pointer" }}
+              _hover={{ bg: '#F8FAFC', cursor: 'pointer' }}
               onClick={() => handleSelectUser(user)}
+              direction="column"
             >
-              <Text fontSize="md" fontWeight={"medium"} lineHeight={"24px"} color="#12233F">
+              <Text
+                fontSize="md"
+                fontWeight={'medium'}
+                lineHeight={'24px'}
+                color="#12233F"
+              >
                 {user.full_name}
+              </Text>
+              <Text
+                fontSize="xs"
+                color="#94A3B8"
+              >
+                ID: {user.id}
               </Text>
             </Flex>
           ))}
         </Flex>
       )}
+
       {!showResults && (
-        <Text fontSize="xs" lineHeight="16px" color="#52525B" minH="16px">
+        <Text
+          fontSize="xs"
+          lineHeight="16px"
+          color={projectUsersError ? '#EF4444' : '#52525B'}
+          minH="16px"
+          display="flex"
+          alignItems="center"
+          gap={1}
+        >
+          {isLoading && (
+            <Spinner
+              size="xs"
+              color="#346895"
+            />
+          )}
           {statusText}
         </Text>
       )}

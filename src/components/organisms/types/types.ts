@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 
-import { User } from "@/api/types";
-import type { TariffFeatureData } from "@/components/molecules/types/types";
+import { User } from '@/api/types';
+import type { TariffFeatureData } from '@/components/molecules/types/types';
 
-import type { SelectedAppIcon } from "../Forms/Push/SelectingRecipientApp/types/types";
+import type { SelectedAppIcon } from '../Forms/Push/SelectingRecipientApp/types/types';
 
 export interface TariffCardProps {
   title: string;
@@ -40,7 +40,7 @@ export interface LogoutModalProps {
   isOpen: boolean;
 }
 
-export type SendStatus = "confirm" | "loading" | "error";
+export type SendStatus = 'confirm' | 'loading' | 'error';
 
 export interface ModalSendProps {
   isOpen: boolean;
@@ -59,18 +59,24 @@ interface TextVariant {
   body: string;
 }
 
+type TextVariantField = keyof TextVariant;
+
 export interface ImproveTextModalProps {
   isOpen: boolean;
   onClose: () => void;
-  originalVariant: TextVariant;
-  improvedVariant: TextVariant;
+  firstVariant: TextVariant;
+  secondVariant: TextVariant;
   onApply: (variant: TextVariant) => void;
+  heading?: string;
+  fields?: Array<{ key: TextVariantField; label: string }>;
 }
 
 export interface SelectIconModalProps {
   isOpen: boolean;
   onClose: () => void;
   icons: SelectedAppIcon[];
+  draftIcon: SelectedAppIcon | null;
+  onDraftIconChange: (icon: SelectedAppIcon) => void;
 }
 
 type ValidationError = { title: string; description: string };
@@ -82,23 +88,23 @@ export interface RecipientsPanelProps {
   // Проверяет форму письма (formId="email") и возвращает ошибку, если что-то не так
   onValidateEmailForm: () => ValidationError | null;
   // Отправка: получает готовые данные письма и список валидных email
-  onSend: (validEmails: string[]) => Promise<void>;
+  onSend: (validEmails: string[], signal: AbortSignal) => Promise<void>;
 }
 
-export type SendVariant = "email" | "push";
+export type SendVariant = 'email' | 'push' | 'telegram';
 
 export interface SendControllerProps<TPayload> {
   variant: SendVariant;
   isOpen: boolean;
   onClose: () => void;
-  recipientsCount: number;
+  recipientsCount?: number;
   getPayload: () => TPayload;
-  onSend: (payload: TPayload) => Promise<void>;
+  onSend: (payload: TPayload, signal: AbortSignal) => Promise<void>;
 }
 
 export type SendMessages = {
-  confirmMessage: (count: number) => string;
-  successMessage: (count: number) => { title: string; description: string };
+  confirmMessage: (count?: number) => string;
+  successMessage: (count?: number) => { title: string; description: string };
 };
 
 export interface PushPayload {
@@ -107,6 +113,7 @@ export interface PushPayload {
   buttonText: string;
   buttonLink: string;
   app: unknown;
+  selectedIcon: SelectedAppIcon;
   recipientsMode: string;
   selectedUsers: User[] | undefined;
 }
@@ -116,4 +123,9 @@ export interface PushNotificationFormValues {
   text: string;
   buttonText: string;
   buttonLink: string;
+}
+
+export interface TelegramNotificationCardProps {
+  message?: string;
+  buttonText?: string;
 }

@@ -19,12 +19,14 @@ describe('FormContext', () => {
     });
 
     test('useFormsRegistry бросает ошибку вне провайдера', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
       expect(() => renderHook(() => useFormsRegistry())).toThrow(
         /FormsRegistryProvider/i
       );
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -45,20 +47,24 @@ describe('FormContext', () => {
       const wrapper = ({ children }: { children: ReactNode }) => (
         <FormsRegistryProvider>{children}</FormsRegistryProvider>
       );
-      const { result } = renderHook(() => useFormStore('explicit'), { wrapper });
+      const { result } = renderHook(() => useFormStore('explicit'), {
+        wrapper
+      });
       expect(result.current).toBeDefined();
     });
 
     test('бросает ошибку без formId', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
       const wrapper = ({ children }: { children: ReactNode }) => (
         <FormsRegistryProvider>{children}</FormsRegistryProvider>
       );
       expect(() => renderHook(() => useFormStore(), { wrapper })).toThrow(
         /formId/i
       );
-      
+
       consoleSpy.mockRestore();
     });
   });

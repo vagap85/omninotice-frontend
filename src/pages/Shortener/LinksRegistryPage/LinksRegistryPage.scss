@@ -1,0 +1,12 @@
+.links-registry {
+  &__sort-icon {
+    width: 14px;
+    height: 14px;
+    opacity: 0.4;
+    transition: opacity 0.15s;
+
+    &--active {
+      opacity: 1;
+    }
+  }
+}

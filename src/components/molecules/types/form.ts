@@ -1,6 +1,10 @@
-import { ButtonProps } from "@chakra-ui/react";
+import { ButtonProps, FormLabelProps } from '@chakra-ui/react';
+import type { ReactNode } from 'react';
 
-import { CustomInputProps, CustomTextareaProps } from "@/components/atoms/types/types";
+import {
+  CustomInputProps,
+  CustomTextareaProps
+} from '@/components/atoms/types/types';
 
 export type Validator<T = unknown> = {
   (value: T, allValues: Record<string, unknown>): string | undefined;
@@ -37,7 +41,10 @@ export interface FormStore {
   reset: (values?: Record<string, unknown>) => void;
 }
 
-export interface FormSubmitButtonProps extends Omit<ButtonProps, 'onClick' | 'onSubmit'> {
+export interface FormSubmitButtonProps extends Omit<
+  ButtonProps,
+  'onClick' | 'onSubmit'
+> {
   formIds: string[];
   onSubmit: (values: Record<string, unknown>) => void | Promise<void>;
   onUnauthorized?: () => void;
@@ -45,22 +52,41 @@ export interface FormSubmitButtonProps extends Omit<ButtonProps, 'onClick' | 'on
   beforeSubmitValidate?: () => boolean;
 }
 
-export interface FormTextAreaFieldProps extends Omit<CustomTextareaProps, 'value' | 'onChange' | 'onBlur'> {
-  name: string;
-  label?: string;
-  initialValue?: string;
-  validators?: Validator<string>[];
-  subTitlte?: string;
-  validateOnChange?: boolean;
-  maxLengthMessage?: string;
+export interface FormTextAreaFieldControlProps<T> {
+  value: T;
+  error?: string;
+  onChange: (value: T) => void;
+  onBlur: () => void;
+  labelId?: string;
+  controlProps: Omit<CustomTextareaProps, 'value' | 'onChange' | 'onBlur'>;
 }
 
-export interface FormTextFieldProps extends Omit<CustomInputProps, 'value' | 'onChange' | 'onBlur'> {
+export interface FormTextAreaFieldProps<T = string> extends Omit<
+  CustomTextareaProps,
+  'value' | 'onChange' | 'onBlur'
+> {
   name: string;
   label?: string;
+  initialValue?: T;
+  validators?: Validator<T>[];
+  subTitlte?: string;
+  softMaxLength?: boolean;
+  validateOnChange?: boolean;
+  maxLengthMessage?: string;
+  renderControl?: (props: FormTextAreaFieldControlProps<T>) => ReactNode;
+}
+
+export interface FormTextFieldProps extends Omit<
+  CustomInputProps,
+  'value' | 'onChange' | 'onBlur'
+> {
+  name: string;
+  label?: ReactNode;
+  labelFontSize?: FormLabelProps['fontSize'];
   initialValue?: string;
   validators?: Validator<string>[];
   subTitlte?: string;
+  softMaxLength?: boolean;
   validateOnChange?: boolean;
   maxLengthMessage?: string;
 }
@@ -70,11 +96,6 @@ export interface FormsRegistry {
   getStore: (formId: string) => FormStore | undefined;
 }
 
-export interface FormPasswordFieldProps {
-  name: string;
-  label?: string;
-  placeholder?: string;
-  initialValue?: string;
-  validators?: Validator<string>[];
+export type FormPasswordFieldProps = Omit<FormTextFieldProps, 'type'> & {
   onEnter?: () => void;
-}
+};

@@ -6,8 +6,19 @@ import { httpUrl } from '@/components/molecules/Form/validators/validators';
 
 function ActionFields() {
   return (
-    <Box as='fieldset' bg="white" borderRadius="10px" p={6}>
-      <Heading fontSize="26px" lineHeight="32px" fontWeight="600" color="#12233F" mb={4}>
+    <Box
+      as="fieldset"
+      bg="white"
+      borderRadius="10px"
+      p={6}
+    >
+      <Heading
+        fontSize="26px"
+        lineHeight="32px"
+        fontWeight="600"
+        color="#12233F"
+        mb={4}
+      >
         Действие
       </Heading>
 
@@ -16,7 +27,6 @@ function ActionFields() {
         label="Текст кнопки"
         placeholder="Например, перейти на сайт"
         maxLength={18}
-        subTitlte="Кнопка в конце письма с призывом к действию"
       />
 
       <Box mt={4}>
@@ -24,7 +34,12 @@ function ActionFields() {
           name="buttonLink"
           label="Ссылка для кнопки"
           placeholder="Вставьте ссылку"
-          validators={[httpUrl("Проверьте ссылку и укажите валидный URL в формате http(s)://...")]}
+          validators={[
+            httpUrl(
+              'Проверьте ссылку и укажите валидный URL в формате http(s)://...'
+            )
+          ]}
+          subTitlte="При нажатии перенаправляет пользователя на конкретный экран внутри приложения"
         />
       </Box>
     </Box>

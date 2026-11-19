@@ -1,8 +1,8 @@
-import { useState, useCallback, type ReactNode } from "react";
+import { useState, useCallback, type ReactNode } from 'react';
 
-import { User } from "@/api/types";
+import { User } from '@/api/types';
 
-import { SelectedUsersContext } from "../Contexts/SelectedUsersContext";
+import { SelectedUsersContext } from '../Contexts/SelectedUsersContext';
 
 export function SelectedUsersProvider({ children }: { children: ReactNode }) {
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);

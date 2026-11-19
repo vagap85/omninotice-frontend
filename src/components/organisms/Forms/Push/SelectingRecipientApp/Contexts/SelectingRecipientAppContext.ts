@@ -1,5 +1,33 @@
-import { createContext } from "react";
+import { createContext } from 'react';
+import type { ConnectedApp, ProjectUser } from '@/api/vishenka';
+import type { SelectedApp, SelectedAppIcon } from '../types/types';
 
-import { SelectingRecipientAppContextValue } from "../types/types";
+export type RecipientsMode = 'all' | 'individual';
 
-export const SelectingRecipientAppContext = createContext<SelectingRecipientAppContextValue | null>(null);
+export interface SelectingRecipientAppContextValue {
+  /** UI-готовая форма выбранного приложения (все поля заполнены). */
+  selectedApp: SelectedApp | null;
+  setSelectedApp: (app: SelectedApp | null) => void;
+  projectUsers: ProjectUser[];
+  projectUsersLoaded: number;
+  projectUsersTotal: number | null;
+  isLoadingProjectUsers: boolean;
+  projectUsersError: string | null;
+  selectedIcon: SelectedAppIcon;
+  setSelectedIcon: (icon: SelectedAppIcon) => void;
+
+  recipientsMode: RecipientsMode;
+  setRecipientsMode: (mode: RecipientsMode) => void;
+
+  appError: string | null;
+  setAppError: (err: string | null) => void;
+  recipientsError: string | null;
+  setRecipientsError: (err: string | null) => void;
+
+  connectedApps: ConnectedApp[];
+
+  availableApps: ConnectedApp[];
+}
+
+export const SelectingRecipientAppContext =
+  createContext<SelectingRecipientAppContextValue | null>(null);
