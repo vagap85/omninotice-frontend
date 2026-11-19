@@ -1,63 +1,115 @@
-<<<<<<< README.md
+# OmniNotice — Sigma Notification Widget
 
-# OmniNotice
+Frontend для системы корпоративных уведомлений OmniNotice.
+React + TypeScript + Vite + Chakra UI. Atomic Design. **192 теста (Vitest)** на актуальной ветке `dev`.
 
-Платформа рассылок на все каналы. Первый сценарий: страница создания уведомления
-и отправка через Synora.
+## 📖 О проекте
+OmniNotice — система отправки уведомлений через каналы:
+*   **Email** — через Synora
+*   **In-App** (лента + всплывающая плашка) — через Vishenka-services
 
-## Стек
+### Мой вклад:
+*   ✅ Настроил тестовое окружение с нуля (Vitest + Testing Library)
+*   ✅ Написал 192 теста (Unit + Integration + Snapshot), все проходят
+*   ✅ Интегрировал 2 API (Synora, Vishenka-services)
+*   ✅ Настроил ESLint + правила
+*   ✅ Покрытие ключевых модулей: 82-100%
 
-- React 18 + TypeScript
-- Vite
-- Chakra UI
+## 🛠 Стек технологий
+| Слой | Технологии |
+|---|---|
+| Frontend | React 18, TypeScript, Vite |
+| UI | Chakra UI, Framer Motion |
+| Routing | react-router-dom v6 |
+| State | React Context + custom formStore |
+| Тесты | Vitest, Testing Library, jsdom |
+| Линтер | ESLint, Biome |
+| CI/CD | GitLab CI, GitHub Actions |
 
-## Запуск
+## 🚀 Запуск
 
+### 1. Клонировать
 ```bash
+git clone https://github.com/vagap85/omninotice-frontend.git
+cd omninotice-frontend
+2. Установить зависимости
+bash
 npm install
+3. Скопировать env
+bash
+cp .env.example .env
+(Заполнить переменные для локального стенда).
+
+4. Запустить
+bash
 npm run dev
-```
+Откройте: http://localhost:5173
 
-Откройте http://localhost:5173
+🧪 Тесты
+Watch-режим
+bash
+npm run test
+Один прогон
+bash
+npm run test:run
+С покрытием
+bash
+npm run test:coverage
+UI-режим
+bash
+npm run test:ui
+Результат: ✅ 192 теста в 32 файлах (все проходят на актуальном dev).
 
-## Переменные окружения
+Покрытие
+Слой	Тестов
+Unit (атомы, validators, formStore)	~62
+Integration (API, страницы)	~120
+Snapshot (атомы)	~5
+Routing (ProtectedRoute)	~5
+📐 Архитектура (Atomic Design)
+text
+src/
+├── api/           # API-клиенты (userCenter, synora, vishenka)
+├── auth/          # AuthContext
+├── components/
+│   ├── atoms/     # Button, Input, Icons
+│   ├── molecules/ # Form, PageHeader
+│   └── organisms/ # Header, Forms, Sections
+├── pages/         # Auth, HomePage, Notifications
+├── routing/       # ProtectedRoute
+├── test/          # setup, utils, mocks
+├── __tests__/     # все тесты
+└── utils/         # утилиты
+🔌 API-интеграции
+Synora (Email)
+POST {VITE_SYNORA_BASE_URL}/event/send/{topic}
 
-Скопируйте `.env.example` в `.env` и при необходимости измените:
+json
+{ "send_to": "user@mail.com", "data": { "subject": "...", "body": "..." } }
+Vishenka-services (In-App)
+POST {VITE_VISHENKA_BASE_URL}/api/v1/dispatches
 
-- `VITE_SYNORA_BASE_URL` — базовый URL API Synora (например,
-  `https://api.synora.skroy.ru`)
-- `VITE_SYNORA_EVENT_TOPIC` — топик события для отправки (должен быть настроен в
-  реестре Synora)
-
-## Отправка через Synora
-
-При нажатии «Отправить» фронтенд вызывает:
-
-```
-POST {VITE_SYNORA_BASE_URL}/event/send/{VITE_SYNORA_EVENT_TOPIC}
-Content-Type: application/json
-
+json
 {
-  "send_to": "email@example.com",
-  "data": {
-    "subject": "заголовок",
-    "body": "текст",
-    "textColor": "#10f48a",
-    "fontSize": "16px"
-  }
+  "request_id": "UUID",
+  "application_id": "sigma",
+  "channel": "feed",
+  "title": "...",
+  "body": "...",
+  "audience_type": "all",
+  "recipient_ids": ["UUID"]
 }
-```
+📦 Переменные окружения
+env
+VITE_SYNORA_BASE_URL=https://api.synora.example.ru
+VITE_SYNORA_PROJECT_ID=example
+VITE_USERCENTER_BASE_URL=https://api.users.example.ru
+VITE_USERCENTER_PROJECT_ID=example
+VITE_VISHENKA_BASE_URL=https://vishenka.example.ru
+📝 Лицензия
+MIT
 
-В Synora должны быть настроены:
+👤 Автор
+Evgeny Agapov
 
-1. Конфигурация события с `topic` = `VITE_SYNORA_EVENT_TOPIC` и действиями
-   (например, `prepare_mail` → `mail_send`).
-2. Шаблон сообщения (если используется `template_name` в конфигурации).
-3. Конфигурация отправителя email (`event.sender.email`).
-
-## Сборка
-
-```bash
-npm run build
-npm run preview
-```
+GitHub: @vagap85
